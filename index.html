@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a6b3c">
+<meta name="description" content="JIBLI DZ — Envoyez vos colis entre la France et l'Algérie avec des voyageurs de confiance.">
+<title>JIBLI DZ</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #0f5c32;
+    --green-mid:  #1a6b3c;
+    --green-bright: #22c55e;
+    --gold: #f5a623;
+    --gold-light: #fde68a;
+    --cream: #fdfaf4;
+    --ink: #111827;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --card: #ffffff;
+    --red: #ef4444;
+    --wa-green: #25D366;
+    --radius: 12px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 100%);
+    padding: 20px 20px 28px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: var(--gold);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .logo-text { font-family: 'Cairo', sans-serif; color: white; }
+  .logo-text strong { display: block; font-size: 20px; font-weight: 900; line-height: 1; letter-spacing: .5px; }
+  .logo-text span { font-size: 11px; opacity: .75; letter-spacing: .5px; }
+  .flag-pill {
+    color: white; font-size: 16px; letter-spacing: 2px;
+    background: rgba(255,255,255,0.12); padding: 6px 10px; border-radius: 20px;
+  }
+
+  .search-bar {
+    margin-top: 16px;
+    display: flex; gap: 8px;
+  }
+  .search-bar input {
+    flex: 1; padding: 10px 14px;
+    border-radius: 8px; border: none;
+    background: rgba(255,255,255,0.15);
+    color: white; font-size: 14px;
+    outline: none;
+  }
+  .search-bar input::placeholder { color: rgba(255,255,255,0.6); }
+  .search-bar button {
+    padding: 10px 14px;
+    background: var(--gold);
+    border: none; border-radius: 8px;
+    cursor: pointer; font-size: 16px;
+  }
+
+  /* ─── NAV TABS ─── */
+  .nav-tabs {
+    display: flex;
+    background: white;
+    border-bottom: 2px solid var(--border);
+    position: sticky; top: 110px; z-index: 90;
+  }
+  .tab-btn {
+    flex: 1; padding: 14px 8px;
+    border: none; background: none;
+    font-size: 13px; font-weight: 500;
+    color: var(--muted); cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all .2s;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .tab-btn .tab-icon { font-size: 18px; }
+  .tab-btn.active {
+    color: var(--green-mid);
+    border-bottom-color: var(--green-mid);
+    font-weight: 600;
+  }
+
+  /* ─── SCREENS ─── */
+  .screen { display: none; padding: 16px; padding-bottom: 80px; }
+  .screen.active { display: block; }
+
+  /* ─── CARDS ─── */
+  .section-title {
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px; font-weight: 700;
+    margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .badge {
+    background: var(--green-bright);
+    color: white; font-size: 11px;
+    padding: 2px 8px; border-radius: 20px;
+    font-family: 'Inter', sans-serif; font-weight: 600;
+  }
+
+  .trip-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--green-bright);
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  .trip-card:active { transform: scale(.98); }
+  .trip-route {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 17px; font-weight: 700;
+  }
+  .trip-arrow { color: var(--green-bright); font-size: 20px; }
+  .trip-meta {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin-top: 10px; font-size: 12px; color: var(--muted);
+  }
+  .trip-meta span { display: flex; align-items: center; gap: 4px; }
+  .trip-actions { margin-top: 12px; display: flex; gap: 8px; }
+
+  .parcel-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--gold);
+  }
+  .parcel-route {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px; font-weight: 700;
+  }
+  .parcel-desc {
+    margin-top: 8px; font-size: 13px; color: var(--muted);
+    line-height: 1.5;
+  }
+  .budget-tag {
+    display: inline-block;
+    background: var(--gold-light);
+    color: #92400e;
+    font-size: 12px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+    margin-top: 8px;
+  }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 16px;
+    border-radius: 8px; border: none;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .15s;
+    text-decoration: none;
+  }
+  .btn-green { background: var(--green-mid); color: white; }
+  .btn-green:hover { background: var(--green-deep); }
+  .btn-wa { background: var(--wa-green); color: white; font-size: 14px; }
+  .btn-gold { background: var(--gold); color: #1a1a1a; }
+  .btn-outline { background: none; border: 1.5px solid var(--border); color: var(--ink); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-full { width: 100%; justify-content: center; padding: 14px; font-size: 15px; }
+
+  /* ─── FORMS ─── */
+  .form-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .form-title {
+    font-family: 'Cairo', sans-serif;
+    font-size: 18px; font-weight: 700;
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block; font-size: 13px;
+    font-weight: 500; margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    background: white; color: var(--ink);
+    transition: border-color .2s;
+    outline: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--green-mid);
+  }
+  .field select:disabled { background: #f3f4f6; color: var(--muted); }
+  .field textarea { resize: vertical; min-height: 70px; }
+  .field-row { display: flex; gap: 10px; }
+  .field-row .field { flex: 1; }
+
+  /* country + city cascading pair */
+  .loc-group { display: flex; gap: 8px; }
+  .loc-group select { flex: 1; min-width: 0; }
+  .loc-legend {
+    font-size: 11px; color: var(--muted);
+    margin-top: 4px; margin-bottom: 14px;
+    display: flex; gap: 14px;
+  }
+
+  .wa-hint {
+    font-size: 12px; color: var(--muted);
+    margin-top: 4px; display: flex; align-items: center; gap: 4px;
+  }
+
+  /* ─── EMPTY STATE ─── */
+  .empty {
+    text-align: center; padding: 40px 20px;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty p { font-size: 14px; line-height: 1.6; }
+
+  /* ─── FAB ─── */
+  .fab {
+    position: fixed; bottom: 24px; right: 24px;
+    width: 56px; height: 56px;
+    background: var(--green-mid);
+    color: white; border: none;
+    border-radius: 50%; font-size: 24px;
+    cursor: pointer; box-shadow: 0 4px 20px rgba(26,107,60,.4);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .15s;
+    z-index: 200;
+  }
+  .fab:active { transform: scale(.92); }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: white;
+    padding: 10px 20px; border-radius: 20px;
+    font-size: 14px; font-weight: 500;
+    opacity: 0; transition: all .3s;
+    z-index: 999; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300; display: none;
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--cream);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 36px;
+    width: 100%; max-width: 480px;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+  .modal-title { font-family: 'Cairo', sans-serif; font-size: 18px; font-weight: 700; }
+  .close-btn {
+    width: 32px; height: 32px;
+    background: var(--border); border: none;
+    border-radius: 50%; cursor: pointer;
+    font-size: 16px; display: flex;
+    align-items: center; justify-content: center;
+  }
+
+  /* ─── HERO BANNER ─── */
+  .hero-banner {
+    background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
+    border-radius: var(--radius); padding: 20px;
+    margin-bottom: 16px; color: white;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .hero-banner .icon { font-size: 36px; }
+  .hero-banner h2 { font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700; }
+  .hero-banner p { font-size: 12px; opacity: .8; margin-top: 4px; line-height: 1.4; }
+
+  /* ─── STATS ─── */
+  .stats-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .stat-card {
+    flex: 1; background: var(--card);
+    border-radius: var(--radius); padding: 14px;
+    text-align: center; box-shadow: var(--shadow);
+  }
+  .stat-num { font-family: 'Cairo', sans-serif; font-size: 24px; font-weight: 900; color: var(--green-mid); }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ─── FILTER CHIPS ─── */
+  .filter-row { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .chip {
+    padding: 6px 14px; border-radius: 20px;
+    border: 1.5px solid var(--border);
+    font-size: 12px; font-weight: 500;
+    background: white; cursor: pointer;
+    white-space: nowrap; transition: all .15s;
+  }
+  .chip.active { background: var(--green-mid); color: white; border-color: var(--green-mid); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">📦</div>
+      <div class="logo-text">
+        <strong>JIBLI DZ</strong>
+        <span>France ⇄ Algérie · جيبلي</span>
+      </div>
+    </div>
+    <div class="flag-pill">🇫🇷🇩🇿</div>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Ex: Paris, Alger, Oran…" oninput="filterContent()">
+    <button onclick="filterContent()">🔍</button>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="showScreen('home', this)">
+    <span class="tab-icon">🏠</span>Trajets
+  </button>
+  <button class="tab-btn" onclick="showScreen('parcels', this)">
+    <span class="tab-icon">📦</span>Colis
+  </button>
+  <button class="tab-btn" onclick="showScreen('add-trip', this)">
+    <span class="tab-icon">✈️</span>Je voyage
+  </button>
+  <button class="tab-btn" onclick="showScreen('add-parcel', this)">
+    <span class="tab-icon">➕</span>Envoyer
+  </button>
+</nav>
+
+<!-- SCREEN: HOME (Trajets) -->
+<div id="screen-home" class="screen active">
+  <div class="hero-banner">
+    <div class="icon">🌍</div>
+    <div>
+      <h2>Trouvez un voyageur de confiance</h2>
+      <p>Des particuliers font le trajet France ⇄ Algérie — ils transportent vos colis à prix réduit.</p>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="tripCount">0</div>
+      <div class="stat-label">Trajets actifs</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="parcelCount">0</div>
+      <div class="stat-label">Colis en attente</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">🇩🇿</div>
+      <div class="stat-label">Destinations</div>
+    </div>
+  </div>
+  <div class="filter-row" id="destFilters">
+    <button class="chip active" onclick="filterDest('all', this)">Tous</button>
+    <button class="chip" onclick="filterDest('Alger', this)">→ Alger</button>
+    <button class="chip" onclick="filterDest('Oran', this)">→ Oran</button>
+    <button class="chip" onclick="filterDest('Constantine', this)">→ Constantine</button>
+    <button class="chip" onclick="filterDest('Annaba', this)">→ Annaba</button>
+    <button class="chip" onclick="filterDest('Béjaïa', this)">→ Béjaïa</button>
+  </div>
+  <div class="section-title">
+    Voyageurs disponibles
+    <span class="badge" id="tripBadge">0</span>
+  </div>
+  <div id="trips-list"></div>
+</div>
+
+<!-- SCREEN: COLIS -->
+<div id="screen-parcels" class="screen">
+  <div class="section-title">
+    Colis à transporter
+    <span class="badge" id="parcelBadge">0</span>
+  </div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Des gens cherchent un voyageur — contactez-les si vous faites le trajet !</p>
+  <div id="parcels-list"></div>
+</div>
+
+<!-- SCREEN: AJOUTER TRAJET -->
+<div id="screen-add-trip" class="screen">
+  <div class="form-card">
+    <div class="form-title">✈️ Publier mon trajet</div>
+    <div class="field">
+      <label>Votre prénom / nom</label>
+      <input type="text" id="trip-name" placeholder="Ex: Ahmed B." maxlength="50">
+    </div>
+
+    <div class="field">
+      <label>Ville de départ</label>
+      <div class="loc-group">
+        <select id="trip-from-country" onchange="populateCities('trip-from-country','trip-from-city')">
+          <option value="">Pays…</option>
+          <option value="France">🇫🇷 France</option>
+          <option value="Algérie">🇩🇿 Algérie</option>
+        </select>
+        <select id="trip-from-city" disabled>
+          <option value="">Ville…</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Ville d'arrivée</label>
+      <div class="loc-group">
+        <select id="trip-to-country" onchange="populateCities('trip-to-country','trip-to-city')">
+          <option value="">Pays…</option>
+          <option value="France">🇫🇷 France</option>
+          <option value="Algérie">🇩🇿 Algérie</option>
+        </select>
+        <select id="trip-to-city" disabled>
+          <option value="">Ville…</option>
+        </select>
+      </div>
+      <div class="loc-legend"><span>✈️ aéroport</span><span>⚓ port</span></div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Date de départ</label>
+        <input type="date" id="trip-date">
+      </div>
+      <div class="field">
+        <label>Nombre de colis</label>
+        <select id="trip-capacity">
+          <option>1</option>
+          <option>2</option>
+          <option selected>3</option>
+          <option>4</option>
+          <option>5+</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Poids total que vous acceptez (kg)</label>
+      <input type="number" id="trip-weight" placeholder="Ex: 20" min="1" max="100">
+    </div>
+
+    <div class="field">
+      <label>Description de la capacité / conditions</label>
+      <textarea id="trip-capdesc" placeholder="Ex: J'accepte vêtements, médicaments, petits cadeaux. Pas de liquides ni de produits interdits. Bagage soute Air Algérie."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Votre numéro WhatsApp</label>
+      <input type="tel" id="trip-wa" placeholder="+33 6 12 34 56 78">
+      <div class="wa-hint">📱 Les expéditeurs vous contacteront directement.</div>
+    </div>
+
+    <button class="btn btn-green btn-full" onclick="addTrip()">✅ Publier mon trajet</button>
+  </div>
+</div>
+
+<!-- SCREEN: AJOUTER COLIS -->
+<div id="screen-add-parcel" class="screen">
+  <div class="form-card">
+    <div class="form-title">📦 Envoyer un colis</div>
+
+    <div class="field">
+      <label>Ville de départ</label>
+      <div class="loc-group">
+        <select id="parcel-from-country" onchange="populateCities('parcel-from-country','parcel-from-city')">
+          <option value="">Pays…</option>
+          <option value="France">🇫🇷 France</option>
+          <option value="Algérie">🇩🇿 Algérie</option>
+        </select>
+        <select id="parcel-from-city" disabled>
+          <option value="">Ville…</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Ville d'arrivée</label>
+      <div class="loc-group">
+        <select id="parcel-to-country" onchange="populateCities('parcel-to-country','parcel-to-city')">
+          <option value="">Pays…</option>
+          <option value="France">🇫🇷 France</option>
+          <option value="Algérie">🇩🇿 Algérie</option>
+        </select>
+        <select id="parcel-to-city" disabled>
+          <option value="">Ville…</option>
+        </select>
+      </div>
+      <div class="loc-legend"><span>✈️ aéroport</span><span>⚓ port</span></div>
+    </div>
+
+    <div class="field">
+      <label>Description du colis</label>
+      <textarea id="parcel-desc" placeholder="Ex: Vêtements et médicaments pour ma famille. Environ 5 kg."></textarea>
+    </div>
+    <div class="field">
+      <label>Budget proposé (€)</label>
+      <input type="number" id="parcel-budget" placeholder="Ex: 30" min="0" max="500">
+    </div>
+    <div class="field">
+      <label>Votre numéro WhatsApp</label>
+      <input type="tel" id="parcel-wa" placeholder="+33 6 12 34 56 78">
+      <div class="wa-hint">📱 Les voyageurs vous contacteront pour s'arranger.</div>
+    </div>
+    <button class="btn btn-gold btn-full" onclick="addParcel()">📦 Publier mon colis</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL: Détail voyageur -->
+<div class="modal-overlay" id="tripModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Détail du trajet</div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ─── VILLES (aéroports ✈️ + ports ⚓) ───────────────────────────────────────────
+const LOCATIONS = {
+  'France': [
+    { name: 'Paris',       type: 'air'  },
+    { name: 'Lyon',        type: 'air'  },
+    { name: 'Marseille',   type: 'both' },
+    { name: 'Toulouse',    type: 'air'  },
+    { name: 'Nice',        type: 'air'  },
+    { name: 'Lille',       type: 'air'  },
+    { name: 'Bordeaux',    type: 'air'  },
+    { name: 'Nantes',      type: 'air'  },
+    { name: 'Strasbourg',  type: 'air'  },
+    { name: 'Montpellier', type: 'air'  },
+    { name: 'Sète',        type: 'port' },
+    { name: 'Toulon',      type: 'port' },
+  ],
+  'Algérie': [
+    { name: 'Alger',       type: 'both' },
+    { name: 'Oran',        type: 'both' },
+    { name: 'Constantine', type: 'air'  },
+    { name: 'Annaba',      type: 'both' },
+    { name: 'Béjaïa',      type: 'both' },
+    { name: 'Sétif',       type: 'air'  },
+    { name: 'Tlemcen',     type: 'air'  },
+    { name: 'Batna',       type: 'air'  },
+    { name: 'Chlef',       type: 'air'  },
+    { name: 'Skikda',      type: 'port' },
+    { name: 'Mostaganem',  type: 'port' },
+    { name: 'Ghazaouet',   type: 'port' },
+  ],
+};
+
+function cityIcon(type) {
+  return type === 'both' ? '✈️ ⚓' : type === 'air' ? '✈️' : '⚓';
+}
+
+function populateCities(countryId, cityId) {
+  const country = document.getElementById(countryId).value;
+  const citySel = document.getElementById(cityId);
+  citySel.innerHTML = '<option value="">Ville…</option>';
+  if (!country || !LOCATIONS[country]) { citySel.disabled = true; return; }
+  LOCATIONS[country].forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.name;
+    opt.textContent = c.name + ' ' + cityIcon(c.type);
+    citySel.appendChild(opt);
+  });
+  citySel.disabled = false;
+}
+
+// ─── DATA STORE (localStorage) ───────────────────────────────────────────────
+const TRIPS_KEY = 'jibli_trips';
+const PARCELS_KEY = 'jibli_parcels';
+
+function getTrips() {
+  try { return JSON.parse(localStorage.getItem(TRIPS_KEY)) || getSampleTrips(); }
+  catch { return getSampleTrips(); }
+}
+function getParcels() {
+  try { return JSON.parse(localStorage.getItem(PARCELS_KEY)) || getSampleParcels(); }
+  catch { return getSampleParcels(); }
+}
+function saveTrips(arr) { localStorage.setItem(TRIPS_KEY, JSON.stringify(arr)); }
+function saveParcels(arr) { localStorage.setItem(PARCELS_KEY, JSON.stringify(arr)); }
+
+// ─── DONNÉES DE DÉMO ────────────────────────────────────────────────────────────
+function getSampleTrips() {
+  const data = [
+    { id: 1, name: 'Karim M.',  from: 'Paris',     to: 'Alger', date: '2026-06-18', capacity: '3', weight: 20, capDesc: "Vêtements et petits cadeaux. Pas de liquides svp.", wa: '+33612345678', ts: Date.now() - 5000 },
+    { id: 2, name: 'Samira L.', from: 'Lyon',      to: 'Oran',  date: '2026-06-22', capacity: '2', weight: 15, capDesc: "Médicaments et documents acceptés.", wa: '+33698765432', ts: Date.now() - 4000 },
+    { id: 3, name: 'Yacine B.', from: 'Marseille', to: 'Alger', date: '2026-07-01', capacity: '5+', weight: 40, capDesc: "Je voyage en ferry (Algérie Ferries), grande capacité.", wa: '+33755443322', ts: Date.now() - 3000 },
+  ];
+  saveTrips(data);
+  return data;
+}
+function getSampleParcels() {
+  const data = [
+    { id: 1, from: 'Paris', to: 'Alger', desc: 'Médicaments + quelques habits pour mes parents. ~3 kg.', budget: 25, wa: '+33611223344', ts: Date.now() - 2000 },
+    { id: 2, from: 'Lyon',  to: 'Oran',  desc: 'Téléphone portable (cadeau anniversaire), bien emballé.', budget: 40, wa: '+33677889900', ts: Date.now() - 1000 },
+  ];
+  saveParcels(data);
+  return data;
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+function showScreen(name, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  window.scrollTo({ top: 0 });
+  renderAll();
+}
+
+// ─── FILTRES ──────────────────────────────────────────────────────────────────
+let currentDest = 'all';
+let currentSearch = '';
+
+function filterDest(dest, el) {
+  currentDest = dest;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderTrips();
+}
+function filterContent() {
+  currentSearch = document.getElementById('searchInput').value.toLowerCase();
+  renderTrips();
+  renderParcels();
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderAll() { renderTrips(); renderParcels(); updateStats(); }
+
+function renderTrips() {
+  let trips = getTrips();
+  if (currentSearch) {
+    trips = trips.filter(t =>
+      t.from.toLowerCase().includes(currentSearch) ||
+      t.to.toLowerCase().includes(currentSearch) ||
+      t.name.toLowerCase().includes(currentSearch)
+    );
+  }
+  if (currentDest !== 'all') {
+    trips = trips.filter(t => t.to === currentDest);
+  }
+  trips.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  const el = document.getElementById('trips-list');
+  document.getElementById('tripBadge').textContent = trips.length;
+
+  if (!trips.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">✈️</div><p>Aucun trajet disponible.<br>Soyez le premier à publier !</p></div>`;
+    return;
+  }
+
+  el.innerHTML = trips.map(t => {
+    const d = new Date(t.date);
+    const dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    const isUpcoming = d >= new Date(new Date().toDateString());
+    const waLink = formatWA(t.wa, `Bonjour ${t.name}, j'ai vu votre trajet ${t.from}→${t.to} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
+    return `
+    <div class="trip-card" onclick="openTripModal(${t.id})">
+      <div class="trip-route">
+        <span>${escHtml(t.from)}</span>
+        <span class="trip-arrow">→</span>
+        <span>${escHtml(t.to)}</span>
+        ${isUpcoming ? '' : '<span style="font-size:11px;color:var(--red);margin-left:auto">Passé</span>'}
+      </div>
+      <div class="trip-meta">
+        <span>👤 ${escHtml(t.name)}</span>
+        <span>📅 ${dateStr}</span>
+        <span>📦 ${escHtml(String(t.capacity))} colis</span>
+        ${t.weight ? `<span>⚖️ ${escHtml(String(t.weight))} kg</span>` : ''}
+      </div>
+      ${t.capDesc ? `<div style="margin-top:8px;font-size:12px;color:var(--muted);font-style:italic">"${escHtml(t.capDesc)}"</div>` : ''}
+      <div class="trip-actions" onclick="event.stopPropagation()">
+        <a href="${waLink}" target="_blank" class="btn btn-wa btn-sm">💬 WhatsApp</a>
+        <button class="btn btn-outline btn-sm" onclick="openTripModal(${t.id})">Voir détails</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderParcels() {
+  let parcels = getParcels();
+  if (currentSearch) {
+    parcels = parcels.filter(p =>
+      p.from.toLowerCase().includes(currentSearch) ||
+      p.to.toLowerCase().includes(currentSearch) ||
+      p.desc.toLowerCase().includes(currentSearch)
+    );
+  }
+  const el = document.getElementById('parcels-list');
+  document.getElementById('parcelBadge').textContent = parcels.length;
+
+  if (!parcels.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📦</div><p>Aucun colis publié.<br>Quelqu'un a besoin de vous !</p></div>`;
+    return;
+  }
+  el.innerHTML = [...parcels].reverse().map(p => {
+    const waLink = formatWA(p.wa, `Bonjour, j'ai vu votre colis ${p.from}→${p.to} sur JIBLI DZ. Je fais ce trajet et je peux vous aider !`);
+    return `
+    <div class="parcel-card">
+      <div class="parcel-route">
+        <span>${escHtml(p.from)}</span>
+        <span class="trip-arrow" style="color:var(--gold)">→</span>
+        <span>${escHtml(p.to)}</span>
+      </div>
+      <div class="parcel-desc">${escHtml(p.desc)}</div>
+      <div><span class="budget-tag">💶 Budget : ${escHtml(String(p.budget))}€</span></div>
+      <div style="margin-top:12px">
+        <a href="${waLink}" target="_blank" class="btn btn-wa btn-sm">💬 Contacter sur WhatsApp</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats() {
+  document.getElementById('tripCount').textContent = getTrips().length;
+  document.getElementById('parcelCount').textContent = getParcels().length;
+}
+
+// ─── AJOUTER UN TRAJET ──────────────────────────────────────────────────────────
+function addTrip() {
+  const name   = document.getElementById('trip-name').value.trim();
+  const from   = document.getElementById('trip-from-city').value;
+  const to     = document.getElementById('trip-to-city').value;
+  const date   = document.getElementById('trip-date').value;
+  const cap    = document.getElementById('trip-capacity').value;
+  const weight = document.getElementById('trip-weight').value;
+  const capDesc= document.getElementById('trip-capdesc').value.trim();
+  const wa     = document.getElementById('trip-wa').value.trim();
+
+  if (!name || !from || !to || !date || !wa) {
+    showToast('⚠️ Remplissez tous les champs obligatoires'); return;
+  }
+  if (from === to) { showToast('⚠️ Départ et arrivée identiques'); return; }
+
+  const trips = getTrips();
+  trips.unshift({ id: Date.now(), name, from, to, date, capacity: cap, weight: weight || '', capDesc, wa, ts: Date.now() });
+  saveTrips(trips);
+
+  // Reset
+  ['trip-name','trip-wa','trip-capdesc','trip-weight'].forEach(id => document.getElementById(id).value = '');
+  ['trip-from-country','trip-to-country'].forEach(id => document.getElementById(id).value = '');
+  ['trip-from-city','trip-to-city'].forEach(id => {
+    const s = document.getElementById(id);
+    s.innerHTML = '<option value="">Ville…</option>'; s.disabled = true;
+  });
+  document.getElementById('trip-date').value = new Date().toISOString().split('T')[0];
+
+  showToast('✅ Trajet publié avec succès !');
+  const tabs = document.querySelectorAll('.tab-btn');
+  showScreen('home', tabs[0]);
+}
+
+// ─── AJOUTER UN COLIS ─────────────────────────────────────────────────────────
+function addParcel() {
+  const from   = document.getElementById('parcel-from-city').value;
+  const to     = document.getElementById('parcel-to-city').value;
+  const desc   = document.getElementById('parcel-desc').value.trim();
+  const budget = document.getElementById('parcel-budget').value;
+  const wa     = document.getElementById('parcel-wa').value.trim();
+
+  if (!from || !to || !desc || !wa) {
+    showToast('⚠️ Remplissez tous les champs'); return;
+  }
+  if (from === to) { showToast('⚠️ Départ et arrivée identiques'); return; }
+
+  const parcels = getParcels();
+  parcels.unshift({ id: Date.now(), from, to, desc, budget: budget || 0, wa, ts: Date.now() });
+  saveParcels(parcels);
+
+  ['parcel-desc','parcel-budget','parcel-wa'].forEach(id => document.getElementById(id).value = '');
+  ['parcel-from-country','parcel-to-country'].forEach(id => document.getElementById(id).value = '');
+  ['parcel-from-city','parcel-to-city'].forEach(id => {
+    const s = document.getElementById(id);
+    s.innerHTML = '<option value="">Ville…</option>'; s.disabled = true;
+  });
+
+  showToast('📦 Colis publié ! Les voyageurs vont vous contacter.');
+  const tabs = document.querySelectorAll('.tab-btn');
+  showScreen('parcels', tabs[1]);
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function openTripModal(id) {
+  const trip = getTrips().find(t => t.id === id);
+  if (!trip) return;
+  const d = new Date(trip.date);
+  const dateStr = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const waLink = formatWA(trip.wa, `Bonjour ${trip.name}, j'ai vu votre trajet ${trip.from}→${trip.to} le ${dateStr} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
+
+  document.getElementById('modalTitle').textContent = `${trip.from} → ${trip.to}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="background:var(--card);border-radius:10px;padding:14px">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Voyageur</div>
+        <div style="font-size:16px;font-weight:600">${escHtml(trip.name)}</div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <div style="flex:1;background:var(--card);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:12px;color:var(--muted)">Date départ</div>
+          <div style="font-size:13px;font-weight:600;margin-top:4px">${dateStr}</div>
+        </div>
+        <div style="flex:1;background:var(--card);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:12px;color:var(--muted)">Colis</div>
+          <div style="font-size:22px;font-weight:900;color:var(--green-mid)">${escHtml(String(trip.capacity))}</div>
+        </div>
+        <div style="flex:1;background:var(--card);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:12px;color:var(--muted)">Poids max</div>
+          <div style="font-size:22px;font-weight:900;color:var(--green-mid)">${trip.weight ? escHtml(String(trip.weight))+'<span style=\"font-size:12px\">kg</span>' : '—'}</div>
+        </div>
+      </div>
+      ${trip.capDesc ? `<div style="background:var(--gold-light);border-radius:10px;padding:14px;font-size:13px;line-height:1.5"><strong>Capacité &amp; conditions :</strong><br>${escHtml(trip.capDesc)}</div>` : ''}
+      <a href="${waLink}" target="_blank" class="btn btn-wa btn-full" style="font-size:15px">
+        💬 Contacter sur WhatsApp
+      </a>
+      <p style="font-size:11px;color:var(--muted);text-align:center">Le contact se fait directement via WhatsApp. JIBLI DZ n'intervient pas dans la transaction.</p>
+    </div>`;
+  document.getElementById('tripModal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('tripModal').classList.remove('open');
+}
+document.getElementById('tripModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function formatWA(num, msg) {
+  const clean = String(num).replace(/\s/g, '');
+  return `https://wa.me/${clean.replace('+', '')}?text=${encodeURIComponent(msg)}`;
+}
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.getElementById('trip-date').value = new Date().toISOString().split('T')[0];
+renderAll();
+</script>
+</body>
+</html>
