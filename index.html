@@ -700,14 +700,17 @@ function populateCities(countryId, cityId) {
 }
 
 /* ─── STOCKAGE LOCAL (mode démo) ─────────────────────────────────────────────── */
+let memStore = {};   // repli si localStorage est bloqué (aperçu, file://, navigation privée)
+function lsGet(k) { try { return localStorage.getItem(k); } catch (_) { return (k in memStore) ? memStore[k] : null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (_) { memStore[k] = v; } }
 function loadLocal(key, fallback) {
-  try { const v = JSON.parse(localStorage.getItem(key)); return v || fallback; }
+  try { const v = JSON.parse(lsGet(key)); return v || fallback; }
   catch { return fallback; }
 }
 function persistLocal() {
   if (MODE !== 'local') return;
-  localStorage.setItem(TRIPS_KEY, JSON.stringify(TRIPS));
-  localStorage.setItem(PARCELS_KEY, JSON.stringify(PARCELS));
+  lsSet(TRIPS_KEY, JSON.stringify(TRIPS));
+  lsSet(PARCELS_KEY, JSON.stringify(PARCELS));
 }
 function sampleTrips() {
   return [
@@ -822,17 +825,24 @@ function setCC(cc) {
   inp.value = cc + ' '; inp.focus();
 }
 
+function resetRecaptcha() {
+  try { if (recaptcha) recaptcha.clear(); } catch (_) {}
+  recaptcha = null;
+  const c = document.getElementById('recaptcha-container');
+  if (c) c.innerHTML = '';   // indispensable : retire le widget déjà rendu
+}
+
 async function sendCode() {
   const phone = document.getElementById('auth-phone-input').value.replace(/\s/g, '');
   if (!/^\+\d{8,15}$/.test(phone)) {
     showToast('⚠️ Format international requis, ex : +33612345678'); return;
   }
   const btn = document.getElementById('auth-send');
+  // On repart toujours d'un reCAPTCHA propre (évite "already been rendered")
+  resetRecaptcha();
   try {
     btn.disabled = true; btn.textContent = '⏳ Envoi…';
-    if (!recaptcha) {
-      recaptcha = new authFns.RecaptchaVerifier(AUTH, 'recaptcha-container', { size: 'invisible' });
-    }
+    recaptcha = new authFns.RecaptchaVerifier(AUTH, 'recaptcha-container', { size: 'invisible' });
     confirmationResult = await authFns.signInWithPhoneNumber(AUTH, phone, recaptcha);
     document.getElementById('auth-phone-echo').textContent = phone;
     document.getElementById('auth-code-input').value = '';
@@ -840,8 +850,7 @@ async function sendCode() {
   } catch (e) {
     console.error(e);
     showToast('⚠️ Envoi impossible : ' + (e.code || e.message || ''));
-    try { if (recaptcha) recaptcha.clear(); } catch (_) {}
-    recaptcha = null;
+    resetRecaptcha();
   }
   btn.disabled = false; btn.textContent = 'Envoyer le code';
 }
@@ -1010,7 +1019,7 @@ async function addTrip() {
       persistLocal(); renderAll();
     }
   } catch (e) {
-    console.error(e); showToast('⚠️ Échec de la publication');
+    console.error(e); showToast('⚠️ Échec : ' + (e.code || e.message || 'erreur inconnue'));
     btn.disabled = false; btn.textContent = '✅ Publier mon trajet'; return;
   }
   btn.disabled = false; btn.textContent = '✅ Publier mon trajet';
@@ -1052,7 +1061,7 @@ async function addParcel() {
       persistLocal(); renderAll();
     }
   } catch (e) {
-    console.error(e); showToast('⚠️ Échec de la publication');
+    console.error(e); showToast('⚠️ Échec : ' + (e.code || e.message || 'erreur inconnue'));
     btn.disabled = false; btn.textContent = '📦 Publier mon colis'; return;
   }
   btn.disabled = false; btn.textContent = '📦 Publier mon colis';
