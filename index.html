@@ -597,37 +597,29 @@
       <button class="close-btn" onclick="closeAuthModal()">✕</button>
     </div>
 
-    <!-- étape 1 : numéro -->
-    <div class="auth-step active" id="auth-phone">
-      <div class="login-note show" style="display:block">📱 Connecte-toi avec ton numéro de téléphone. Tu recevras un code de vérification par SMS.</div>
+    <!-- étape 1 : e-mail + mot de passe -->
+    <div class="auth-step active" id="auth-email">
+      <div class="login-note show" style="display:block">📧 Connecte-toi par e-mail pour publier et gérer tes annonces. Première fois ? Crée un compte.</div>
       <div class="field">
-        <label>Numéro de téléphone</label>
-        <div class="quick-cc">
-          <button type="button" onclick="setCC('+33')">🇫🇷 +33</button>
-          <button type="button" onclick="setCC('+213')">🇩🇿 +213</button>
-        </div>
-        <input type="tel" id="auth-phone-input" placeholder="+33 6 12 34 56 78">
+        <label>Adresse e-mail</label>
+        <input type="email" id="auth-email-input" placeholder="ton@email.com" autocomplete="email">
       </div>
-      <div id="recaptcha-container"></div>
-      <button class="btn btn-green btn-full" id="auth-send" onclick="sendCode()">Envoyer le code</button>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" id="auth-pass-input" placeholder="Au moins 6 caractères" autocomplete="current-password">
+      </div>
+      <button class="btn btn-green btn-full" id="auth-signin" onclick="signIn()">Se connecter</button>
+      <button class="btn btn-outline btn-full" id="auth-signup" style="margin-top:8px" onclick="signUp()">Créer un compte</button>
+      <p style="text-align:center;margin-top:12px">
+        <a onclick="resetPassword()" style="font-size:12.5px;color:var(--muted);text-decoration:underline;cursor:pointer">Mot de passe oublié ?</a>
+      </p>
     </div>
 
-    <!-- étape 2 : code -->
-    <div class="auth-step" id="auth-code">
-      <div class="login-note show" style="display:block">Entre le code à 6 chiffres reçu par SMS au <strong id="auth-phone-echo"></strong>.</div>
-      <div class="field">
-        <label>Code de vérification</label>
-        <input type="text" inputmode="numeric" id="auth-code-input" placeholder="123456" maxlength="6">
-      </div>
-      <button class="btn btn-green btn-full" id="auth-verify" onclick="verifyCode()">Valider</button>
-      <button class="btn btn-outline btn-full" style="margin-top:8px" onclick="backToPhone()">← Changer de numéro</button>
-    </div>
-
-    <!-- étape 3 : compte connecté -->
+    <!-- étape 2 : compte connecté -->
     <div class="auth-step" id="auth-account">
       <div style="background:var(--card);border-radius:10px;padding:14px;margin-bottom:14px">
         <div style="font-size:12px;color:var(--muted)">Connecté en tant que</div>
-        <div style="font-size:16px;font-weight:700" id="auth-account-phone"></div>
+        <div style="font-size:16px;font-weight:700;word-break:break-all" id="auth-account-email"></div>
       </div>
       <p style="font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:14px">Tes annonces affichent un bouton 🗑 pour les supprimer. Personne d'autre ne peut les modifier.</p>
       <button class="btn btn-danger btn-full" onclick="logout()">Se déconnecter</button>
@@ -640,6 +632,7 @@
    CONFIG FIREBASE — remplace les "VOTRE_..." par les valeurs de ton projet.
    Voir GUIDE_FIREBASE.md (sections base de données ET authentification).
 ═══════════════════════════════════════════════════════════════════════════════ */
+const firebaseConfig = {
 const firebaseConfig = {
   apiKey: "AIzaSyDZP0PmPpIKA9efDEg8t0qYMzGMZDixuGc",
   authDomain: "jibli-dz-aa340.firebaseapp.com",
@@ -658,7 +651,6 @@ let TRIPS = [];
 let PARCELS = [];
 let DB = null, fb = {};
 let AUTH = null, authFns = {}, currentUser = null;
-let confirmationResult = null, recaptcha = null;
 let currentDest = 'all', currentSearch = '';
 
 const TRIPS_KEY = 'jibli_trips';
@@ -786,15 +778,19 @@ function subscribe() {
   }, err => { console.error(err); showToast('⚠️ Erreur de chargement des colis'); });
 }
 
-/* ─── AUTHENTIFICATION (téléphone) ───────────────────────────────────────────── */
-function maskPhone(p) { return p ? '…' + String(p).slice(-2) : 'moi'; }
+/* ─── AUTHENTIFICATION (e-mail + mot de passe) ───────────────────────────────── */
+function shortEmail(e) {
+  if (!e) return 'moi';
+  const name = String(e).split('@')[0];
+  return name.length > 12 ? name.slice(0, 12) + '…' : name;
+}
 
 function updateAccountUI() {
   const btn = document.getElementById('accountBtn');
   if (MODE !== 'cloud') { btn.style.display = 'none'; }
   else {
     btn.style.display = '';
-    btn.textContent = currentUser ? ('👤 ' + maskPhone(currentUser.phoneNumber)) : 'Se connecter';
+    btn.textContent = currentUser ? ('👤 ' + shortEmail(currentUser.email)) : 'Se connecter';
   }
   // Bandeaux "connecte-toi" sur les écrans de publication
   const needLogin = (MODE === 'cloud' && !currentUser);
@@ -803,71 +799,79 @@ function updateAccountUI() {
 }
 
 function setAuthStep(name) {
-  ['auth-phone','auth-code','auth-account'].forEach(s =>
+  ['auth-email','auth-account'].forEach(s =>
     document.getElementById(s).classList.toggle('active', s === 'auth-' + name));
 }
 function openAuthModal() {
   if (MODE !== 'cloud') { showToast('🧪 La connexion est disponible en mode partagé (Firebase configuré)'); return; }
   if (currentUser) {
     document.getElementById('authTitle').textContent = 'Mon compte';
-    document.getElementById('auth-account-phone').textContent = currentUser.phoneNumber || '—';
+    document.getElementById('auth-account-email').textContent = currentUser.email || '—';
     setAuthStep('account');
   } else {
     document.getElementById('authTitle').textContent = 'Connexion';
-    setAuthStep('phone');
+    setAuthStep('email');
   }
   document.getElementById('authModal').classList.add('open');
 }
 function closeAuthModal() { document.getElementById('authModal').classList.remove('open'); }
-function backToPhone() { setAuthStep('phone'); }
-function setCC(cc) {
-  const inp = document.getElementById('auth-phone-input');
-  inp.value = cc + ' '; inp.focus();
+
+// Traduit les codes d'erreur Firebase en messages clairs
+function authErr(e) {
+  console.error(e);
+  const map = {
+    'auth/invalid-email': "Adresse e-mail invalide",
+    'auth/missing-email': "Entre ton adresse e-mail",
+    'auth/email-already-in-use': "Cet e-mail a déjà un compte — utilise « Se connecter »",
+    'auth/weak-password': "Mot de passe trop court (6 caractères minimum)",
+    'auth/wrong-password': "Mot de passe incorrect",
+    'auth/user-not-found': "Aucun compte avec cet e-mail — utilise « Créer un compte »",
+    'auth/invalid-credential': "E-mail ou mot de passe incorrect",
+    'auth/too-many-requests': "Trop de tentatives, réessaie dans un moment",
+    'auth/network-request-failed': "Problème de connexion réseau",
+    'auth/operation-not-allowed': "Active d'abord « E-mail/Mot de passe » dans Firebase",
+  };
+  return '⚠️ ' + (map[e.code] || e.code || e.message || 'Erreur de connexion');
 }
 
-function resetRecaptcha() {
-  try { if (recaptcha) recaptcha.clear(); } catch (_) {}
-  recaptcha = null;
-  const c = document.getElementById('recaptcha-container');
-  if (c) c.innerHTML = '';   // indispensable : retire le widget déjà rendu
+function readCreds() {
+  return {
+    email: document.getElementById('auth-email-input').value.trim(),
+    pass:  document.getElementById('auth-pass-input').value
+  };
 }
 
-async function sendCode() {
-  const phone = document.getElementById('auth-phone-input').value.replace(/\s/g, '');
-  if (!/^\+\d{8,15}$/.test(phone)) {
-    showToast('⚠️ Format international requis, ex : +33612345678'); return;
-  }
-  const btn = document.getElementById('auth-send');
-  // On repart toujours d'un reCAPTCHA propre (évite "already been rendered")
-  resetRecaptcha();
+async function signIn() {
+  const { email, pass } = readCreds();
+  if (!email || pass.length < 6) { showToast('⚠️ E-mail + mot de passe (6 caractères min)'); return; }
+  const btn = document.getElementById('auth-signin');
   try {
-    btn.disabled = true; btn.textContent = '⏳ Envoi…';
-    recaptcha = new authFns.RecaptchaVerifier(AUTH, 'recaptcha-container', { size: 'invisible' });
-    confirmationResult = await authFns.signInWithPhoneNumber(AUTH, phone, recaptcha);
-    document.getElementById('auth-phone-echo').textContent = phone;
-    document.getElementById('auth-code-input').value = '';
-    setAuthStep('code');
-  } catch (e) {
-    console.error(e);
-    showToast('⚠️ Envoi impossible : ' + (e.code || e.message || ''));
-    resetRecaptcha();
-  }
-  btn.disabled = false; btn.textContent = 'Envoyer le code';
+    btn.disabled = true; btn.textContent = '⏳ Connexion…';
+    await authFns.signInWithEmailAndPassword(AUTH, email, pass);
+    showToast('✅ Connecté !'); closeAuthModal();
+  } catch (e) { showToast(authErr(e)); }
+  btn.disabled = false; btn.textContent = 'Se connecter';
 }
 
-async function verifyCode() {
-  const code = document.getElementById('auth-code-input').value.trim();
-  if (code.length < 6) { showToast('⚠️ Entre le code à 6 chiffres'); return; }
-  const btn = document.getElementById('auth-verify');
+async function signUp() {
+  const { email, pass } = readCreds();
+  if (!email || pass.length < 6) { showToast('⚠️ E-mail + mot de passe (6 caractères min)'); return; }
+  const btn = document.getElementById('auth-signup');
   try {
-    btn.disabled = true; btn.textContent = '⏳ Vérification…';
-    await confirmationResult.confirm(code);
-    showToast('✅ Connecté !');
-    closeAuthModal();
-  } catch (e) {
-    console.error(e); showToast('⚠️ Code incorrect ou expiré');
-  }
-  btn.disabled = false; btn.textContent = 'Valider';
+    btn.disabled = true; btn.textContent = '⏳ Création…';
+    await authFns.createUserWithEmailAndPassword(AUTH, email, pass);
+    showToast('✅ Compte créé, te voilà connecté !'); closeAuthModal();
+  } catch (e) { showToast(authErr(e)); }
+  btn.disabled = false; btn.textContent = 'Créer un compte';
+}
+
+async function resetPassword() {
+  const email = document.getElementById('auth-email-input').value.trim();
+  if (!email) { showToast('⚠️ Entre d\'abord ton adresse e-mail ci-dessus'); return; }
+  try {
+    await authFns.sendPasswordResetEmail(AUTH, email);
+    showToast('📧 E-mail de réinitialisation envoyé (vérifie tes spams)');
+  } catch (e) { showToast(authErr(e)); }
 }
 
 async function logout() {
@@ -1157,7 +1161,7 @@ function showToast(msg) {
 Object.assign(window, {
   showScreen, filterDest, filterContent, populateCities,
   addTrip, addParcel, openTripModal, closeModal,
-  openAuthModal, closeAuthModal, sendCode, verifyCode, logout, backToPhone, setCC,
+  openAuthModal, closeAuthModal, signIn, signUp, resetPassword, logout,
   deleteTrip, deleteParcel
 });
 
