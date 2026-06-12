@@ -56,10 +56,13 @@
   .logo-text { font-family: 'Cairo', sans-serif; color: white; }
   .logo-text strong { display: block; font-size: 20px; font-weight: 900; line-height: 1; letter-spacing: .5px; }
   .logo-text span { font-size: 11px; opacity: .75; letter-spacing: .5px; }
-  .flag-pill {
-    color: white; font-size: 16px; letter-spacing: 2px;
-    background: rgba(255,255,255,0.12); padding: 6px 10px; border-radius: 20px;
+  .account-btn {
+    background: rgba(255,255,255,0.15); color: #fff; border: none;
+    padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+    display: flex; align-items: center; gap: 6px; transition: transform .15s;
   }
+  .account-btn:active { transform: scale(.96); }
 
   .search-bar {
     margin-top: 16px;
@@ -79,6 +82,16 @@
     border: none; border-radius: 8px;
     cursor: pointer; font-size: 16px;
   }
+
+  /* ─── MODE BAR ─── */
+  .mode-bar {
+    font-size: 11px; text-align: center;
+    padding: 5px 12px; font-weight: 600;
+    display: none;
+  }
+  .mode-bar.show { display: block; }
+  .mode-bar.local { background: var(--gold-light); color: #92400e; }
+  .mode-bar.cloud { background: #dcfce7; color: #166534; }
 
   /* ─── NAV TABS ─── */
   .nav-tabs {
@@ -121,6 +134,11 @@
     padding: 2px 8px; border-radius: 20px;
     font-family: 'Inter', sans-serif; font-weight: 600;
   }
+  .mine-tag {
+    background: var(--green-mid); color: #fff;
+    font-size: 10px; font-weight: 700; letter-spacing: .3px;
+    padding: 2px 8px; border-radius: 20px; margin-left: auto;
+  }
 
   .trip-card {
     background: var(--card);
@@ -144,7 +162,7 @@
     margin-top: 10px; font-size: 12px; color: var(--muted);
   }
   .trip-meta span { display: flex; align-items: center; gap: 4px; }
-  .trip-actions { margin-top: 12px; display: flex; gap: 8px; }
+  .trip-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
 
   .parcel-card {
     background: var(--card);
@@ -186,8 +204,10 @@
   .btn-wa { background: var(--wa-green); color: white; font-size: 14px; }
   .btn-gold { background: var(--gold); color: #1a1a1a; }
   .btn-outline { background: none; border: 1.5px solid var(--border); color: var(--ink); }
+  .btn-danger { background: #fee2e2; color: #b91c1c; }
   .btn-sm { padding: 6px 12px; font-size: 12px; }
   .btn-full { width: 100%; justify-content: center; padding: 14px; font-size: 15px; }
+  .btn[disabled] { opacity: .6; pointer-events: none; }
 
   /* ─── FORMS ─── */
   .form-card {
@@ -239,6 +259,25 @@
     margin-top: 4px; display: flex; align-items: center; gap: 4px;
   }
 
+  /* login required note on publish screens */
+  .login-note {
+    background: var(--gold-light); color: #92400e;
+    border-radius: 10px; padding: 12px 14px;
+    font-size: 12.5px; line-height: 1.5; margin-bottom: 16px;
+    display: none;
+  }
+  .login-note.show { display: block; }
+  .login-note a { color: #92400e; font-weight: 700; text-decoration: underline; cursor: pointer; }
+
+  /* auth modal */
+  .auth-step { display: none; }
+  .auth-step.active { display: block; }
+  .quick-cc { display: flex; gap: 8px; margin-bottom: 8px; }
+  .quick-cc button {
+    flex: 1; padding: 8px; border: 1.5px solid var(--border);
+    background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px;
+  }
+
   /* ─── EMPTY STATE ─── */
   .empty {
     text-align: center; padding: 40px 20px;
@@ -246,20 +285,6 @@
   }
   .empty-icon { font-size: 48px; margin-bottom: 12px; }
   .empty p { font-size: 14px; line-height: 1.6; }
-
-  /* ─── FAB ─── */
-  .fab {
-    position: fixed; bottom: 24px; right: 24px;
-    width: 56px; height: 56px;
-    background: var(--green-mid);
-    color: white; border: none;
-    border-radius: 50%; font-size: 24px;
-    cursor: pointer; box-shadow: 0 4px 20px rgba(26,107,60,.4);
-    display: flex; align-items: center; justify-content: center;
-    transition: transform .15s;
-    z-index: 200;
-  }
-  .fab:active { transform: scale(.92); }
 
   /* ─── TOAST ─── */
   .toast {
@@ -269,7 +294,7 @@
     padding: 10px 20px; border-radius: 20px;
     font-size: 14px; font-weight: 500;
     opacity: 0; transition: all .3s;
-    z-index: 999; white-space: nowrap;
+    z-index: 999; max-width: 90%; text-align: center;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -347,13 +372,16 @@
         <span>France ⇄ Algérie · جيبلي</span>
       </div>
     </div>
-    <div class="flag-pill">🇫🇷🇩🇿</div>
+    <button class="account-btn" id="accountBtn" onclick="openAuthModal()" style="display:none">Se connecter</button>
   </div>
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Ex: Paris, Alger, Oran…" oninput="filterContent()">
     <button onclick="filterContent()">🔍</button>
   </div>
 </header>
+
+<!-- MODE BAR -->
+<div id="modeBar" class="mode-bar"></div>
 
 <!-- NAV TABS -->
 <nav class="nav-tabs">
@@ -371,7 +399,7 @@
   </button>
 </nav>
 
-<!-- SCREEN: HOME (Trajets) -->
+<!-- SCREEN: HOME -->
 <div id="screen-home" class="screen active">
   <div class="hero-banner">
     <div class="icon">🌍</div>
@@ -423,6 +451,7 @@
 <div id="screen-add-trip" class="screen">
   <div class="form-card">
     <div class="form-title">✈️ Publier mon trajet</div>
+    <div class="login-note" id="trip-login-note">🔒 <a onclick="openAuthModal()">Connecte-toi</a> pour publier — ainsi tu pourras aussi modifier ou supprimer ton annonce.</div>
     <div class="field">
       <label>Votre prénom / nom</label>
       <input type="text" id="trip-name" placeholder="Ex: Ahmed B." maxlength="50">
@@ -490,7 +519,7 @@
       <div class="wa-hint">📱 Les expéditeurs vous contacteront directement.</div>
     </div>
 
-    <button class="btn btn-green btn-full" onclick="addTrip()">✅ Publier mon trajet</button>
+    <button class="btn btn-green btn-full" id="trip-submit" onclick="addTrip()">✅ Publier mon trajet</button>
   </div>
 </div>
 
@@ -498,6 +527,7 @@
 <div id="screen-add-parcel" class="screen">
   <div class="form-card">
     <div class="form-title">📦 Envoyer un colis</div>
+    <div class="login-note" id="parcel-login-note">🔒 <a onclick="openAuthModal()">Connecte-toi</a> pour publier — ainsi tu pourras aussi supprimer ton annonce ensuite.</div>
 
     <div class="field">
       <label>Ville de départ</label>
@@ -541,7 +571,7 @@
       <input type="tel" id="parcel-wa" placeholder="+33 6 12 34 56 78">
       <div class="wa-hint">📱 Les voyageurs vous contacteront pour s'arranger.</div>
     </div>
-    <button class="btn btn-gold btn-full" onclick="addParcel()">📦 Publier mon colis</button>
+    <button class="btn btn-gold btn-full" id="parcel-submit" onclick="addParcel()">📦 Publier mon colis</button>
   </div>
 </div>
 
@@ -559,42 +589,101 @@
   </div>
 </div>
 
-<script>
-// ─── VILLES (aéroports ✈️ + ports ⚓) ───────────────────────────────────────────
+<!-- MODAL: Authentification -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="authTitle">Connexion</div>
+      <button class="close-btn" onclick="closeAuthModal()">✕</button>
+    </div>
+
+    <!-- étape 1 : numéro -->
+    <div class="auth-step active" id="auth-phone">
+      <div class="login-note show" style="display:block">📱 Connecte-toi avec ton numéro de téléphone. Tu recevras un code de vérification par SMS.</div>
+      <div class="field">
+        <label>Numéro de téléphone</label>
+        <div class="quick-cc">
+          <button type="button" onclick="setCC('+33')">🇫🇷 +33</button>
+          <button type="button" onclick="setCC('+213')">🇩🇿 +213</button>
+        </div>
+        <input type="tel" id="auth-phone-input" placeholder="+33 6 12 34 56 78">
+      </div>
+      <div id="recaptcha-container"></div>
+      <button class="btn btn-green btn-full" id="auth-send" onclick="sendCode()">Envoyer le code</button>
+    </div>
+
+    <!-- étape 2 : code -->
+    <div class="auth-step" id="auth-code">
+      <div class="login-note show" style="display:block">Entre le code à 6 chiffres reçu par SMS au <strong id="auth-phone-echo"></strong>.</div>
+      <div class="field">
+        <label>Code de vérification</label>
+        <input type="text" inputmode="numeric" id="auth-code-input" placeholder="123456" maxlength="6">
+      </div>
+      <button class="btn btn-green btn-full" id="auth-verify" onclick="verifyCode()">Valider</button>
+      <button class="btn btn-outline btn-full" style="margin-top:8px" onclick="backToPhone()">← Changer de numéro</button>
+    </div>
+
+    <!-- étape 3 : compte connecté -->
+    <div class="auth-step" id="auth-account">
+      <div style="background:var(--card);border-radius:10px;padding:14px;margin-bottom:14px">
+        <div style="font-size:12px;color:var(--muted)">Connecté en tant que</div>
+        <div style="font-size:16px;font-weight:700" id="auth-account-phone"></div>
+      </div>
+      <p style="font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:14px">Tes annonces affichent un bouton 🗑 pour les supprimer. Personne d'autre ne peut les modifier.</p>
+      <button class="btn btn-danger btn-full" onclick="logout()">Se déconnecter</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+/* ════════════════════════════════════════════════════════════════════════════
+   CONFIG FIREBASE — remplace les "VOTRE_..." par les valeurs de ton projet.
+   Voir GUIDE_FIREBASE.md (sections base de données ET authentification).
+═══════════════════════════════════════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDZP0PmPpIKA9efDEg8t0qYMzGMZDixuGc",
+  authDomain: "jibli-dz-aa340.firebaseapp.com",
+  databaseURL: "https://jibli-dz-aa340-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "jibli-dz-aa340",
+  storageBucket: "jibli-dz-aa340.firebasestorage.app",
+  messagingSenderId: "159323983716",
+  appId: "1:159323983716:web:a2c409ae2d704ae7c03471"
+};
+const FIREBASE_VERSION = "10.12.0";
+const CONFIGURED = !String(firebaseConfig.apiKey).startsWith("VOTRE_");
+
+/* ─── ÉTAT ──────────────────────────────────────────────────────────────────── */
+let MODE = 'local';
+let TRIPS = [];
+let PARCELS = [];
+let DB = null, fb = {};
+let AUTH = null, authFns = {}, currentUser = null;
+let confirmationResult = null, recaptcha = null;
+let currentDest = 'all', currentSearch = '';
+
+const TRIPS_KEY = 'jibli_trips';
+const PARCELS_KEY = 'jibli_parcels';
+
+/* ─── VILLES (aéroports ✈️ + ports ⚓) ──────────────────────────────────────── */
 const LOCATIONS = {
   'France': [
-    { name: 'Paris',       type: 'air'  },
-    { name: 'Lyon',        type: 'air'  },
-    { name: 'Marseille',   type: 'both' },
-    { name: 'Toulouse',    type: 'air'  },
-    { name: 'Nice',        type: 'air'  },
-    { name: 'Lille',       type: 'air'  },
-    { name: 'Bordeaux',    type: 'air'  },
-    { name: 'Nantes',      type: 'air'  },
-    { name: 'Strasbourg',  type: 'air'  },
-    { name: 'Montpellier', type: 'air'  },
-    { name: 'Sète',        type: 'port' },
-    { name: 'Toulon',      type: 'port' },
+    { name: 'Paris', type: 'air' }, { name: 'Lyon', type: 'air' },
+    { name: 'Marseille', type: 'both' }, { name: 'Toulouse', type: 'air' },
+    { name: 'Nice', type: 'air' }, { name: 'Lille', type: 'air' },
+    { name: 'Bordeaux', type: 'air' }, { name: 'Nantes', type: 'air' },
+    { name: 'Strasbourg', type: 'air' }, { name: 'Montpellier', type: 'air' },
+    { name: 'Sète', type: 'port' }, { name: 'Toulon', type: 'port' },
   ],
   'Algérie': [
-    { name: 'Alger',       type: 'both' },
-    { name: 'Oran',        type: 'both' },
-    { name: 'Constantine', type: 'air'  },
-    { name: 'Annaba',      type: 'both' },
-    { name: 'Béjaïa',      type: 'both' },
-    { name: 'Sétif',       type: 'air'  },
-    { name: 'Tlemcen',     type: 'air'  },
-    { name: 'Batna',       type: 'air'  },
-    { name: 'Chlef',       type: 'air'  },
-    { name: 'Skikda',      type: 'port' },
-    { name: 'Mostaganem',  type: 'port' },
-    { name: 'Ghazaouet',   type: 'port' },
+    { name: 'Alger', type: 'both' }, { name: 'Oran', type: 'both' },
+    { name: 'Constantine', type: 'air' }, { name: 'Annaba', type: 'both' },
+    { name: 'Béjaïa', type: 'both' }, { name: 'Sétif', type: 'air' },
+    { name: 'Tlemcen', type: 'air' }, { name: 'Batna', type: 'air' },
+    { name: 'Chlef', type: 'air' }, { name: 'Skikda', type: 'port' },
+    { name: 'Mostaganem', type: 'port' }, { name: 'Ghazaouet', type: 'port' },
   ],
 };
-
-function cityIcon(type) {
-  return type === 'both' ? '✈️ ⚓' : type === 'air' ? '✈️' : '⚓';
-}
+const cityIcon = t => t === 'both' ? '✈️ ⚓' : t === 'air' ? '✈️' : '⚓';
 
 function populateCities(countryId, cityId) {
   const country = document.getElementById(countryId).value;
@@ -610,41 +699,180 @@ function populateCities(countryId, cityId) {
   citySel.disabled = false;
 }
 
-// ─── DATA STORE (localStorage) ───────────────────────────────────────────────
-const TRIPS_KEY = 'jibli_trips';
-const PARCELS_KEY = 'jibli_parcels';
-
-function getTrips() {
-  try { return JSON.parse(localStorage.getItem(TRIPS_KEY)) || getSampleTrips(); }
-  catch { return getSampleTrips(); }
+/* ─── STOCKAGE LOCAL (mode démo) ─────────────────────────────────────────────── */
+function loadLocal(key, fallback) {
+  try { const v = JSON.parse(localStorage.getItem(key)); return v || fallback; }
+  catch { return fallback; }
 }
-function getParcels() {
-  try { return JSON.parse(localStorage.getItem(PARCELS_KEY)) || getSampleParcels(); }
-  catch { return getSampleParcels(); }
+function persistLocal() {
+  if (MODE !== 'local') return;
+  localStorage.setItem(TRIPS_KEY, JSON.stringify(TRIPS));
+  localStorage.setItem(PARCELS_KEY, JSON.stringify(PARCELS));
 }
-function saveTrips(arr) { localStorage.setItem(TRIPS_KEY, JSON.stringify(arr)); }
-function saveParcels(arr) { localStorage.setItem(PARCELS_KEY, JSON.stringify(arr)); }
-
-// ─── DONNÉES DE DÉMO ────────────────────────────────────────────────────────────
-function getSampleTrips() {
-  const data = [
-    { id: 1, name: 'Karim M.',  from: 'Paris',     to: 'Alger', date: '2026-06-18', capacity: '3', weight: 20, capDesc: "Vêtements et petits cadeaux. Pas de liquides svp.", wa: '+33612345678', ts: Date.now() - 5000 },
-    { id: 2, name: 'Samira L.', from: 'Lyon',      to: 'Oran',  date: '2026-06-22', capacity: '2', weight: 15, capDesc: "Médicaments et documents acceptés.", wa: '+33698765432', ts: Date.now() - 4000 },
-    { id: 3, name: 'Yacine B.', from: 'Marseille', to: 'Alger', date: '2026-07-01', capacity: '5+', weight: 40, capDesc: "Je voyage en ferry (Algérie Ferries), grande capacité.", wa: '+33755443322', ts: Date.now() - 3000 },
+function sampleTrips() {
+  return [
+    { id: '1', name: 'Karim M.',  from: 'Paris',     to: 'Alger', date: '2026-06-18', capacity: '3', weight: 20, capDesc: "Vêtements et petits cadeaux. Pas de liquides svp.", wa: '+33612345678' },
+    { id: '2', name: 'Samira L.', from: 'Lyon',      to: 'Oran',  date: '2026-06-22', capacity: '2', weight: 15, capDesc: "Médicaments et documents acceptés.", wa: '+33698765432' },
+    { id: '3', name: 'Yacine B.', from: 'Marseille', to: 'Alger', date: '2026-07-01', capacity: '5+', weight: 40, capDesc: "Je voyage en ferry (Algérie Ferries), grande capacité.", wa: '+33755443322' },
   ];
-  saveTrips(data);
-  return data;
 }
-function getSampleParcels() {
-  const data = [
-    { id: 1, from: 'Paris', to: 'Alger', desc: 'Médicaments + quelques habits pour mes parents. ~3 kg.', budget: 25, wa: '+33611223344', ts: Date.now() - 2000 },
-    { id: 2, from: 'Lyon',  to: 'Oran',  desc: 'Téléphone portable (cadeau anniversaire), bien emballé.', budget: 40, wa: '+33677889900', ts: Date.now() - 1000 },
+function sampleParcels() {
+  return [
+    { id: '1', from: 'Paris', to: 'Alger', desc: 'Médicaments + quelques habits pour mes parents. ~3 kg.', budget: 25, wa: '+33611223344' },
+    { id: '2', from: 'Lyon',  to: 'Oran',  desc: 'Téléphone portable (cadeau anniversaire), bien emballé.', budget: 40, wa: '+33677889900' },
   ];
-  saveParcels(data);
-  return data;
 }
 
-// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+/* ─── INITIALISATION ─────────────────────────────────────────────────────────── */
+async function init() {
+  document.getElementById('trip-date').value = new Date().toISOString().split('T')[0];
+
+  if (CONFIGURED) {
+    try {
+      const appMod  = await import(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-app.js`);
+      const fsMod   = await import(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-firestore.js`);
+      const authMod = await import(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-auth.js`);
+      const app = appMod.initializeApp(firebaseConfig);
+      DB = fsMod.getFirestore(app); fb = fsMod;
+      AUTH = authMod.getAuth(app);  authFns = authMod;
+      MODE = 'cloud';
+      setModeBar('cloud');
+      authFns.onAuthStateChanged(AUTH, user => {
+        currentUser = user;
+        updateAccountUI();
+        renderAll();
+      });
+      subscribe();
+      updateAccountUI();
+      return;
+    } catch (e) {
+      console.error('Firebase indisponible, repli en mode local :', e);
+      showToast('⚠️ Connexion cloud impossible — mode démo local');
+    }
+  }
+
+  MODE = 'local';
+  setModeBar('local');
+  TRIPS = loadLocal(TRIPS_KEY, sampleTrips());
+  PARCELS = loadLocal(PARCELS_KEY, sampleParcels());
+  persistLocal();
+  updateAccountUI();
+  renderAll();
+}
+
+function setModeBar(mode) {
+  const bar = document.getElementById('modeBar');
+  bar.className = 'mode-bar show ' + mode;
+  bar.textContent = mode === 'cloud'
+    ? '🌐 Mode partagé — tout le monde voit les mêmes annonces'
+    : '🧪 Mode démo — données visibles sur ce navigateur uniquement';
+}
+
+/* ─── ABONNEMENT TEMPS RÉEL ──────────────────────────────────────────────────── */
+function subscribe() {
+  const tq = fb.query(fb.collection(DB, 'trips'), fb.orderBy('createdAt', 'desc'));
+  fb.onSnapshot(tq, snap => {
+    TRIPS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderTrips(); updateStats();
+  }, err => { console.error(err); showToast('⚠️ Erreur de chargement des trajets'); });
+
+  const pq = fb.query(fb.collection(DB, 'parcels'), fb.orderBy('createdAt', 'desc'));
+  fb.onSnapshot(pq, snap => {
+    PARCELS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderParcels(); updateStats();
+  }, err => { console.error(err); showToast('⚠️ Erreur de chargement des colis'); });
+}
+
+/* ─── AUTHENTIFICATION (téléphone) ───────────────────────────────────────────── */
+function maskPhone(p) { return p ? '…' + String(p).slice(-2) : 'moi'; }
+
+function updateAccountUI() {
+  const btn = document.getElementById('accountBtn');
+  if (MODE !== 'cloud') { btn.style.display = 'none'; }
+  else {
+    btn.style.display = '';
+    btn.textContent = currentUser ? ('👤 ' + maskPhone(currentUser.phoneNumber)) : 'Se connecter';
+  }
+  // Bandeaux "connecte-toi" sur les écrans de publication
+  const needLogin = (MODE === 'cloud' && !currentUser);
+  document.getElementById('trip-login-note').classList.toggle('show', needLogin);
+  document.getElementById('parcel-login-note').classList.toggle('show', needLogin);
+}
+
+function setAuthStep(name) {
+  ['auth-phone','auth-code','auth-account'].forEach(s =>
+    document.getElementById(s).classList.toggle('active', s === 'auth-' + name));
+}
+function openAuthModal() {
+  if (MODE !== 'cloud') { showToast('🧪 La connexion est disponible en mode partagé (Firebase configuré)'); return; }
+  if (currentUser) {
+    document.getElementById('authTitle').textContent = 'Mon compte';
+    document.getElementById('auth-account-phone').textContent = currentUser.phoneNumber || '—';
+    setAuthStep('account');
+  } else {
+    document.getElementById('authTitle').textContent = 'Connexion';
+    setAuthStep('phone');
+  }
+  document.getElementById('authModal').classList.add('open');
+}
+function closeAuthModal() { document.getElementById('authModal').classList.remove('open'); }
+function backToPhone() { setAuthStep('phone'); }
+function setCC(cc) {
+  const inp = document.getElementById('auth-phone-input');
+  inp.value = cc + ' '; inp.focus();
+}
+
+async function sendCode() {
+  const phone = document.getElementById('auth-phone-input').value.replace(/\s/g, '');
+  if (!/^\+\d{8,15}$/.test(phone)) {
+    showToast('⚠️ Format international requis, ex : +33612345678'); return;
+  }
+  const btn = document.getElementById('auth-send');
+  try {
+    btn.disabled = true; btn.textContent = '⏳ Envoi…';
+    if (!recaptcha) {
+      recaptcha = new authFns.RecaptchaVerifier(AUTH, 'recaptcha-container', { size: 'invisible' });
+    }
+    confirmationResult = await authFns.signInWithPhoneNumber(AUTH, phone, recaptcha);
+    document.getElementById('auth-phone-echo').textContent = phone;
+    document.getElementById('auth-code-input').value = '';
+    setAuthStep('code');
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ Envoi impossible : ' + (e.code || e.message || ''));
+    try { if (recaptcha) recaptcha.clear(); } catch (_) {}
+    recaptcha = null;
+  }
+  btn.disabled = false; btn.textContent = 'Envoyer le code';
+}
+
+async function verifyCode() {
+  const code = document.getElementById('auth-code-input').value.trim();
+  if (code.length < 6) { showToast('⚠️ Entre le code à 6 chiffres'); return; }
+  const btn = document.getElementById('auth-verify');
+  try {
+    btn.disabled = true; btn.textContent = '⏳ Vérification…';
+    await confirmationResult.confirm(code);
+    showToast('✅ Connecté !');
+    closeAuthModal();
+  } catch (e) {
+    console.error(e); showToast('⚠️ Code incorrect ou expiré');
+  }
+  btn.disabled = false; btn.textContent = 'Valider';
+}
+
+async function logout() {
+  try { await authFns.signOut(AUTH); showToast('À bientôt 👋'); closeAuthModal(); }
+  catch (e) { console.error(e); showToast('⚠️ Déconnexion impossible'); }
+}
+
+/* ─── PROPRIÉTÉ DES ANNONCES ─────────────────────────────────────────────────── */
+function canDelete(item) {
+  if (MODE === 'local') return true;                       // démo : tout est à moi
+  return !!(currentUser && item.ownerUid && item.ownerUid === currentUser.uid);
+}
+
+/* ─── NAVIGATION ─────────────────────────────────────────────────────────────── */
 function showScreen(name, btn) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -653,11 +881,6 @@ function showScreen(name, btn) {
   window.scrollTo({ top: 0 });
   renderAll();
 }
-
-// ─── FILTRES ──────────────────────────────────────────────────────────────────
-let currentDest = 'all';
-let currentSearch = '';
-
 function filterDest(dest, el) {
   currentDest = dest;
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
@@ -666,25 +889,21 @@ function filterDest(dest, el) {
 }
 function filterContent() {
   currentSearch = document.getElementById('searchInput').value.toLowerCase();
-  renderTrips();
-  renderParcels();
+  renderTrips(); renderParcels();
 }
 
-// ─── RENDER ───────────────────────────────────────────────────────────────────
+/* ─── RENDER ─────────────────────────────────────────────────────────────────── */
 function renderAll() { renderTrips(); renderParcels(); updateStats(); }
 
 function renderTrips() {
-  let trips = getTrips();
+  let trips = [...TRIPS];
   if (currentSearch) {
     trips = trips.filter(t =>
-      t.from.toLowerCase().includes(currentSearch) ||
-      t.to.toLowerCase().includes(currentSearch) ||
-      t.name.toLowerCase().includes(currentSearch)
-    );
+      (t.from || '').toLowerCase().includes(currentSearch) ||
+      (t.to || '').toLowerCase().includes(currentSearch) ||
+      (t.name || '').toLowerCase().includes(currentSearch));
   }
-  if (currentDest !== 'all') {
-    trips = trips.filter(t => t.to === currentDest);
-  }
+  if (currentDest !== 'all') trips = trips.filter(t => t.to === currentDest);
   trips.sort((a, b) => new Date(a.date) - new Date(b.date));
 
   const el = document.getElementById('trips-list');
@@ -694,19 +913,18 @@ function renderTrips() {
     el.innerHTML = `<div class="empty"><div class="empty-icon">✈️</div><p>Aucun trajet disponible.<br>Soyez le premier à publier !</p></div>`;
     return;
   }
-
+  const todayMidnight = new Date(new Date().toDateString());
   el.innerHTML = trips.map(t => {
     const d = new Date(t.date);
     const dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
-    const isUpcoming = d >= new Date(new Date().toDateString());
+    const isUpcoming = d >= todayMidnight;
+    const mine = canDelete(t);
     const waLink = formatWA(t.wa, `Bonjour ${t.name}, j'ai vu votre trajet ${t.from}→${t.to} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
     return `
-    <div class="trip-card" onclick="openTripModal(${t.id})">
+    <div class="trip-card" onclick="openTripModal('${t.id}')">
       <div class="trip-route">
-        <span>${escHtml(t.from)}</span>
-        <span class="trip-arrow">→</span>
-        <span>${escHtml(t.to)}</span>
-        ${isUpcoming ? '' : '<span style="font-size:11px;color:var(--red);margin-left:auto">Passé</span>'}
+        <span>${escHtml(t.from)}</span><span class="trip-arrow">→</span><span>${escHtml(t.to)}</span>
+        ${mine ? '<span class="mine-tag">MON ANNONCE</span>' : (isUpcoming ? '' : '<span style="font-size:11px;color:var(--red);margin-left:auto">Passé</span>')}
       </div>
       <div class="trip-meta">
         <span>👤 ${escHtml(t.name)}</span>
@@ -717,20 +935,20 @@ function renderTrips() {
       ${t.capDesc ? `<div style="margin-top:8px;font-size:12px;color:var(--muted);font-style:italic">"${escHtml(t.capDesc)}"</div>` : ''}
       <div class="trip-actions" onclick="event.stopPropagation()">
         <a href="${waLink}" target="_blank" class="btn btn-wa btn-sm">💬 WhatsApp</a>
-        <button class="btn btn-outline btn-sm" onclick="openTripModal(${t.id})">Voir détails</button>
+        <button class="btn btn-outline btn-sm" onclick="openTripModal('${t.id}')">Voir détails</button>
+        ${mine ? `<button class="btn btn-danger btn-sm" onclick="deleteTrip('${t.id}')">🗑 Supprimer</button>` : ''}
       </div>
     </div>`;
   }).join('');
 }
 
 function renderParcels() {
-  let parcels = getParcels();
+  let parcels = [...PARCELS];
   if (currentSearch) {
     parcels = parcels.filter(p =>
-      p.from.toLowerCase().includes(currentSearch) ||
-      p.to.toLowerCase().includes(currentSearch) ||
-      p.desc.toLowerCase().includes(currentSearch)
-    );
+      (p.from || '').toLowerCase().includes(currentSearch) ||
+      (p.to || '').toLowerCase().includes(currentSearch) ||
+      (p.desc || '').toLowerCase().includes(currentSearch));
   }
   const el = document.getElementById('parcels-list');
   document.getElementById('parcelBadge').textContent = parcels.length;
@@ -739,95 +957,141 @@ function renderParcels() {
     el.innerHTML = `<div class="empty"><div class="empty-icon">📦</div><p>Aucun colis publié.<br>Quelqu'un a besoin de vous !</p></div>`;
     return;
   }
-  el.innerHTML = [...parcels].reverse().map(p => {
+  el.innerHTML = parcels.map(p => {
+    const mine = canDelete(p);
     const waLink = formatWA(p.wa, `Bonjour, j'ai vu votre colis ${p.from}→${p.to} sur JIBLI DZ. Je fais ce trajet et je peux vous aider !`);
     return `
     <div class="parcel-card">
       <div class="parcel-route">
-        <span>${escHtml(p.from)}</span>
-        <span class="trip-arrow" style="color:var(--gold)">→</span>
-        <span>${escHtml(p.to)}</span>
+        <span>${escHtml(p.from)}</span><span class="trip-arrow" style="color:var(--gold)">→</span><span>${escHtml(p.to)}</span>
+        ${mine ? '<span class="mine-tag">MON ANNONCE</span>' : ''}
       </div>
       <div class="parcel-desc">${escHtml(p.desc)}</div>
       <div><span class="budget-tag">💶 Budget : ${escHtml(String(p.budget))}€</span></div>
-      <div style="margin-top:12px">
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
         <a href="${waLink}" target="_blank" class="btn btn-wa btn-sm">💬 Contacter sur WhatsApp</a>
+        ${mine ? `<button class="btn btn-danger btn-sm" onclick="deleteParcel('${p.id}')">🗑 Supprimer</button>` : ''}
       </div>
     </div>`;
   }).join('');
 }
 
 function updateStats() {
-  document.getElementById('tripCount').textContent = getTrips().length;
-  document.getElementById('parcelCount').textContent = getParcels().length;
+  document.getElementById('tripCount').textContent = TRIPS.length;
+  document.getElementById('parcelCount').textContent = PARCELS.length;
 }
 
-// ─── AJOUTER UN TRAJET ──────────────────────────────────────────────────────────
-function addTrip() {
-  const name   = document.getElementById('trip-name').value.trim();
-  const from   = document.getElementById('trip-from-city').value;
-  const to     = document.getElementById('trip-to-city').value;
-  const date   = document.getElementById('trip-date').value;
-  const cap    = document.getElementById('trip-capacity').value;
-  const weight = document.getElementById('trip-weight').value;
-  const capDesc= document.getElementById('trip-capdesc').value.trim();
-  const wa     = document.getElementById('trip-wa').value.trim();
+/* ─── AJOUTER UN TRAJET ──────────────────────────────────────────────────────── */
+async function addTrip() {
+  if (MODE === 'cloud' && !currentUser) { showToast('🔒 Connecte-toi pour publier'); openAuthModal(); return; }
 
-  if (!name || !from || !to || !date || !wa) {
-    showToast('⚠️ Remplissez tous les champs obligatoires'); return;
-  }
+  const name    = document.getElementById('trip-name').value.trim();
+  const from    = document.getElementById('trip-from-city').value;
+  const to      = document.getElementById('trip-to-city').value;
+  const date    = document.getElementById('trip-date').value;
+  const capacity= document.getElementById('trip-capacity').value;
+  const weight  = document.getElementById('trip-weight').value;
+  const capDesc = document.getElementById('trip-capdesc').value.trim();
+  const wa      = document.getElementById('trip-wa').value.trim();
+
+  if (!name || !from || !to || !date || !wa) { showToast('⚠️ Remplissez tous les champs obligatoires'); return; }
   if (from === to) { showToast('⚠️ Départ et arrivée identiques'); return; }
 
-  const trips = getTrips();
-  trips.unshift({ id: Date.now(), name, from, to, date, capacity: cap, weight: weight || '', capDesc, wa, ts: Date.now() });
-  saveTrips(trips);
+  const trip = { name, from, to, date, capacity, weight: weight || '', capDesc, wa };
+  const btn = document.getElementById('trip-submit');
+  try {
+    btn.disabled = true; btn.textContent = '⏳ Publication…';
+    if (MODE === 'cloud') {
+      await fb.addDoc(fb.collection(DB, 'trips'), {
+        ...trip, ownerUid: currentUser.uid, createdAt: fb.serverTimestamp()
+      });
+    } else {
+      TRIPS.unshift({ id: String(Date.now()), ...trip });
+      persistLocal(); renderAll();
+    }
+  } catch (e) {
+    console.error(e); showToast('⚠️ Échec de la publication');
+    btn.disabled = false; btn.textContent = '✅ Publier mon trajet'; return;
+  }
+  btn.disabled = false; btn.textContent = '✅ Publier mon trajet';
 
-  // Reset
   ['trip-name','trip-wa','trip-capdesc','trip-weight'].forEach(id => document.getElementById(id).value = '');
   ['trip-from-country','trip-to-country'].forEach(id => document.getElementById(id).value = '');
   ['trip-from-city','trip-to-city'].forEach(id => {
-    const s = document.getElementById(id);
-    s.innerHTML = '<option value="">Ville…</option>'; s.disabled = true;
+    const s = document.getElementById(id); s.innerHTML = '<option value="">Ville…</option>'; s.disabled = true;
   });
   document.getElementById('trip-date').value = new Date().toISOString().split('T')[0];
 
   showToast('✅ Trajet publié avec succès !');
-  const tabs = document.querySelectorAll('.tab-btn');
-  showScreen('home', tabs[0]);
+  showScreen('home', document.querySelectorAll('.tab-btn')[0]);
 }
 
-// ─── AJOUTER UN COLIS ─────────────────────────────────────────────────────────
-function addParcel() {
+/* ─── AJOUTER UN COLIS ───────────────────────────────────────────────────────── */
+async function addParcel() {
+  if (MODE === 'cloud' && !currentUser) { showToast('🔒 Connecte-toi pour publier'); openAuthModal(); return; }
+
   const from   = document.getElementById('parcel-from-city').value;
   const to     = document.getElementById('parcel-to-city').value;
   const desc   = document.getElementById('parcel-desc').value.trim();
   const budget = document.getElementById('parcel-budget').value;
   const wa     = document.getElementById('parcel-wa').value.trim();
 
-  if (!from || !to || !desc || !wa) {
-    showToast('⚠️ Remplissez tous les champs'); return;
-  }
+  if (!from || !to || !desc || !wa) { showToast('⚠️ Remplissez tous les champs'); return; }
   if (from === to) { showToast('⚠️ Départ et arrivée identiques'); return; }
 
-  const parcels = getParcels();
-  parcels.unshift({ id: Date.now(), from, to, desc, budget: budget || 0, wa, ts: Date.now() });
-  saveParcels(parcels);
+  const parcel = { from, to, desc, budget: budget || 0, wa };
+  const btn = document.getElementById('parcel-submit');
+  try {
+    btn.disabled = true; btn.textContent = '⏳ Publication…';
+    if (MODE === 'cloud') {
+      await fb.addDoc(fb.collection(DB, 'parcels'), {
+        ...parcel, ownerUid: currentUser.uid, createdAt: fb.serverTimestamp()
+      });
+    } else {
+      PARCELS.unshift({ id: String(Date.now()), ...parcel });
+      persistLocal(); renderAll();
+    }
+  } catch (e) {
+    console.error(e); showToast('⚠️ Échec de la publication');
+    btn.disabled = false; btn.textContent = '📦 Publier mon colis'; return;
+  }
+  btn.disabled = false; btn.textContent = '📦 Publier mon colis';
 
   ['parcel-desc','parcel-budget','parcel-wa'].forEach(id => document.getElementById(id).value = '');
   ['parcel-from-country','parcel-to-country'].forEach(id => document.getElementById(id).value = '');
   ['parcel-from-city','parcel-to-city'].forEach(id => {
-    const s = document.getElementById(id);
-    s.innerHTML = '<option value="">Ville…</option>'; s.disabled = true;
+    const s = document.getElementById(id); s.innerHTML = '<option value="">Ville…</option>'; s.disabled = true;
   });
 
   showToast('📦 Colis publié ! Les voyageurs vont vous contacter.');
-  const tabs = document.querySelectorAll('.tab-btn');
-  showScreen('parcels', tabs[1]);
+  showScreen('parcels', document.querySelectorAll('.tab-btn')[1]);
 }
 
-// ─── MODAL ────────────────────────────────────────────────────────────────────
+/* ─── SUPPRESSION (propriétaire uniquement) ──────────────────────────────────── */
+async function deleteTrip(id) {
+  const t = TRIPS.find(x => String(x.id) === String(id));
+  if (!t || !canDelete(t)) { showToast('⚠️ Action non autorisée'); return; }
+  if (!confirm('Supprimer définitivement ce trajet ?')) return;
+  try {
+    if (MODE === 'cloud') { await fb.deleteDoc(fb.doc(DB, 'trips', id)); }
+    else { TRIPS = TRIPS.filter(x => String(x.id) !== String(id)); persistLocal(); renderAll(); }
+    showToast('🗑 Trajet supprimé');
+  } catch (e) { console.error(e); showToast('⚠️ Suppression impossible'); }
+}
+async function deleteParcel(id) {
+  const p = PARCELS.find(x => String(x.id) === String(id));
+  if (!p || !canDelete(p)) { showToast('⚠️ Action non autorisée'); return; }
+  if (!confirm('Supprimer définitivement ce colis ?')) return;
+  try {
+    if (MODE === 'cloud') { await fb.deleteDoc(fb.doc(DB, 'parcels', id)); }
+    else { PARCELS = PARCELS.filter(x => String(x.id) !== String(id)); persistLocal(); renderAll(); }
+    showToast('🗑 Colis supprimé');
+  } catch (e) { console.error(e); showToast('⚠️ Suppression impossible'); }
+}
+
+/* ─── MODAL DÉTAIL ───────────────────────────────────────────────────────────── */
 function openTripModal(id) {
-  const trip = getTrips().find(t => t.id === id);
+  const trip = TRIPS.find(t => String(t.id) === String(id));
   if (!trip) return;
   const d = new Date(trip.date);
   const dateStr = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -851,42 +1115,45 @@ function openTripModal(id) {
         </div>
         <div style="flex:1;background:var(--card);border-radius:10px;padding:14px;text-align:center">
           <div style="font-size:12px;color:var(--muted)">Poids max</div>
-          <div style="font-size:22px;font-weight:900;color:var(--green-mid)">${trip.weight ? escHtml(String(trip.weight))+'<span style=\"font-size:12px\">kg</span>' : '—'}</div>
+          <div style="font-size:22px;font-weight:900;color:var(--green-mid)">${trip.weight ? escHtml(String(trip.weight)) + '<span style=\"font-size:12px\">kg</span>' : '—'}</div>
         </div>
       </div>
       ${trip.capDesc ? `<div style="background:var(--gold-light);border-radius:10px;padding:14px;font-size:13px;line-height:1.5"><strong>Capacité &amp; conditions :</strong><br>${escHtml(trip.capDesc)}</div>` : ''}
-      <a href="${waLink}" target="_blank" class="btn btn-wa btn-full" style="font-size:15px">
-        💬 Contacter sur WhatsApp
-      </a>
+      <a href="${waLink}" target="_blank" class="btn btn-wa btn-full" style="font-size:15px">💬 Contacter sur WhatsApp</a>
+      ${canDelete(trip) ? `<button class="btn btn-danger btn-full" onclick="deleteTrip('${trip.id}');closeModal()">🗑 Supprimer mon trajet</button>` : ''}
       <p style="font-size:11px;color:var(--muted);text-align:center">Le contact se fait directement via WhatsApp. JIBLI DZ n'intervient pas dans la transaction.</p>
     </div>`;
   document.getElementById('tripModal').classList.add('open');
 }
-function closeModal() {
-  document.getElementById('tripModal').classList.remove('open');
-}
-document.getElementById('tripModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+function closeModal() { document.getElementById('tripModal').classList.remove('open'); }
+document.getElementById('tripModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+document.getElementById('authModal').addEventListener('click', function (e) { if (e.target === this) closeAuthModal(); });
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
+/* ─── HELPERS ────────────────────────────────────────────────────────────────── */
 function formatWA(num, msg) {
-  const clean = String(num).replace(/\s/g, '');
+  const clean = String(num || '').replace(/\s/g, '');
   return `https://wa.me/${clean.replace('+', '')}?text=${encodeURIComponent(msg)}`;
 }
 function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str == null ? '' : str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-document.getElementById('trip-date').value = new Date().toISOString().split('T')[0];
-renderAll();
+/* ─── EXPOSITION DES HANDLERS ────────────────────────────────────────────────── */
+Object.assign(window, {
+  showScreen, filterDest, filterContent, populateCities,
+  addTrip, addParcel, openTripModal, closeModal,
+  openAuthModal, closeAuthModal, sendCode, verifyCode, logout, backToPhone, setCC,
+  deleteTrip, deleteParcel
+});
+
+/* ─── GO ─────────────────────────────────────────────────────────────────────── */
+init();
 </script>
 </body>
 </html>
