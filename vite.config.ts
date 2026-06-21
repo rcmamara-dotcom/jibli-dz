@@ -6,6 +6,13 @@ export default defineConfig({
   base: '/jibli-dz/',
   build: {
     outDir: 'build',
-    chunkSizeWarningLimit: 800,
+    chunkSizeWarningLimit: 750,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/app-check'],
+        },
+      },
+    },
   },
 });
