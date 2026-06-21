@@ -1,17 +1,13 @@
 import React from 'react';
-import { User } from 'firebase/auth';
-import { Mode } from '../types';
 
 interface Props {
-  user: User | null;
-  mode: Mode;
+  isLoggedIn: boolean;
   search: string;
   onSearch: (v: string) => void;
   onAccount: () => void;
 }
 
-export default function Header({ user, mode, search, onSearch, onAccount }: Props) {
-  const label = user ? '👤 ' + (user.email || '').split('@')[0].slice(0, 12) : 'Se connecter';
+export default function Header({ isLoggedIn, search, onSearch, onAccount }: Props) {
   return (
     <header className="header">
       <div className="header-top">
@@ -22,7 +18,9 @@ export default function Header({ user, mode, search, onSearch, onAccount }: Prop
             <span>France ⇄ Algérie · جيبلي</span>
           </div>
         </div>
-        {mode === 'cloud' && <button className="account-btn" onClick={onAccount}>{label}</button>}
+        <button className="account-btn" onClick={onAccount}>
+          {isLoggedIn ? '👤 Mon compte' : 'Se connecter'}
+        </button>
       </div>
       <div className="search-bar">
         <input type="text" placeholder="Ex: Paris, Alger, Oran…" value={search} onChange={(e) => onSearch(e.target.value)} />

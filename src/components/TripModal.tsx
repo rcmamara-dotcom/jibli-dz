@@ -12,13 +12,13 @@ interface Props {
 export default function TripModal({ trip, canDelete, onClose, onDelete }: Props) {
   const d = new Date(trip.date);
   const dateStr = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const wa = formatWA(trip.wa, `Bonjour ${trip.name}, j'ai vu votre trajet ${trip.from}→${trip.to} le ${dateStr} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
+  const wa = formatWA(trip.wa, `Bonjour ${trip.name}, j'ai vu votre trajet ${trip.from_city}→${trip.to_city} le ${dateStr} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
 
   return (
     <div className="modal-overlay open" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal">
         <div className="modal-header">
-          <div className="modal-title">{trip.from} → {trip.to}</div>
+          <div className="modal-title">{trip.from_city} → {trip.to_city}</div>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -40,9 +40,9 @@ export default function TripModal({ trip, canDelete, onClose, onDelete }: Props)
               <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--green-mid)' }}>{trip.weight ? trip.weight + ' kg' : '—'}</div>
             </div>
           </div>
-          {trip.capDesc && (
+          {trip.cap_desc && (
             <div style={{ background: 'var(--gold-light)', borderRadius: 10, padding: 14, fontSize: 13, lineHeight: 1.5 }}>
-              <strong>Capacité &amp; conditions :</strong><br />{trip.capDesc}
+              <strong>Capacité &amp; conditions :</strong><br />{trip.cap_desc}
             </div>
           )}
           <a href={wa} target="_blank" rel="noopener noreferrer" className="btn btn-wa btn-full" style={{ fontSize: 15 }}>💬 Contacter sur WhatsApp</a>

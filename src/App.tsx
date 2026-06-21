@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Screen } from './types';
+import { Screen, Trip } from './types';
 import { DEST_FILTERS } from './constants/locations';
 import { useAppData } from './hooks/useAppData';
 import Header from './components/Header';
@@ -15,42 +15,34 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('home');
   const [search, setSearch] = useState('');
   const [dest, setDest] = useState('all');
-  const [tripModal, setTripModal] = useState<import('./types').Trip | null>(null);
+  const [tripModal, setTripModal] = useState<Trip | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
 
   const {
-    mode, trips, parcels, user, toast, showToast,
-    canDelete, publishTrip, publishParcel, removeTrip, removeParcel, logout,
+    trips, parcels, userId, toast, showToast,
+    canDelete, publishTrip, publishParcel, removeTrip, removeParcel, login, logout,
   } = useAppData();
+
+  const isLoggedIn = userId !== null;
+  const needLogin = !isLoggedIn;
 
   const visibleTrips = useMemo(() => {
     let list = [...trips];
     const s = search.toLowerCase();
-    if (s) list = list.filter((t) => [t.from, t.to, t.name].some((v) => (v || '').toLowerCase().includes(s)));
-    if (dest !== 'all') list = list.filter((t) => t.to === dest);
+    if (s) list = list.filter((t) => [t.from_city, t.to_city, t.name].some((v) => (v ?? '').toLowerCase().includes(s)));
+    if (dest !== 'all') list = list.filter((t) => t.to_city === dest);
     return list.sort((a, b) => +new Date(a.date) - +new Date(b.date));
   }, [trips, search, dest]);
 
   const visibleParcels = useMemo(() => {
     const s = search.toLowerCase();
     if (!s) return parcels;
-    return parcels.filter((p) => [p.from, p.to, p.desc].some((v) => (v || '').toLowerCase().includes(s)));
+    return parcels.filter((p) => [p.from_city, p.to_city, p.description].some((v) => (v ?? '').toLowerCase().includes(s)));
   }, [parcels, search]);
-
-  const needLogin = mode === 'cloud' && !user;
-
-  const handleLogout = async () => {
-    await logout();
-    setAuthOpen(false);
-  };
 
   return (
     <>
-      <Header user={user} mode={mode} search={search} onSearch={setSearch} onAccount={() => setAuthOpen(true)} />
-
-      {mode === 'cloud'
-        ? <div className="mode-bar show cloud">🌐 Mode partagé — tout le monde voit les mêmes annonces</div>
-        : <div className="mode-bar show local">🧪 Mode démo — données visibles sur ce navigateur uniquement</div>}
+      <Header isLoggedIn={isLoggedIn} search={search} onSearch={setSearch} onAccount={() => setAuthOpen(true)} />
 
       <NavTabs screen={screen} setScreen={setScreen} />
 
@@ -99,21 +91,11 @@ export default function App() {
       )}
 
       {screen === 'add-trip' && (
-        <AddTrip
-          needLogin={needLogin}
-          onLogin={() => setAuthOpen(true)}
-          onPublish={publishTrip}
-          onNavigate={() => setScreen('home')}
-        />
+        <AddTrip needLogin={needLogin} onLogin={() => setAuthOpen(true)} onPublish={publishTrip} onNavigate={() => setScreen('home')} />
       )}
 
       {screen === 'add-parcel' && (
-        <AddParcel
-          needLogin={needLogin}
-          onLogin={() => setAuthOpen(true)}
-          onPublish={publishParcel}
-          onNavigate={() => setScreen('parcels')}
-        />
+        <AddParcel needLogin={needLogin} onLogin={() => setAuthOpen(true)} onPublish={publishParcel} onNavigate={() => setScreen('parcels')} />
       )}
 
       {toast && <div className="toast show">{toast}</div>}
@@ -128,7 +110,13 @@ export default function App() {
       )}
 
       {authOpen && (
-        <AuthModal mode={mode} user={user} onClose={() => setAuthOpen(false)} onLogout={handleLogout} showToast={showToast} />
+        <AuthModal
+          isLoggedIn={isLoggedIn}
+          onClose={() => setAuthOpen(false)}
+          onLogin={login}
+          onLogout={logout}
+          showToast={showToast}
+        />
       )}
     </>
   );

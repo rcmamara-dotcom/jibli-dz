@@ -1,25 +1,26 @@
 export interface Trip {
-  id: string;
+  id: number;
   name: string;
-  from: string;
-  to: string;
+  from_city: string;
+  to_city: string;
   date: string;
   capacity: string;
-  weight?: number | string;
-  capDesc?: string;
+  weight?: number | null;
+  cap_desc?: string | null;
   wa: string;
-  ownerUid?: string;
+  owner_id?: number | null;
+  created_at: string;
 }
 
 export interface Parcel {
-  id: string;
-  from: string;
-  to: string;
-  desc: string;
-  budget?: number | string;
+  id: number;
+  from_city: string;
+  to_city: string;
+  description: string;
+  budget: number;
   wa: string;
-  ownerUid?: string;
+  owner_id?: number | null;
+  created_at: string;
 }
 
-export type Mode = 'cloud' | 'local';
 export type Screen = 'home' | 'parcels' | 'add-trip' | 'add-parcel';

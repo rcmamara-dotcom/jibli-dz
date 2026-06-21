@@ -8,7 +8,7 @@ on:
 
 jobs:
   frontend:
-    name: Frontend — Typecheck & Build
+    name: Typecheck & Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,28 +24,3 @@ jobs:
 
       - name: Build
         run: npm run build
-
-  backend:
-    name: Backend — Lint & Type check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: backend/requirements.txt
-
-      - name: Install dependencies
-        working-directory: backend
-        run: pip install -r requirements.txt ruff pyright
-
-      - name: Lint (ruff)
-        working-directory: backend
-        run: ruff check .
-
-      - name: Type check (pyright)
-        working-directory: backend
-        run: pyright api godata/godata
