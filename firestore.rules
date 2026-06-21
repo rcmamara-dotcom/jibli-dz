@@ -1,0 +1,47 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function texteOk(v, max) {
+      return v is string && v.size() > 0 && v.size() <= max;
+    }
+
+    // L'auteur de l'annonce doit etre l'utilisateur connecte
+    function estAuteurCreation() {
+      return request.auth != null
+        && request.resource.data.ownerUid == request.auth.uid;
+    }
+    // Pour supprimer : le proprietaire enregistre doit etre celui qui demande
+    function estProprietaire() {
+      return request.auth != null
+        && resource.data.ownerUid == request.auth.uid;
+    }
+
+    match /trips/{id} {
+      allow read: if true;
+      allow create: if estAuteurCreation()
+        && texteOk(request.resource.data.name, 60)
+        && texteOk(request.resource.data.from, 40)
+        && texteOk(request.resource.data.to, 40)
+        && texteOk(request.resource.data.date, 20)
+        && texteOk(request.resource.data.wa, 25)
+        && request.resource.data.capacity is string
+        && request.resource.data.capDesc is string
+        && request.resource.data.capDesc.size() <= 500;
+      allow delete: if estProprietaire();
+      allow update: if false;
+    }
+
+    match /parcels/{id} {
+      allow read: if true;
+      allow create: if estAuteurCreation()
+        && texteOk(request.resource.data.from, 40)
+        && texteOk(request.resource.data.to, 40)
+        && texteOk(request.resource.data.desc, 500)
+        && texteOk(request.resource.data.wa, 25);
+      allow delete: if estProprietaire();
+      allow update: if false;
+    }
+  }
+}
