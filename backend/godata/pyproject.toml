@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "godata"
+version = "0.1.0"
+description = "Data access layer for Jibli DZ — Peewee + PostgreSQL"
+requires-python = ">=3.11"
+dependencies = [
+    "peewee>=3.17",
+    "psycopg2-binary>=2.9",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["godata*"]
