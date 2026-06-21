@@ -35,7 +35,8 @@ if (CONFIGURED) {
   if (!RECAPTCHA_SITE_KEY.startsWith('VOTRE_')) {
     try {
       if (APPCHECK_DEBUG) {
-        (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
       }
       initializeAppCheck(app, {
         provider: new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),
