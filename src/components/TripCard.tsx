@@ -10,15 +10,16 @@ interface Props {
 }
 
 export default function TripCard({ trip: t, mine, onOpen, onDelete }: Props) {
-  const d = new Date(t.date);
+  const d = new Date(t.date + 'T12:00:00');
   const dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
-  const isUpcoming = d >= new Date(new Date().toDateString());
-  const wa = formatWA(t.wa, `Bonjour ${t.name}, j'ai vu votre trajet ${t.from}→${t.to} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const isUpcoming = d >= today;
+  const wa = formatWA(t.wa, `Bonjour ${t.name}, j'ai vu votre trajet ${t.from_city}→${t.to_city} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
 
   return (
     <div className="trip-card" onClick={onOpen}>
       <div className="trip-route">
-        <span>{t.from}</span><span className="trip-arrow">→</span><span>{t.to}</span>
+        <span>{t.from_city}</span><span className="trip-arrow">→</span><span>{t.to_city}</span>
         {mine
           ? <span className="mine-tag">MON ANNONCE</span>
           : (!isUpcoming && <span style={{ fontSize: 11, color: 'var(--red)', marginLeft: 'auto' }}>Passé</span>)}
@@ -29,7 +30,7 @@ export default function TripCard({ trip: t, mine, onOpen, onDelete }: Props) {
         <span>📦 {t.capacity} colis</span>
         {t.weight ? <span>⚖️ {t.weight} kg</span> : null}
       </div>
-      {t.capDesc && <div style={{ marginTop: 8, fontSize: 12, color: 'var(--muted)', fontStyle: 'italic' }}>"{t.capDesc}"</div>}
+      {t.cap_desc && <div style={{ marginTop: 8, fontSize: 12, color: 'var(--muted)', fontStyle: 'italic' }}>"{t.cap_desc}"</div>}
       <div className="trip-actions" onClick={(e) => e.stopPropagation()}>
         <a href={wa} target="_blank" rel="noopener noreferrer" className="btn btn-wa btn-sm">💬 WhatsApp</a>
         <button className="btn btn-outline btn-sm" onClick={onOpen}>Voir détails</button>
