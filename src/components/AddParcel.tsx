@@ -21,6 +21,7 @@ export default function AddParcel({ needLogin, onLogin, onPublish, onNavigate }:
 
   return (
     <div className="screen active">
+      <div style={{ maxWidth: 680, margin: '0 auto' }}>
       <div className="form-card">
         <div className="form-title">📦 Envoyer un colis</div>
         {needLogin && (
@@ -53,6 +54,7 @@ export default function AddParcel({ needLogin, onLogin, onPublish, onNavigate }:
             onNavigate,
           )
         }>📦 Publier mon colis</button>
+      </div>
       </div>
     </div>
   );
