@@ -46,52 +46,88 @@ export default function App() {
       <NavTabs screen={screen} setScreen={setScreen} />
 
       {screen === 'home' && (
-        <div className="screen active">
-          <div className="home-top">
-            <div className="hero-banner">
-              <div className="icon">🌍</div>
-              <div>
-                <h2>Trouvez un voyageur de confiance</h2>
-                <p>Des particuliers font le trajet France ⇄ Algérie — ils transportent vos colis à prix réduit. Contactez-les directement sur WhatsApp.</p>
+        <div className="container-xxl py-4 px-3 px-lg-4">
+          {/* Hero + Stats */}
+          <div className="row g-4 mb-4">
+            <div className="col-lg-8">
+              <div className="hero-banner d-flex align-items-center gap-4 h-100">
+                <div className="hero-icon">🌍</div>
+                <div>
+                  <h2>Trouvez un voyageur de confiance</h2>
+                  <p className="mb-0">Des particuliers font le trajet France ⇄ Algérie — ils transportent vos colis à prix réduit. Contactez-les directement sur WhatsApp.</p>
+                </div>
               </div>
             </div>
-            <div className="stats-row">
-              <div className="stat-card"><div className="stat-num">{trips.length}</div><div className="stat-label">Trajets actifs</div></div>
-              <div className="stat-card"><div className="stat-num">{parcels.length}</div><div className="stat-label">Colis en attente</div></div>
-              <div className="stat-card"><div className="stat-num">🇩🇿</div><div className="stat-label">Algérie · France</div></div>
+            <div className="col-lg-4">
+              <div className="row g-3 h-100">
+                <div className="col-4 col-lg-12">
+                  <div className="card border-0 shadow-sm text-center p-3 h-100">
+                    <div className="stat-num">{trips.length}</div>
+                    <div className="stat-label">Trajets actifs</div>
+                  </div>
+                </div>
+                <div className="col-4 col-lg-12">
+                  <div className="card border-0 shadow-sm text-center p-3 h-100">
+                    <div className="stat-num">{parcels.length}</div>
+                    <div className="stat-label">Colis en attente</div>
+                  </div>
+                </div>
+                <div className="col-4 col-lg-12">
+                  <div className="card border-0 shadow-sm text-center p-3 h-100">
+                    <div className="stat-num">🇩🇿</div>
+                    <div className="stat-label">Algérie · France</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="filter-row">
+
+          {/* Filter chips */}
+          <div className="d-flex flex-wrap gap-2 mb-4">
             {DEST_FILTERS.map((d) => (
               <button key={d} className={'chip' + (dest === d ? ' active' : '')} onClick={() => setDest(d)}>
                 {d === 'all' ? 'Toutes destinations' : '→ ' + d}
               </button>
             ))}
           </div>
-          <div className="section-title">
-            Voyageurs disponibles <span className="badge">{visibleTrips.length}</span>
+
+          {/* Section title */}
+          <div className="d-flex align-items-center justify-content-between mb-3">
+            <div className="section-title">Voyageurs disponibles</div>
+            <span className="badge rounded-pill" style={{ background: 'var(--green-bright)', fontSize: 13, padding: '4px 12px' }}>{visibleTrips.length}</span>
           </div>
-          <div className="cards-grid">
-            {visibleTrips.length === 0
-              ? <div className="empty"><div className="empty-icon">✈️</div><p>Aucun trajet disponible.<br />Soyez le premier à publier !</p></div>
-              : visibleTrips.map((t) => (
-                <TripCard key={t.id} trip={t} mine={canDelete(t)} onOpen={() => setTripModal(t)} onDelete={() => removeTrip(t.id)} />
-              ))}
-          </div>
+
+          {/* Cards grid */}
+          {visibleTrips.length === 0
+            ? <div className="empty-state"><div className="icon">✈️</div><p>Aucun trajet disponible.<br />Soyez le premier à publier !</p></div>
+            : <div className="row g-3">
+                {visibleTrips.map((t) => (
+                  <div key={t.id} className="col-12 col-md-6 col-xl-4">
+                    <TripCard trip={t} mine={canDelete(t)} onOpen={() => setTripModal(t)} onDelete={() => removeTrip(t.id)} />
+                  </div>
+                ))}
+              </div>
+          }
         </div>
       )}
 
       {screen === 'parcels' && (
-        <div className="screen active">
-          <div className="section-title">Colis à transporter <span className="badge">{visibleParcels.length}</span></div>
-          <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 20 }}>Des gens cherchent un voyageur — contactez-les si vous faites le trajet !</p>
-          <div className="cards-grid">
-            {visibleParcels.length === 0
-              ? <div className="empty"><div className="empty-icon">📦</div><p>Aucun colis publié.<br />Quelqu'un a besoin de vous !</p></div>
-              : visibleParcels.map((p) => (
-                <ParcelCard key={p.id} parcel={p} mine={canDelete(p)} onDelete={() => removeParcel(p.id)} />
-              ))}
+        <div className="container-xxl py-4 px-3 px-lg-4">
+          <div className="d-flex align-items-center justify-content-between mb-2">
+            <div className="section-title">Colis à transporter</div>
+            <span className="badge rounded-pill" style={{ background: 'var(--green-bright)', fontSize: 13, padding: '4px 12px' }}>{visibleParcels.length}</span>
           </div>
+          <p className="text-muted mb-4" style={{ fontSize: 14 }}>Des gens cherchent un voyageur — contactez-les si vous faites le trajet !</p>
+          {visibleParcels.length === 0
+            ? <div className="empty-state"><div className="icon">📦</div><p>Aucun colis publié.<br />Quelqu'un a besoin de vous !</p></div>
+            : <div className="row g-3">
+                {visibleParcels.map((p) => (
+                  <div key={p.id} className="col-12 col-md-6 col-xl-4">
+                    <ParcelCard parcel={p} mine={canDelete(p)} onDelete={() => removeParcel(p.id)} />
+                  </div>
+                ))}
+              </div>
+          }
         </div>
       )}
 
@@ -103,7 +139,7 @@ export default function App() {
         <AddParcel needLogin={needLogin} onLogin={() => setAuthOpen(true)} onPublish={publishParcel} onNavigate={() => setScreen('parcels')} />
       )}
 
-      {toast && <div className="toast show">{toast}</div>}
+      {toast && <div className="app-toast show">{toast}</div>}
 
       {tripModal && (
         <TripModal

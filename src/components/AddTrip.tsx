@@ -24,57 +24,57 @@ export default function AddTrip({ needLogin, onLogin, onPublish, onNavigate }: P
   const up = <K extends keyof typeof empty>(k: K) => (v: string) => setF((s) => ({ ...s, [k]: v }));
 
   return (
-    <div className="screen active">
-      <div style={{ maxWidth: 680, margin: '0 auto' }}>
-      <div className="form-card">
-        <div className="form-title">✈️ Publier mon trajet</div>
-        {needLogin && (
-          <div className="login-note show">
-            🔒 <a onClick={onLogin} style={{ cursor: 'pointer' }}>Connecte-toi</a> pour publier — tu pourras aussi supprimer ton annonce.
+    <div className="container-xxl py-4 px-3 px-lg-4">
+      <div className="mx-auto" style={{ maxWidth: 680 }}>
+        <div className="card shadow-sm border-0 p-4">
+          <div className="form-title mb-4">✈️ Publier mon trajet</div>
+          {needLogin && (
+            <div className="login-note p-3 rounded-3 mb-3">
+              🔒 <a onClick={onLogin} style={{ cursor: 'pointer' }}>Connecte-toi</a> pour publier — tu pourras aussi supprimer ton annonce.
+            </div>
+          )}
+          <div className="mb-3">
+            <label className="form-label field label">Votre prénom / nom</label>
+            <input type="text" className="form-control" maxLength={50} placeholder="Ex: Ahmed B." value={f.name} onChange={(e) => up('name')(e.target.value)} />
           </div>
-        )}
-        <div className="field">
-          <label>Votre prénom / nom</label>
-          <input type="text" maxLength={50} placeholder="Ex: Ahmed B." value={f.name} onChange={(e) => up('name')(e.target.value)} />
-        </div>
-        <label style={{ fontSize: 13, fontWeight: 500 }}>Ville de départ</label>
-        <LocationPicker country={f.fromC} city={f.from_city} onCountry={(v) => setF((s) => ({ ...s, fromC: v, from_city: '' }))} onCity={up('from_city')} />
-        <label style={{ fontSize: 13, fontWeight: 500 }}>Ville d'arrivée</label>
-        <LocationPicker country={f.toC} city={f.to_city} onCountry={(v) => setF((s) => ({ ...s, toC: v, to_city: '' }))} onCity={up('to_city')} legend />
-        <div className="field-row">
-          <div className="field">
-            <label>Date de départ</label>
-            <input type="date" value={f.date} onChange={(e) => up('date')(e.target.value)} />
+          <label className="form-label fw-semibold" style={{ fontSize: 13 }}>Ville de départ</label>
+          <LocationPicker country={f.fromC} city={f.from_city} onCountry={(v) => setF((s) => ({ ...s, fromC: v, from_city: '' }))} onCity={up('from_city')} />
+          <label className="form-label fw-semibold" style={{ fontSize: 13 }}>Ville d'arrivée</label>
+          <LocationPicker country={f.toC} city={f.to_city} onCountry={(v) => setF((s) => ({ ...s, toC: v, to_city: '' }))} onCity={up('to_city')} legend />
+          <div className="row g-3 mb-3">
+            <div className="col">
+              <label className="form-label fw-semibold" style={{ fontSize: 13 }}>Date de départ</label>
+              <input type="date" className="form-control" value={f.date} onChange={(e) => up('date')(e.target.value)} />
+            </div>
+            <div className="col">
+              <label className="form-label fw-semibold" style={{ fontSize: 13 }}>Nombre de colis</label>
+              <select className="form-select" value={f.capacity} onChange={(e) => up('capacity')(e.target.value)}>
+                <option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option>
+              </select>
+            </div>
           </div>
-          <div className="field">
-            <label>Nombre de colis</label>
-            <select value={f.capacity} onChange={(e) => up('capacity')(e.target.value)}>
-              <option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option>
-            </select>
+          <div className="mb-3">
+            <label className="form-label fw-semibold" style={{ fontSize: 13 }}>Poids total accepté (kg)</label>
+            <input type="number" className="form-control" min={1} max={100} placeholder="Ex: 20" value={f.weight} onChange={(e) => up('weight')(e.target.value)} />
           </div>
+          <div className="mb-3">
+            <label className="form-label fw-semibold" style={{ fontSize: 13 }}>Description de la capacité / conditions</label>
+            <textarea className="form-control" rows={3} placeholder="Ex: J'accepte vêtements, médicaments, petits cadeaux. Pas de liquides." value={f.cap_desc} onChange={(e) => up('cap_desc')(e.target.value)} />
+          </div>
+          <div className="mb-4">
+            <label className="form-label fw-semibold" style={{ fontSize: 13 }}>Votre numéro WhatsApp</label>
+            <input type="tel" className="form-control" placeholder="+33 6 12 34 56 78" value={f.wa} onChange={(e) => up('wa')(e.target.value)} />
+            <div className="text-muted mt-1" style={{ fontSize: 12 }}>📱 Les expéditeurs vous contacteront directement.</div>
+          </div>
+          <button className="btn btn-green w-100 py-3" onClick={() =>
+            onPublish(
+              { name: f.name, from_city: f.from_city, to_city: f.to_city, date: f.date, capacity: f.capacity, weight: f.weight, cap_desc: f.cap_desc, wa: f.wa },
+              () => setF({ ...empty, date: today() }),
+              onLogin,
+              onNavigate,
+            )
+          }>✅ Publier mon trajet</button>
         </div>
-        <div className="field">
-          <label>Poids total accepté (kg)</label>
-          <input type="number" min={1} max={100} placeholder="Ex: 20" value={f.weight} onChange={(e) => up('weight')(e.target.value)} />
-        </div>
-        <div className="field">
-          <label>Description de la capacité / conditions</label>
-          <textarea placeholder="Ex: J'accepte vêtements, médicaments, petits cadeaux. Pas de liquides." value={f.cap_desc} onChange={(e) => up('cap_desc')(e.target.value)} />
-        </div>
-        <div className="field">
-          <label>Votre numéro WhatsApp</label>
-          <input type="tel" placeholder="+33 6 12 34 56 78" value={f.wa} onChange={(e) => up('wa')(e.target.value)} />
-          <div className="wa-hint">📱 Les expéditeurs vous contacteront directement.</div>
-        </div>
-        <button className="btn btn-green btn-full" onClick={() =>
-          onPublish(
-            { name: f.name, from_city: f.from_city, to_city: f.to_city, date: f.date, capacity: f.capacity, weight: f.weight, cap_desc: f.cap_desc, wa: f.wa },
-            () => setF({ ...empty, date: today() }),
-            onLogin,
-            onNavigate,
-          )
-        }>✅ Publier mon trajet</button>
-      </div>
       </div>
     </div>
   );

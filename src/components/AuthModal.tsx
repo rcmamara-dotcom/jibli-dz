@@ -43,38 +43,40 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
   };
 
   return (
-    <div className="modal-overlay open" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="modal">
-        <div className="modal-header">
-          <div className="modal-title">{isLoggedIn ? 'Mon compte' : 'Connexion'}</div>
-          <button className="close-btn" onClick={onClose}>✕</button>
+    <div className="modal-backdrop-custom" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="modal-box" style={{ maxWidth: 440 }}>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <div className="modal-title-custom">{isLoggedIn ? 'Mon compte' : 'Connexion'}</div>
+          <button className="btn-close" onClick={onClose} aria-label="Fermer" />
         </div>
         {isLoggedIn ? (
           <>
-            <p style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5, marginBottom: 14 }}>
+            <p className="text-muted mb-4" style={{ fontSize: 13, lineHeight: 1.5 }}>
               Tes annonces affichent un bouton 🗑 pour les supprimer. Personne d'autre ne peut les modifier.
             </p>
-            <button className="btn btn-danger btn-full" onClick={() => { onLogout(); onClose(); }}>Se déconnecter</button>
+            <button className="btn btn-outline-danger w-100" onClick={() => { onLogout(); onClose(); }}>Se déconnecter</button>
           </>
         ) : (
           <>
-            <div className="login-note show" style={{ display: 'block' }}>
+            <div className="login-note rounded-3 p-3 mb-3">
               📧 Connecte-toi par e-mail pour publier et gérer tes annonces. Première fois ? Crée un compte.
             </div>
-            <div className="field">
-              <label>Adresse e-mail</label>
-              <input type="email" autoComplete="email" placeholder="ton@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <div className="mb-3">
+              <label className="form-label fw-semibold" style={{ fontSize: 13 }}>Adresse e-mail</label>
+              <input type="email" className="form-control" autoComplete="email" placeholder="ton@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
-            <div className="field">
-              <label>Mot de passe</label>
-              <input type="password" autoComplete="current-password" placeholder="Au moins 6 caractères" value={pass} onChange={(e) => setPass(e.target.value)} />
+            <div className="mb-4">
+              <label className="form-label fw-semibold" style={{ fontSize: 13 }}>Mot de passe</label>
+              <input type="password" className="form-control" autoComplete="current-password" placeholder="Au moins 6 caractères" value={pass} onChange={(e) => setPass(e.target.value)} />
             </div>
-            <button className="btn btn-green btn-full" disabled={busy === 'in'} onClick={doSignIn}>
-              {busy === 'in' ? '⏳ Connexion…' : 'Se connecter'}
-            </button>
-            <button className="btn btn-outline btn-full" style={{ marginTop: 8 }} disabled={busy === 'up'} onClick={doSignUp}>
-              {busy === 'up' ? '⏳ Création…' : 'Créer un compte'}
-            </button>
+            <div className="d-flex flex-column gap-2">
+              <button className="btn btn-green w-100 py-3" disabled={busy === 'in'} onClick={doSignIn}>
+                {busy === 'in' ? '⏳ Connexion…' : 'Se connecter'}
+              </button>
+              <button className="btn btn-outline-secondary w-100 py-2" disabled={busy === 'up'} onClick={doSignUp}>
+                {busy === 'up' ? '⏳ Création…' : 'Créer un compte'}
+              </button>
+            </div>
           </>
         )}
       </div>
