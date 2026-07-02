@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function TripModal({ trip, canDelete, onClose, onDelete }: Props) {
-  const d = new Date(trip.date);
+  const d = new Date(trip.date + 'T12:00:00');
   const dateStr = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const wa = formatWA(trip.wa, `Bonjour ${trip.name}, j'ai vu votre trajet ${trip.from_city}→${trip.to_city} le ${dateStr} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
 

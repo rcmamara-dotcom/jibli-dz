@@ -10,9 +10,10 @@ interface Props {
 }
 
 export default function TripCard({ trip: t, mine, onOpen, onDelete }: Props) {
-  const d = new Date(t.date);
+  const d = new Date(t.date + 'T12:00:00');
   const dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
-  const isUpcoming = d >= new Date(new Date().toDateString());
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const isUpcoming = d >= today;
   const wa = formatWA(t.wa, `Bonjour ${t.name}, j'ai vu votre trajet ${t.from_city}→${t.to_city} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
 
   return (
