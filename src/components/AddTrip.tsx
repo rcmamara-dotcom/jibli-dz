@@ -25,6 +25,7 @@ export default function AddTrip({ needLogin, onLogin, onPublish, onNavigate }: P
 
   return (
     <div className="screen active">
+      <div style={{ maxWidth: 680, margin: '0 auto' }}>
       <div className="form-card">
         <div className="form-title">✈️ Publier mon trajet</div>
         {needLogin && (
@@ -73,6 +74,7 @@ export default function AddTrip({ needLogin, onLogin, onPublish, onNavigate }: P
             onNavigate,
           )
         }>✅ Publier mon trajet</button>
+      </div>
       </div>
     </div>
   );
