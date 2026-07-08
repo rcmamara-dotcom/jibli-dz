@@ -3,25 +3,28 @@ import { GoService } from '../services/GoService';
 import { Trip, Parcel } from '../types';
 import { waValid } from '../utils/whatsapp';
 
-function decodeUserId(): number | null {
+interface TokenPayload { sub: string; adm?: boolean; exp?: number; }
+
+function decodeToken(): { userId: number | null; isAdmin: boolean } {
   const token = GoService.getToken();
-  if (!token) return null;
+  if (!token) return { userId: null, isAdmin: false };
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload: TokenPayload = JSON.parse(atob(token.split('.')[1]));
     if (payload.exp && Date.now() / 1000 > payload.exp) {
       GoService.clearToken();
-      return null;
+      return { userId: null, isAdmin: false };
     }
-    return parseInt(payload.sub, 10);
+    return { userId: parseInt(payload.sub, 10), isAdmin: !!payload.adm };
   } catch {
-    return null;
+    return { userId: null, isAdmin: false };
   }
 }
 
 export function useAppData() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [parcels, setParcels] = useState<Parcel[]>([]);
-  const [userId, setUserId] = useState<number | null>(decodeUserId);
+  const [userId, setUserId] = useState<number | null>(() => decodeToken().userId);
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => decodeToken().isAdmin);
   const [toast, setToast] = useState('');
 
   const showToast = useCallback((m: string) => {
@@ -46,13 +49,16 @@ export function useAppData() {
 
   const login = (token: string) => {
     GoService.setToken(token);
-    setUserId(decodeUserId());
+    const decoded = decodeToken();
+    setUserId(decoded.userId);
+    setIsAdmin(decoded.isAdmin);
     showToast('✅ Connecté !');
   };
 
   const logout = () => {
     GoService.clearToken();
     setUserId(null);
+    setIsAdmin(false);
     showToast('À bientôt 👋');
   };
 
@@ -106,5 +112,5 @@ export function useAppData() {
       .catch(() => showToast('⚠️ Suppression impossible'));
   }
 
-  return { trips, parcels, userId, toast, showToast, canDelete, publishTrip, publishParcel, removeTrip, removeParcel, login, logout };
+  return { trips, parcels, userId, isAdmin, toast, showToast, canDelete, publishTrip, publishParcel, removeTrip, removeParcel, login, logout };
 }

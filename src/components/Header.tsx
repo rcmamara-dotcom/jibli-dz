@@ -2,12 +2,14 @@ import React from 'react';
 
 interface Props {
   isLoggedIn: boolean;
+  isAdmin: boolean;
   search: string;
   onSearch: (v: string) => void;
   onAccount: () => void;
+  onAdmin: () => void;
 }
 
-export default function Header({ isLoggedIn, search, onSearch, onAccount }: Props) {
+export default function Header({ isLoggedIn, isAdmin, search, onSearch, onAccount, onAdmin }: Props) {
   return (
     <header className="header sticky-top">
       <div className="container-xxl d-flex align-items-center gap-3 py-2 px-3 px-lg-4" style={{ height: 62 }}>
@@ -28,7 +30,13 @@ export default function Header({ isLoggedIn, search, onSearch, onAccount }: Prop
           />
           <button className="btn search-bar-btn px-3">🔍</button>
         </div>
-        <button className="btn account-btn flex-shrink-0 ms-auto" onClick={onAccount}>
+        {isAdmin && (
+          <button className="btn flex-shrink-0" onClick={onAdmin}
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', borderRadius: 20, fontSize: 13, fontWeight: 600, padding: '9px 14px' }}>
+            🛡 Admin
+          </button>
+        )}
+        <button className="btn account-btn flex-shrink-0" onClick={onAccount}>
           {isLoggedIn ? '👤 Mon compte' : 'Se connecter'}
         </button>
       </div>

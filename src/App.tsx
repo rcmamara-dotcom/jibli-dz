@@ -10,6 +10,7 @@ import TripModal from './components/TripModal';
 import AddTrip from './components/AddTrip';
 import AddParcel from './components/AddParcel';
 import AuthModal from './components/AuthModal';
+import AdminPanel from './components/AdminPanel';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('home');
@@ -19,7 +20,7 @@ export default function App() {
   const [authOpen, setAuthOpen] = useState(false);
 
   const {
-    trips, parcels, userId, toast, showToast,
+    trips, parcels, userId, isAdmin, toast, showToast,
     canDelete, publishTrip, publishParcel, removeTrip, removeParcel, login, logout,
   } = useAppData();
 
@@ -42,7 +43,7 @@ export default function App() {
 
   return (
     <>
-      <Header isLoggedIn={isLoggedIn} search={search} onSearch={setSearch} onAccount={() => setAuthOpen(true)} />
+      <Header isLoggedIn={isLoggedIn} isAdmin={isAdmin} search={search} onSearch={setSearch} onAccount={() => setAuthOpen(true)} onAdmin={() => setScreen('admin')} />
       <NavTabs screen={screen} setScreen={setScreen} />
 
       {screen === 'home' && (
@@ -138,6 +139,8 @@ export default function App() {
       {screen === 'add-parcel' && (
         <AddParcel needLogin={needLogin} onLogin={() => setAuthOpen(true)} onPublish={publishParcel} onNavigate={() => setScreen('parcels')} />
       )}
+
+      {screen === 'admin' && isAdmin && <AdminPanel />}
 
       {toast && <div className="app-toast show">{toast}</div>}
 
