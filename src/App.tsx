@@ -144,9 +144,11 @@ export default function App() {
       {tripModal && (
         <TripModal
           trip={tripModal}
+          userId={userId}
           canDelete={canDelete(tripModal)}
           onClose={() => setTripModal(null)}
           onDelete={() => removeTrip(tripModal.id, () => setTripModal(null))}
+          onReviewPosted={(updated) => setTripModal((prev) => prev ? { ...prev, ...updated } : null)}
         />
       )}
 

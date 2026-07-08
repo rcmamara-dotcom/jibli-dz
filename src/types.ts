@@ -10,6 +10,18 @@ export interface Trip {
   wa: string;
   owner_id?: number | null;
   created_at: string;
+  avg_rating?: number | null;
+  review_count?: number;
+}
+
+export interface Review {
+  id: number;
+  trip_id: number;
+  reviewer_id: number;
+  reviewer_email: string;
+  rating: number;
+  comment?: string | null;
+  created_at: string;
 }
 
 export interface Parcel {

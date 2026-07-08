@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trip } from '../types';
 import { formatWA } from '../utils/whatsapp';
+import { StarDisplay } from './StarRating';
 
 interface Props {
   trip: Trip;
@@ -29,11 +30,14 @@ export default function TripCard({ trip: t, mine, onOpen, onDelete }: Props) {
             ? <span className="mine-tag">MON ANNONCE</span>
             : (!isUpcoming && <span className="badge text-bg-danger" style={{ fontSize: 11 }}>Passé</span>)}
         </div>
-        <div className="d-flex flex-wrap gap-3 text-muted mb-3" style={{ fontSize: 13 }}>
+        <div className="d-flex flex-wrap gap-3 text-muted mb-2" style={{ fontSize: 13 }}>
           <span>👤 {t.name}</span>
           <span>📅 {dateStr}</span>
           <span>📦 {t.capacity} colis</span>
           {t.weight ? <span>⚖️ {t.weight} kg</span> : null}
+        </div>
+        <div className="mb-3">
+          <StarDisplay avg={t.avg_rating} count={t.review_count} />
         </div>
         {t.cap_desc && <p className="text-muted fst-italic mb-3" style={{ fontSize: 12 }}>"{t.cap_desc}"</p>}
         <div className="d-flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
