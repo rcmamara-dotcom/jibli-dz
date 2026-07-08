@@ -1,4 +1,6 @@
-const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
+// En dev: VITE_API_URL=http://localhost:8000 dans .env.local
+// En prod avec Caddy (même domaine): laisser vide → URLs relatives
+const BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
