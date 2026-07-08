@@ -12,12 +12,22 @@ import AddParcel from './components/AddParcel';
 import AuthModal from './components/AuthModal';
 import AdminPanel from './components/AdminPanel';
 
+const PAGE_SIZE = 20;
+
+function getResetToken(): string | null {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('reset');
+}
+
 export default function App() {
   const [screen, setScreen] = useState<Screen>('home');
   const [search, setSearch] = useState('');
   const [dest, setDest] = useState('all');
   const [tripModal, setTripModal] = useState<Trip | null>(null);
-  const [authOpen, setAuthOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(() => !!getResetToken());
+  const [tripPage, setTripPage] = useState(1);
+  const [parcelPage, setParcelPage] = useState(1);
+  const resetToken = getResetToken();
 
   const {
     trips, parcels, userId, isAdmin, toast, showToast,
@@ -27,7 +37,8 @@ export default function App() {
   const isLoggedIn = userId !== null;
   const needLogin = !isLoggedIn;
 
-  const visibleTrips = useMemo(() => {
+  const filteredTrips = useMemo(() => {
+    setTripPage(1);
     let list = [...trips];
     const s = search.toLowerCase();
     if (s) list = list.filter((t) => [t.from_city, t.to_city, t.name].some((v) => (v ?? '').toLowerCase().includes(s)));
@@ -35,11 +46,18 @@ export default function App() {
     return list.sort((a, b) => +new Date(a.date) - +new Date(b.date));
   }, [trips, search, dest]);
 
-  const visibleParcels = useMemo(() => {
+  const visibleTrips = useMemo(() => filteredTrips.slice(0, tripPage * PAGE_SIZE), [filteredTrips, tripPage]);
+  const hasMoreTrips = visibleTrips.length < filteredTrips.length;
+
+  const filteredParcels = useMemo(() => {
+    setParcelPage(1);
     const s = search.toLowerCase();
     if (!s) return parcels;
     return parcels.filter((p) => [p.from_city, p.to_city, p.description].some((v) => (v ?? '').toLowerCase().includes(s)));
   }, [parcels, search]);
+
+  const visibleParcels = useMemo(() => filteredParcels.slice(0, parcelPage * PAGE_SIZE), [filteredParcels, parcelPage]);
+  const hasMoreParcels = visibleParcels.length < filteredParcels.length;
 
   return (
     <>
@@ -99,15 +117,24 @@ export default function App() {
           </div>
 
           {/* Cards grid */}
-          {visibleTrips.length === 0
+          {filteredTrips.length === 0
             ? <div className="empty-state"><div className="icon">✈️</div><p>Aucun trajet disponible.<br />Soyez le premier à publier !</p></div>
-            : <div className="row g-3">
-                {visibleTrips.map((t) => (
-                  <div key={t.id} className="col-12 col-md-6 col-xl-4">
-                    <TripCard trip={t} mine={canDelete(t)} onOpen={() => setTripModal(t)} onDelete={() => removeTrip(t.id)} />
+            : <>
+                <div className="row g-3">
+                  {visibleTrips.map((t) => (
+                    <div key={t.id} className="col-12 col-md-6 col-xl-4">
+                      <TripCard trip={t} mine={canDelete(t)} onOpen={() => setTripModal(t)} onDelete={() => removeTrip(t.id)} />
+                    </div>
+                  ))}
+                </div>
+                {hasMoreTrips && (
+                  <div className="text-center mt-4">
+                    <button className="btn btn-outline-secondary px-5" onClick={() => setTripPage((p) => p + 1)}>
+                      Charger plus ({filteredTrips.length - visibleTrips.length} restants)
+                    </button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
           }
         </div>
       )}
@@ -119,15 +146,24 @@ export default function App() {
             <span className="badge rounded-pill" style={{ background: 'var(--green-bright)', fontSize: 13, padding: '4px 12px' }}>{visibleParcels.length}</span>
           </div>
           <p className="text-muted mb-4" style={{ fontSize: 14 }}>Des gens cherchent un voyageur — contactez-les si vous faites le trajet !</p>
-          {visibleParcels.length === 0
+          {filteredParcels.length === 0
             ? <div className="empty-state"><div className="icon">📦</div><p>Aucun colis publié.<br />Quelqu'un a besoin de vous !</p></div>
-            : <div className="row g-3">
-                {visibleParcels.map((p) => (
-                  <div key={p.id} className="col-12 col-md-6 col-xl-4">
-                    <ParcelCard parcel={p} mine={canDelete(p)} onDelete={() => removeParcel(p.id)} />
+            : <>
+                <div className="row g-3">
+                  {visibleParcels.map((p) => (
+                    <div key={p.id} className="col-12 col-md-6 col-xl-4">
+                      <ParcelCard parcel={p} mine={canDelete(p)} onDelete={() => removeParcel(p.id)} />
+                    </div>
+                  ))}
+                </div>
+                {hasMoreParcels && (
+                  <div className="text-center mt-4">
+                    <button className="btn btn-outline-secondary px-5" onClick={() => setParcelPage((p) => p + 1)}>
+                      Charger plus ({filteredParcels.length - visibleParcels.length} restants)
+                    </button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
           }
         </div>
       )}
@@ -158,10 +194,18 @@ export default function App() {
       {authOpen && (
         <AuthModal
           isLoggedIn={isLoggedIn}
-          onClose={() => setAuthOpen(false)}
+          onClose={() => {
+            setAuthOpen(false);
+            if (resetToken) {
+              const url = new URL(window.location.href);
+              url.searchParams.delete('reset');
+              window.history.replaceState({}, '', url.toString());
+            }
+          }}
           onLogin={login}
           onLogout={logout}
           showToast={showToast}
+          initialToken={resetToken}
         />
       )}
     </>
