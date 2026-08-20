@@ -1,0 +1,247 @@
+/* ─── DESIGN TOKENS ─── */
+:root {
+  --green-deep:   #0f5c32;
+  --green-mid:    #1a6b3c;
+  --green-bright: #22c55e;
+  --gold:         #f5a623;
+  --gold-light:   #fde68a;
+  --cream:        #f6f8f5;
+  --ink:          #111827;
+  --muted:        #6b7280;
+  --border:       #e5e7eb;
+  --wa-green:     #25D366;
+  --bs-body-bg:   #f6f8f5;
+  --bs-body-color: #111827;
+  --bs-border-color: #e5e7eb;
+  --bs-font-sans-serif: 'Inter', system-ui, sans-serif;
+}
+
+body { font-size: 15px; }
+
+/* ─── NAVBAR / HEADER ─── */
+.header {
+  background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 100%) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+}
+.header-row1 {
+  height: 58px;
+}
+.logo-icon {
+  width: 40px; height: 40px; flex-shrink: 0;
+  background: var(--gold);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.logo-text { font-family: 'Cairo', sans-serif; color: white; line-height: 1.2; }
+.logo-text strong { font-size: 22px; font-weight: 900; letter-spacing: .5px; display: block; }
+.logo-text span { font-size: 12px; opacity: .75; }
+
+.account-btn {
+  background: rgba(255,255,255,0.15) !important;
+  color: #fff !important; border: none !important;
+  border-radius: 20px !important; font-size: 13px; font-weight: 600;
+}
+.account-btn:hover { background: rgba(255,255,255,0.28) !important; }
+
+.search-bar-input {
+  background: rgba(255,255,255,0.18) !important;
+  border: none !important; color: white !important;
+  border-radius: 8px 0 0 8px !important;
+}
+.search-bar-input::placeholder { color: rgba(255,255,255,0.6) !important; }
+.search-bar-input:focus { background: rgba(255,255,255,0.28) !important; box-shadow: none !important; }
+.search-bar-btn {
+  background: var(--gold) !important; border: none !important; border-radius: 0 8px 8px 0 !important;
+}
+
+/* ─── TABS ─── */
+.nav-tabs-bar {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  position: sticky; top: 58px; z-index: 90;
+}
+@media (max-width: 575px) {
+  /* header is taller on xs (2 rows) */
+  .nav-tabs-bar { top: 104px; }
+}
+.nav-tabs-bar .nav-link {
+  color: var(--muted) !important;
+  border: none !important; border-bottom: 3px solid transparent !important;
+  font-weight: 500; font-size: 14px; padding: 14px 20px;
+  border-radius: 0 !important; white-space: nowrap;
+}
+.nav-tabs-bar .nav-link:hover { color: var(--ink) !important; background: var(--cream) !important; }
+.nav-tabs-bar .nav-link.active {
+  color: var(--green-mid) !important; font-weight: 700;
+  border-bottom-color: var(--green-mid) !important;
+  background: none !important;
+}
+
+/* ─── HERO BANNER ─── */
+.hero-banner {
+  background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
+  border-radius: 12px; color: white; padding: 28px 32px;
+}
+.hero-banner h2 { font-family: 'Cairo', sans-serif; font-size: 22px; font-weight: 700; }
+.hero-banner p  { font-size: 14px; opacity: .85; line-height: 1.5; }
+.hero-icon { font-size: 48px; flex-shrink: 0; }
+@media (max-width: 575px) {
+  .hero-banner { padding: 20px 18px; }
+  .hero-banner h2 { font-size: 18px; }
+  .hero-icon { font-size: 36px; }
+}
+
+/* ─── STAT CARDS ─── */
+.stat-num { font-family: 'Cairo', sans-serif; font-size: 28px; font-weight: 900; color: var(--green-mid); }
+.stat-label { font-size: 12px; color: var(--muted); }
+
+/* ─── SECTION TITLE ─── */
+.section-title {
+  font-family: 'Cairo', sans-serif; font-size: 18px; font-weight: 700;
+}
+
+/* ─── TRIP CARD ─── */
+.trip-card {
+  border-left: 4px solid var(--green-bright) !important;
+  border-radius: 12px !important;
+  transition: box-shadow .15s, transform .15s;
+  cursor: pointer;
+}
+.trip-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.12) !important; transform: translateY(-1px); }
+.trip-route { font-family: 'Cairo', sans-serif; font-size: 18px; font-weight: 700; }
+.trip-arrow { color: var(--green-bright); font-size: 20px; }
+
+/* ─── PARCEL CARD ─── */
+.parcel-card {
+  border-left: 4px solid var(--gold) !important;
+  border-radius: 12px !important;
+  transition: box-shadow .15s, transform .15s;
+}
+.parcel-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.12) !important; transform: translateY(-1px); }
+.parcel-route { font-family: 'Cairo', sans-serif; font-size: 17px; font-weight: 700; }
+.budget-tag {
+  background: var(--gold-light); color: #92400e;
+  font-size: 13px; font-weight: 600;
+  padding: 3px 12px; border-radius: 20px;
+  display: inline-block; margin-top: 8px;
+}
+
+/* ─── MINE TAG ─── */
+.mine-tag {
+  background: var(--green-mid); color: #fff;
+  font-size: 10px; font-weight: 700; letter-spacing: .3px;
+  padding: 2px 8px; border-radius: 20px;
+}
+
+/* ─── BUTTONS ─── */
+.btn-green  { background: var(--green-mid)  !important; color: white !important; border-color: var(--green-mid) !important; }
+.btn-green:hover  { background: var(--green-deep) !important; border-color: var(--green-deep) !important; }
+.btn-wa     { background: var(--wa-green) !important; color: white !important; border-color: var(--wa-green) !important; }
+.btn-wa:hover { background: #1da851 !important; }
+.btn-gold   { background: var(--gold) !important; color: #1a1a1a !important; border-color: var(--gold) !important; }
+
+/* ─── FORM CARD ─── */
+.form-title { font-family: 'Cairo', sans-serif; font-size: 20px; font-weight: 700; }
+.field label { font-size: 13px; font-weight: 600; }
+.form-control:focus, .form-select:focus {
+  border-color: var(--green-mid) !important;
+  box-shadow: 0 0 0 3px rgba(26,107,60,0.1) !important;
+}
+
+/* ─── LOGIN NOTE ─── */
+.login-note {
+  background: var(--gold-light); color: #92400e;
+  border-radius: 10px; font-size: 13px; line-height: 1.5;
+}
+.login-note a { color: #92400e; font-weight: 700; }
+
+/* ─── FILTER CHIPS ─── */
+.chip {
+  border: 1.5px solid var(--border); background: white;
+  font-size: 13px; font-weight: 500; white-space: nowrap;
+  border-radius: 20px; padding: 6px 16px; cursor: pointer;
+  transition: all .15s;
+}
+.chip:hover { border-color: var(--green-mid); color: var(--green-mid); }
+.chip.active { background: var(--green-mid); color: white; border-color: var(--green-mid); }
+
+/* ─── TOAST ─── */
+.app-toast {
+  position: fixed; bottom: 32px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: white;
+  padding: 12px 24px; border-radius: 20px;
+  font-size: 14px; font-weight: 500;
+  opacity: 0; transition: all .3s;
+  z-index: 1060; max-width: 480px; text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.app-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ─── MODAL ─── */
+.modal-backdrop-custom {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1040;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal-box {
+  background: var(--cream);
+  border-radius: 16px;
+  padding: 24px 28px;
+  width: 100%; max-width: 560px;
+  max-height: 92vh; overflow-y: auto;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.22);
+  animation: modal-in .2s ease;
+}
+@media (max-width: 575px) {
+  .modal-backdrop-custom { padding: 8px; align-items: flex-end; }
+  .modal-box {
+    padding: 20px 16px;
+    border-radius: 16px 16px 0 0;
+    max-height: 95vh;
+  }
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)  translateY(0); }
+}
+.modal-title-custom { font-family: 'Cairo', sans-serif; font-size: 20px; font-weight: 700; }
+
+/* ─── EMPTY STATE ─── */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty-state .icon { font-size: 56px; margin-bottom: 14px; }
+
+/* ─── GLOBAL RESPONSIVE ─── */
+@media (max-width: 575px) {
+  body { font-size: 14px; }
+
+  /* cards/forms full width on phone */
+  .trip-card, .parcel-card { border-radius: 10px !important; }
+
+  /* nav tabs font smaller */
+  .nav-tabs-bar .nav-link { font-size: 13px; padding: 12px 14px; }
+
+  /* stat grid: 3 cols already, just smaller text */
+  .stat-num { font-size: 22px; }
+
+  /* section title */
+  .section-title { font-size: 16px; }
+
+  /* trip/parcel route text */
+  .trip-route, .parcel-route { font-size: 15px; }
+
+  /* form card padding */
+  .card.p-4 { padding: 1rem !important; }
+
+  /* filter chips scroll */
+  .chips-row { flex-wrap: nowrap !important; overflow-x: auto; padding-bottom: 4px; }
+  .chips-row::-webkit-scrollbar { display: none; }
+
+  /* toast full width */
+  .app-toast { left: 12px; right: 12px; transform: none; max-width: none; }
+  .app-toast.show { transform: translateY(0); }
+}
