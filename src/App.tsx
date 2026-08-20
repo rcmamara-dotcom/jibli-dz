@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Screen, Trip } from './types';
 import { DEST_FILTERS } from './constants/locations';
 import { useAppData } from './hooks/useAppData';
+import { LangProvider, useLang } from './contexts/LangContext';
 import Header from './components/Header';
 import NavTabs from './components/NavTabs';
 import TripCard from './components/TripCard';
@@ -19,7 +20,8 @@ function getResetToken(): string | null {
   return params.get('reset');
 }
 
-export default function App() {
+function AppInner() {
+  const { t } = useLang();
   const [screen, setScreen] = useState<Screen>('home');
   const [search, setSearch] = useState('');
   const [dest, setDest] = useState('all');
@@ -72,8 +74,8 @@ export default function App() {
               <div className="hero-banner d-flex align-items-center gap-4 h-100">
                 <div className="hero-icon">🌍</div>
                 <div>
-                  <h2>Trouvez un voyageur de confiance</h2>
-                  <p className="mb-0">Des particuliers font le trajet France ⇄ Algérie — ils transportent vos colis à prix réduit. Contactez-les directement sur WhatsApp.</p>
+                  <h2>{t('heroTitle')}</h2>
+                  <p className="mb-0">{t('heroDesc')}</p>
                 </div>
               </div>
             </div>
@@ -82,13 +84,13 @@ export default function App() {
                 <div className="col-4 col-lg-12">
                   <div className="card border-0 shadow-sm text-center p-3 h-100">
                     <div className="stat-num">{trips.length}</div>
-                    <div className="stat-label">Trajets actifs</div>
+                    <div className="stat-label">{t('statsTrips')}</div>
                   </div>
                 </div>
                 <div className="col-4 col-lg-12">
                   <div className="card border-0 shadow-sm text-center p-3 h-100">
                     <div className="stat-num">{parcels.length}</div>
-                    <div className="stat-label">Colis en attente</div>
+                    <div className="stat-label">{t('statsParcels')}</div>
                   </div>
                 </div>
                 <div className="col-4 col-lg-12">
@@ -105,32 +107,31 @@ export default function App() {
           <div className="d-flex flex-wrap gap-2 mb-4">
             {DEST_FILTERS.map((d) => (
               <button key={d} className={'chip' + (dest === d ? ' active' : '')} onClick={() => setDest(d)}>
-                {d === 'all' ? 'Toutes destinations' : '→ ' + d}
+                {d === 'all' ? t('filterAll') : '→ ' + d}
               </button>
             ))}
           </div>
 
           {/* Section title */}
           <div className="d-flex align-items-center justify-content-between mb-3">
-            <div className="section-title">Voyageurs disponibles</div>
+            <div className="section-title">{t('sectionTrips')}</div>
             <span className="badge rounded-pill" style={{ background: 'var(--green-bright)', fontSize: 13, padding: '4px 12px' }}>{visibleTrips.length}</span>
           </div>
 
-          {/* Cards grid */}
           {filteredTrips.length === 0
-            ? <div className="empty-state"><div className="icon">✈️</div><p>Aucun trajet disponible.<br />Soyez le premier à publier !</p></div>
+            ? <div className="empty-state"><div className="icon">✈️</div><p>{t('emptyTrips').split('\\n').join('\n')}</p></div>
             : <>
                 <div className="row g-3">
-                  {visibleTrips.map((t) => (
-                    <div key={t.id} className="col-12 col-md-6 col-xl-4">
-                      <TripCard trip={t} mine={canDelete(t)} onOpen={() => setTripModal(t)} onDelete={() => removeTrip(t.id)} />
+                  {visibleTrips.map((tr) => (
+                    <div key={tr.id} className="col-12 col-md-6 col-xl-4">
+                      <TripCard trip={tr} mine={canDelete(tr)} onOpen={() => setTripModal(tr)} onDelete={() => removeTrip(tr.id)} />
                     </div>
                   ))}
                 </div>
                 {hasMoreTrips && (
                   <div className="text-center mt-4">
                     <button className="btn btn-outline-secondary px-5" onClick={() => setTripPage((p) => p + 1)}>
-                      Charger plus ({filteredTrips.length - visibleTrips.length} restants)
+                      {t('loadMore')} ({filteredTrips.length - visibleTrips.length} {t('remaining')})
                     </button>
                   </div>
                 )}
@@ -142,12 +143,12 @@ export default function App() {
       {screen === 'parcels' && (
         <div className="container-xxl py-4 px-3 px-lg-4">
           <div className="d-flex align-items-center justify-content-between mb-2">
-            <div className="section-title">Colis à transporter</div>
+            <div className="section-title">{t('sectionParcels')}</div>
             <span className="badge rounded-pill" style={{ background: 'var(--green-bright)', fontSize: 13, padding: '4px 12px' }}>{visibleParcels.length}</span>
           </div>
-          <p className="text-muted mb-4" style={{ fontSize: 14 }}>Des gens cherchent un voyageur — contactez-les si vous faites le trajet !</p>
+          <p className="text-muted mb-4" style={{ fontSize: 14 }}>{t('parcelsDesc')}</p>
           {filteredParcels.length === 0
-            ? <div className="empty-state"><div className="icon">📦</div><p>Aucun colis publié.<br />Quelqu'un a besoin de vous !</p></div>
+            ? <div className="empty-state"><div className="icon">📦</div><p>{t('emptyParcels').split('\\n').join('\n')}</p></div>
             : <>
                 <div className="row g-3">
                   {visibleParcels.map((p) => (
@@ -159,7 +160,7 @@ export default function App() {
                 {hasMoreParcels && (
                   <div className="text-center mt-4">
                     <button className="btn btn-outline-secondary px-5" onClick={() => setParcelPage((p) => p + 1)}>
-                      Charger plus ({filteredParcels.length - visibleParcels.length} restants)
+                      {t('loadMore')} ({filteredParcels.length - visibleParcels.length} {t('remaining')})
                     </button>
                   </div>
                 )}
@@ -209,5 +210,13 @@ export default function App() {
         />
       )}
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <LangProvider>
+      <AppInner />
+    </LangProvider>
   );
 }
