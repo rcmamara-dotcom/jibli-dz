@@ -60,7 +60,7 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
   }, [isLoggedIn, initialToken]);
 
   const errMsg = (e: unknown): string => {
-    const detail = (e as any)?.detail ?? 'Erreur inconnue';
+    const detail = (e as { detail?: string })?.detail ?? 'Erreur inconnue';
     return '⚠️ ' + (AUTH_ERRORS[detail] ?? detail);
   };
 
@@ -90,21 +90,23 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
   };
 
   const doGoogle = async () => {
-    if (!auth) { showToast('⚠️ Google auth non configuré'); return; }
+    const firebaseAuth = auth;
+    if (!firebaseAuth) { showToast('⚠️ Google auth non configuré'); return; }
     setBusy('google');
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(firebaseAuth, provider);
       const idToken = await result.user.getIdToken();
-      const { access_token } = await new Promise<{ access_token: string }>((resolve, reject) => {
+      const data = await new Promise<{ access_token: string }>((resolve, reject) => {
         GoService.post<{ access_token: string }>('/api/auth/google', { id_token: idToken })
           .then(resolve)
           .catch(reject);
       });
-      onLogin(access_token);
+      onLogin(data.access_token);
       onClose();
-    } catch (e: any) {
-      if (e?.code !== 'auth/popup-closed-by-user') showToast('⚠️ Connexion Google échouée');
+    } catch (e: unknown) {
+      const code = (e as { code?: string })?.code;
+      if (code !== 'auth/popup-closed-by-user') showToast('⚠️ Connexion Google échouée');
     } finally {
       setBusy('');
     }
@@ -147,7 +149,6 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
         {/* ── Profile / account ─────────────────────────────────── */}
         {view === 'profile' && (
           <>
-            {/* Profile info */}
             <div className="mb-4 p-3 rounded-3" style={{ background: 'var(--bs-gray-100, #f8f9fa)' }}>
               <div className="fw-semibold mb-2" style={{ fontSize: 13, color: 'var(--green-mid, #1a7a42)' }}>👤 {t('profileTitle')}</div>
               <div className="d-flex flex-column gap-1" style={{ fontSize: 13 }}>
@@ -157,7 +158,6 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
               </div>
             </div>
 
-            {/* Language switcher */}
             <div className="mb-4">
               <div className="fw-semibold mb-2" style={{ fontSize: 13 }}>⚙️ {t('settingsTitle')}</div>
               <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>{t('langLabel')}</div>
@@ -224,7 +224,6 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
         {/* ── Main: login / register ──────────────────────────────── */}
         {view === 'main' && (
           <>
-            {/* Mode tabs */}
             <div className="d-flex mb-4" style={{ borderBottom: '2px solid #e5e7eb' }}>
               {(['login', 'register'] as Mode[]).map((m) => (
                 <button
@@ -249,7 +248,6 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
               ))}
             </div>
 
-            {/* Google button */}
             <button
               className="btn w-100 py-2 mb-3 d-flex align-items-center justify-content-center gap-2"
               disabled={busy === 'google'}
@@ -276,24 +274,16 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
               )}
             </button>
 
-            {/* OR separator */}
             <div className="d-flex align-items-center gap-2 mb-3">
               <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
               <span style={{ fontSize: 12, color: '#9ca3af' }}>{t('orSeparator')}</span>
               <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
             </div>
 
-            {/* Register extra fields */}
             {mode === 'register' && (
               <div className="mb-3">
                 <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelName')}</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder={t('placeholderName')}
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
+                <input type="text" className="form-control" placeholder={t('placeholderName')} value={name} onChange={(e) => setName(e.target.value)} />
               </div>
             )}
 
