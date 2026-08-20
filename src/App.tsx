@@ -104,7 +104,7 @@ function AppInner() {
           </div>
 
           {/* Filter chips */}
-          <div className="d-flex flex-wrap gap-2 mb-4">
+          <div className="d-flex flex-wrap gap-2 mb-4 chips-row">
             {DEST_FILTERS.map((d) => (
               <button key={d} className={'chip' + (dest === d ? ' active' : '')} onClick={() => setDest(d)}>
                 {d === 'all' ? t('filterAll') : '→ ' + d}
