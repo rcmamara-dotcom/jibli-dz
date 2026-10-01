@@ -14,7 +14,7 @@ interface Props {
   initialToken?: string | null;
 }
 
-type View = 'main' | 'forgot' | 'reset' | 'profile';
+type View = 'main' | 'forgot' | 'reset' | 'profile' | 'change-password';
 type Mode = 'login' | 'register';
 
 const LANG_OPTIONS: { value: Lang; flag: string; label: string }[] = [
@@ -47,6 +47,9 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
   const [birthDate, setBirthDate] = useState('');
   const [busy, setBusy] = useState('');
   const [me, setMe] = useState<Me | null>(null);
+  const [currentPass, setCurrentPass] = useState('');
+  const [newPass, setNewPass] = useState('');
+  const [newPass2, setNewPass2] = useState('');
 
   useEffect(() => {
     if (isLoggedIn && view === 'profile') {
@@ -121,6 +124,25 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
       .finally(() => setBusy(''));
   };
 
+  const doChangePassword = () => {
+    if (!currentPass) { showToast('⚠️ ' + t('labelCurrentPassword')); return; }
+    if (newPass.length < 6) { showToast(t('errPasswordMin')); return; }
+    if (newPass !== newPass2) { showToast(t('errPasswordMismatch')); return; }
+    setBusy('chpwd');
+    GoService.post('/api/auth/change-password', {
+      current_password: currentPass,
+      new_password: newPass,
+      confirm_new_password: newPass2,
+    })
+      .then(() => {
+        showToast(t('toastPasswordChanged'));
+        setCurrentPass(''); setNewPass(''); setNewPass2('');
+        setView('profile');
+      })
+      .catch((e) => showToast(errMsg(e)))
+      .finally(() => setBusy(''));
+  };
+
   const doReset = () => {
     if (pass.length < 6) { showToast(t('errPasswordMin')); return; }
     if (pass !== pass2) { showToast(t('errPasswordMismatch')); return; }
@@ -133,6 +155,7 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
 
   const modalTitle = () => {
     if (view === 'profile') return t('titleAccount');
+    if (view === 'change-password') return t('titleChangePassword');
     if (view === 'forgot') return t('titleForgot');
     if (view === 'reset') return t('titleReset');
     return mode === 'login' ? t('titleLogin') : t('tabRegister');
@@ -178,9 +201,40 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
             <p className="text-muted mb-4" style={{ fontSize: 12, lineHeight: 1.5 }}>
               {t('profileNote')}
             </p>
-            <button className="btn btn-outline-danger w-100" onClick={() => { onLogout(); onClose(); }}>
-              {t('btnLogout')}
-            </button>
+            <div className="d-flex flex-column gap-2">
+              <button className="btn btn-outline-secondary w-100" onClick={() => { setCurrentPass(''); setNewPass(''); setNewPass2(''); setView('change-password'); }}>
+                {t('btnChangePassword')}
+              </button>
+              <button className="btn btn-outline-danger w-100" onClick={() => { onLogout(); onClose(); }}>
+                {t('btnLogout')}
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* ── Change password (logged in) ────────────────────────── */}
+        {view === 'change-password' && (
+          <>
+            <div className="mb-3">
+              <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelCurrentPassword')}</label>
+              <input type="password" className="form-control" placeholder={t('placeholderCurrentPassword')} value={currentPass} onChange={(e) => setCurrentPass(e.target.value)} />
+            </div>
+            <div className="mb-3">
+              <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelNewPassword')}</label>
+              <input type="password" className="form-control" placeholder={t('placeholderNewPassword')} value={newPass} onChange={(e) => setNewPass(e.target.value)} />
+            </div>
+            <div className="mb-4">
+              <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelNewPasswordConfirm')}</label>
+              <input type="password" className="form-control" placeholder={t('placeholderNewPasswordConfirm')} value={newPass2} onChange={(e) => setNewPass2(e.target.value)} />
+            </div>
+            <div className="d-flex flex-column gap-2">
+              <button className="btn btn-green w-100 py-3" disabled={busy === 'chpwd'} onClick={doChangePassword}>
+                {busy === 'chpwd' ? t('busyChangePassword') : t('btnSaveNewPassword')}
+              </button>
+              <button className="btn btn-link text-muted p-0" style={{ fontSize: 13 }} onClick={() => setView('profile')}>
+                {t('btnBack')}
+              </button>
+            </div>
           </>
         )}
 

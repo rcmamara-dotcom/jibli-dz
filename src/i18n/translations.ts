@@ -43,6 +43,18 @@ export const TRANSLATIONS = {
     // Settings
     settingsTitle: 'Réglages',
     langLabel: 'Langue',
+    // Change password
+    titleChangePassword: 'Changer le mot de passe',
+    btnChangePassword: '🔑 Changer le mot de passe',
+    labelCurrentPassword: 'Mot de passe actuel',
+    labelNewPassword: 'Nouveau mot de passe',
+    labelNewPasswordConfirm: 'Confirmer le nouveau mot de passe',
+    placeholderCurrentPassword: 'Ton mot de passe actuel',
+    placeholderNewPassword: 'Au moins 6 caractères',
+    placeholderNewPasswordConfirm: 'Répète le nouveau mot de passe',
+    btnSaveNewPassword: '✅ Mettre à jour',
+    busyChangePassword: '⏳ Mise à jour…',
+    toastPasswordChanged: '✅ Mot de passe mis à jour !',
     // Info
     loginNote: '📧 Connecte-toi par e-mail pour publier et gérer tes annonces. Première fois ? Crée un compte.',
     forgotNote: 'Entre l’adresse e-mail de ton compte. Tu recevras un lien pour créer un nouveau mot de passe.',
@@ -118,6 +130,18 @@ export const TRANSLATIONS = {
     // Settings
     settingsTitle: 'الإعدادات',
     langLabel: 'اللغة',
+    // Change password
+    titleChangePassword: 'تغيير كلمة المرور',
+    btnChangePassword: '🔑 تغيير كلمة المرور',
+    labelCurrentPassword: 'كلمة المرور الحالية',
+    labelNewPassword: 'كلمة المرور الجديدة',
+    labelNewPasswordConfirm: 'تأكيد كلمة المرور الجديدة',
+    placeholderCurrentPassword: 'كلمة مرورك الحالية',
+    placeholderNewPassword: '6 أحرف على الأقل',
+    placeholderNewPasswordConfirm: 'أعد كتابة كلمة المرور الجديدة',
+    btnSaveNewPassword: '✅ تحديث',
+    busyChangePassword: '⏳ جاري التحديث…',
+    toastPasswordChanged: '✅ تم تحديث كلمة المرور !',
     // Info
     loginNote: '📧 سجّل الدخول بالبريد لنشر إعلاناتك وإدارتها.',
     forgotNote: 'أدخل عنوان بريدك الإلكتروني وستتلقى رابط إعادة التعيين.',
@@ -193,6 +217,18 @@ export const TRANSLATIONS = {
     // Settings
     settingsTitle: 'Settings',
     langLabel: 'Language',
+    // Change password
+    titleChangePassword: 'Change password',
+    btnChangePassword: '🔑 Change password',
+    labelCurrentPassword: 'Current password',
+    labelNewPassword: 'New password',
+    labelNewPasswordConfirm: 'Confirm new password',
+    placeholderCurrentPassword: 'Your current password',
+    placeholderNewPassword: 'At least 6 characters',
+    placeholderNewPasswordConfirm: 'Repeat new password',
+    btnSaveNewPassword: '✅ Update',
+    busyChangePassword: '⏳ Updating…',
+    toastPasswordChanged: '✅ Password updated!',
     // Info
     loginNote: '📧 Sign in with e-mail to publish and manage your listings.',
     forgotNote: 'Enter your account e-mail. You will receive a link to reset your password.',
