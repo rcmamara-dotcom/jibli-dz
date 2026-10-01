@@ -18,10 +18,24 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [busy, setBusy] = useState('');
+  const [showPwd, setShowPwd] = useState(false);
+  const [oldPwd, setOldPwd] = useState('');
+  const [newPwd, setNewPwd] = useState('');
+  const [confirmPwd, setConfirmPwd] = useState('');
 
   const errMsg = (e: unknown): string => {
     const detail = (e as any)?.detail ?? 'Erreur inconnue';
     return '⚠️ ' + (AUTH_ERRORS[detail] ?? detail);
+  };
+
+  const doChangePwd = () => {
+    if (newPwd.length < 6) { showToast('⚠️ Nouveau mot de passe : 6 caractères min'); return; }
+    if (newPwd !== confirmPwd) { showToast('⚠️ Les mots de passe ne correspondent pas'); return; }
+    setBusy('pwd');
+    GoService.post('/api/auth/change-password', { old_password: oldPwd, new_password: newPwd })
+      .then(() => { showToast('✅ Mot de passe modifié !'); setShowPwd(false); setOldPwd(''); setNewPwd(''); setConfirmPwd(''); })
+      .catch((e) => showToast(errMsg(e)))
+      .finally(() => setBusy(''));
   };
 
   const doSignIn = () => {
@@ -54,6 +68,35 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
             <p style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5, marginBottom: 14 }}>
               Tes annonces affichent un bouton 🗑 pour les supprimer. Personne d'autre ne peut les modifier.
             </p>
+
+            <button
+              className="btn btn-outline btn-full"
+              style={{ marginBottom: 8 }}
+              onClick={() => setShowPwd((v) => !v)}
+            >
+              🔑 {showPwd ? 'Annuler' : 'Modifier le mot de passe'}
+            </button>
+
+            {showPwd && (
+              <div style={{ marginBottom: 12 }}>
+                <div className="field">
+                  <label>Mot de passe actuel</label>
+                  <input type="password" placeholder="Mot de passe actuel" value={oldPwd} onChange={(e) => setOldPwd(e.target.value)} />
+                </div>
+                <div className="field">
+                  <label>Nouveau mot de passe</label>
+                  <input type="password" placeholder="Au moins 6 caractères" value={newPwd} onChange={(e) => setNewPwd(e.target.value)} />
+                </div>
+                <div className="field">
+                  <label>Confirmer le nouveau mot de passe</label>
+                  <input type="password" placeholder="Répéter le nouveau mot de passe" value={confirmPwd} onChange={(e) => setConfirmPwd(e.target.value)} />
+                </div>
+                <button className="btn btn-green btn-full" disabled={busy === 'pwd'} onClick={doChangePwd}>
+                  {busy === 'pwd' ? '⏳ Modification…' : 'Confirmer'}
+                </button>
+              </div>
+            )}
+
             <button className="btn btn-danger btn-full" onClick={() => { onLogout(); onClose(); }}>Se déconnecter</button>
           </>
         ) : (
