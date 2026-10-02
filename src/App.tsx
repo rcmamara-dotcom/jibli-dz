@@ -20,6 +20,18 @@ function getResetToken(): string | null {
   return params.get('reset');
 }
 
+function getPaymentStatus(): string | null {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('payment');
+}
+
+function cleanUrl() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('payment');
+  url.searchParams.delete('session_id');
+  window.history.replaceState({}, '', url.toString());
+}
+
 function AppInner() {
   const { t } = useLang();
   const [screen, setScreen] = useState<Screen>('home');
@@ -35,6 +47,19 @@ function AppInner() {
     trips, parcels, userId, isAdmin, toast, showToast,
     canDelete, publishTrip, publishParcel, removeTrip, removeParcel, login, logout,
   } = useAppData();
+
+  // Handle Stripe redirect
+  React.useEffect(() => {
+    const payment = getPaymentStatus();
+    if (payment === 'success') {
+      showToast('✅ Paiement confirmé ! Votre annonce est en ligne.');
+      cleanUrl();
+    } else if (payment === 'cancelled') {
+      showToast('❌ Paiement annulé.');
+      cleanUrl();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const isLoggedIn = userId !== null;
   const needLogin = !isLoggedIn;
