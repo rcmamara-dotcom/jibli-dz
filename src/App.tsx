@@ -11,8 +11,12 @@ import AddTrip from './components/AddTrip';
 import AddParcel from './components/AddParcel';
 import AuthModal from './components/AuthModal';
 import AdminPanel from './components/AdminPanel';
+import AdSlot, { ADS_ENABLED } from './components/AdSlot';
 
 const PAGE_SIZE = 20;
+const AD_EVERY = 6; // une pub toutes les 6 cartes
+
+const showAdAfter = (i: number) => ADS_ENABLED && (i + 1) % AD_EVERY === 0;
 
 function getResetToken(): string | null {
   const params = new URLSearchParams(window.location.search);
@@ -121,10 +125,13 @@ export default function App() {
             ? <div className="empty-state"><div className="icon">✈️</div><p>Aucun trajet disponible.<br />Soyez le premier à publier !</p></div>
             : <>
                 <div className="row g-3">
-                  {visibleTrips.map((t) => (
-                    <div key={t.id} className="col-12 col-md-6 col-xl-4">
-                      <TripCard trip={t} mine={canDelete(t)} onOpen={() => setTripModal(t)} onDelete={() => removeTrip(t.id)} />
-                    </div>
+                  {visibleTrips.map((t, i) => (
+                    <React.Fragment key={t.id}>
+                      <div className="col-12 col-md-6 col-xl-4">
+                        <TripCard trip={t} mine={canDelete(t)} onOpen={() => setTripModal(t)} onDelete={() => removeTrip(t.id)} />
+                      </div>
+                      {showAdAfter(i) && <div className="col-12"><AdSlot /></div>}
+                    </React.Fragment>
                   ))}
                 </div>
                 {hasMoreTrips && (
@@ -150,10 +157,13 @@ export default function App() {
             ? <div className="empty-state"><div className="icon">📦</div><p>Aucun colis publié.<br />Quelqu'un a besoin de vous !</p></div>
             : <>
                 <div className="row g-3">
-                  {visibleParcels.map((p) => (
-                    <div key={p.id} className="col-12 col-md-6 col-xl-4">
-                      <ParcelCard parcel={p} mine={canDelete(p)} onDelete={() => removeParcel(p.id)} />
-                    </div>
+                  {visibleParcels.map((p, i) => (
+                    <React.Fragment key={p.id}>
+                      <div className="col-12 col-md-6 col-xl-4">
+                        <ParcelCard parcel={p} mine={canDelete(p)} onDelete={() => removeParcel(p.id)} />
+                      </div>
+                      {showAdAfter(i) && <div className="col-12"><AdSlot /></div>}
+                    </React.Fragment>
                   ))}
                 </div>
                 {hasMoreParcels && (
@@ -177,6 +187,10 @@ export default function App() {
       )}
 
       {screen === 'admin' && isAdmin && <AdminPanel />}
+
+      <footer className="text-center text-muted py-4" style={{ fontSize: 13 }}>
+        <a href="/confidentialite.html" className="text-muted">Politique de confidentialité</a>
+      </footer>
 
       {toast && <div className="app-toast show">{toast}</div>}
 
