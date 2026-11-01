@@ -35,4 +35,4 @@ export interface Parcel {
   created_at: string;
 }
 
-export type Screen = 'home' | 'parcels' | 'add-trip' | 'add-parcel' | 'admin';
+export type Screen = 'home' | 'parcels' | 'add-trip' | 'add-parcel' | 'admin' | 'pricing';

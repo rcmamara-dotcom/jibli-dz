@@ -72,12 +72,16 @@ export function useAppData() {
     if (!form.name || !form.from_city || !form.to_city || !form.date || !form.wa) { showToast('⚠️ Remplissez tous les champs obligatoires'); return; }
     if (form.from_city === form.to_city) { showToast('⚠️ Départ et arrivée identiques'); return; }
     if (!waValid(form.wa)) { showToast('⚠️ Numéro WhatsApp au format international, ex : +33612345678'); return; }
-    GoService.post<Trip>('/api/trips', {
-      ...form,
-      weight: form.weight ? parseFloat(form.weight) : null,
+    showToast('⏳ Publication en cours…');
+    GoService.post<{ checkout_url: string | null; published?: boolean }>('/api/payments/create-checkout', {
+      type: 'trip',
+      data: { ...form, weight: form.weight ? parseFloat(form.weight) : null },
     })
-      .then((t) => { setTrips((prev) => [t, ...prev]); reset(); showToast('✅ Trajet publié !'); navigate(); })
-      .catch((e: any) => showToast('⚠️ ' + (e?.detail ?? 'Erreur')));
+      .then(({ checkout_url, published }) => {
+        if (published) { showToast('✅ Trajet publié !'); reset(); refresh(); navigate(); }
+        else if (checkout_url) { window.location.href = checkout_url; }
+      })
+      .catch((e: any) => showToast('⚠️ ' + (e?.detail ?? 'Erreur paiement')));
   }
 
   function publishParcel(
@@ -90,12 +94,16 @@ export function useAppData() {
     if (!form.from_city || !form.to_city || !form.description || !form.wa) { showToast('⚠️ Remplissez tous les champs'); return; }
     if (form.from_city === form.to_city) { showToast('⚠️ Départ et arrivée identiques'); return; }
     if (!waValid(form.wa)) { showToast('⚠️ Numéro WhatsApp au format international, ex : +33612345678'); return; }
-    GoService.post<Parcel>('/api/parcels', {
-      ...form,
-      budget: form.budget ? parseFloat(form.budget) : 0,
+    showToast('⏳ Publication en cours…');
+    GoService.post<{ checkout_url: string | null; published?: boolean }>('/api/payments/create-checkout', {
+      type: 'parcel',
+      data: { ...form, budget: form.budget ? parseFloat(form.budget) : 0 },
     })
-      .then((p) => { setParcels((prev) => [p, ...prev]); reset(); showToast('📦 Colis publié !'); navigate(); })
-      .catch((e: any) => showToast('⚠️ ' + (e?.detail ?? 'Erreur')));
+      .then(({ checkout_url, published }) => {
+        if (published) { showToast('✅ Colis publié !'); reset(); refresh(); navigate(); }
+        else if (checkout_url) { window.location.href = checkout_url; }
+      })
+      .catch((e: any) => showToast('⚠️ ' + (e?.detail ?? 'Erreur paiement')));
   }
 
   function removeTrip(id: number, onClose?: () => void) {

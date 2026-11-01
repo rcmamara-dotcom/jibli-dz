@@ -46,6 +46,9 @@ export default function AddParcel({ needLogin, onLogin, onPublish, onNavigate }:
             <input type="tel" className="form-control" placeholder="+33 6 12 34 56 78" value={f.wa} onChange={(e) => up('wa')(e.target.value)} />
             <div className="text-muted mt-1" style={{ fontSize: 12 }}>📱 Les voyageurs vous contacteront pour s'arranger.</div>
           </div>
+          <div className="text-muted mb-2 text-center" style={{ fontSize: 12 }}>
+            💳 Publication sécurisée via Stripe — <strong>3€</strong>
+          </div>
           <button className="btn btn-gold w-100 py-3" onClick={() =>
             onPublish(
               { from_city: f.from_city, to_city: f.to_city, description: f.description, budget: f.budget, wa: f.wa },
@@ -53,7 +56,7 @@ export default function AddParcel({ needLogin, onLogin, onPublish, onNavigate }:
               onLogin,
               onNavigate,
             )
-          }>📦 Publier mon colis</button>
+          }>💳 Payer 3€ et publier mon colis</button>
         </div>
       </div>
     </div>

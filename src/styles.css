@@ -23,6 +23,9 @@ body { font-size: 15px; }
   background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 100%) !important;
   box-shadow: 0 2px 12px rgba(0,0,0,0.18);
 }
+.header-row1 {
+  height: 58px;
+}
 .logo-icon {
   width: 40px; height: 40px; flex-shrink: 0;
   background: var(--gold);
@@ -57,7 +60,11 @@ body { font-size: 15px; }
   background: #fff;
   border-bottom: 1px solid var(--border);
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  position: sticky; top: 62px; z-index: 90;
+  position: sticky; top: 58px; z-index: 90;
+}
+@media (max-width: 575px) {
+  /* header is taller on xs (2 rows) */
+  .nav-tabs-bar { top: 104px; }
 }
 .nav-tabs-bar .nav-link {
   color: var(--muted) !important;
@@ -80,6 +87,11 @@ body { font-size: 15px; }
 .hero-banner h2 { font-family: 'Cairo', sans-serif; font-size: 22px; font-weight: 700; }
 .hero-banner p  { font-size: 14px; opacity: .85; line-height: 1.5; }
 .hero-icon { font-size: 48px; flex-shrink: 0; }
+@media (max-width: 575px) {
+  .hero-banner { padding: 20px 18px; }
+  .hero-banner h2 { font-size: 18px; }
+  .hero-icon { font-size: 36px; }
+}
 
 /* ─── STAT CARDS ─── */
 .stat-num { font-family: 'Cairo', sans-serif; font-size: 28px; font-weight: 900; color: var(--green-mid); }
@@ -174,16 +186,24 @@ body { font-size: 15px; }
   background: rgba(0,0,0,0.5);
   z-index: 1040;
   display: flex; align-items: center; justify-content: center;
-  padding: 24px;
+  padding: 16px;
 }
 .modal-box {
   background: var(--cream);
   border-radius: 16px;
-  padding: 28px 32px;
+  padding: 24px 28px;
   width: 100%; max-width: 560px;
-  max-height: 88vh; overflow-y: auto;
+  max-height: 92vh; overflow-y: auto;
   box-shadow: 0 8px 48px rgba(0,0,0,0.22);
   animation: modal-in .2s ease;
+}
+@media (max-width: 575px) {
+  .modal-backdrop-custom { padding: 8px; align-items: flex-end; }
+  .modal-box {
+    padding: 20px 16px;
+    border-radius: 16px 16px 0 0;
+    max-height: 95vh;
+  }
 }
 @keyframes modal-in {
   from { opacity: 0; transform: scale(.95) translateY(8px); }
@@ -194,3 +214,34 @@ body { font-size: 15px; }
 /* ─── EMPTY STATE ─── */
 .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
 .empty-state .icon { font-size: 56px; margin-bottom: 14px; }
+
+/* ─── GLOBAL RESPONSIVE ─── */
+@media (max-width: 575px) {
+  body { font-size: 14px; }
+
+  /* cards/forms full width on phone */
+  .trip-card, .parcel-card { border-radius: 10px !important; }
+
+  /* nav tabs font smaller */
+  .nav-tabs-bar .nav-link { font-size: 13px; padding: 12px 14px; }
+
+  /* stat grid: 3 cols already, just smaller text */
+  .stat-num { font-size: 22px; }
+
+  /* section title */
+  .section-title { font-size: 16px; }
+
+  /* trip/parcel route text */
+  .trip-route, .parcel-route { font-size: 15px; }
+
+  /* form card padding */
+  .card.p-4 { padding: 1rem !important; }
+
+  /* filter chips scroll */
+  .chips-row { flex-wrap: nowrap !important; overflow-x: auto; padding-bottom: 4px; }
+  .chips-row::-webkit-scrollbar { display: none; }
+
+  /* toast full width */
+  .app-toast { left: 12px; right: 12px; transform: none; max-width: none; }
+  .app-toast.show { transform: translateY(0); }
+}
