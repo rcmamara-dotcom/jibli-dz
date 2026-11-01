@@ -7,9 +7,12 @@
   <meta name="google-adsense-account" content="ca-pub-7688861596028885" />
 
   <!-- SEO -->
-  <meta name="description" content="JIBLI DZ — Envoyez vos colis entre la France et l'Algérie avec des voyageurs de confiance. Trouvez un voyageur, contactez-le sur WhatsApp." />
-  <meta name="keywords" content="colis france algerie, envoi colis algerie, voyageur algerie france, jibli dz, transport colis" />
+  <meta name="description" content="JIBLI DZ — Envoyez vos colis entre la France et l'Algérie avec des voyageurs de confiance. Publiez gratuitement votre annonce, trouvez un voyageur et contactez-le sur WhatsApp. Transporteur fiable, rapide et pas cher." />
+  <meta name="keywords" content="colis france algerie, envoi colis algerie, voyageur algerie france, transport colis particulier, envoyer colis algerie pas cher, colis alger paris, jibli dz, جيبلي, إرسال طرد الجزائر فرنسا" />
   <meta name="robots" content="index, follow" />
+  <meta name="author" content="JIBLI DZ" />
+  <meta name="geo.region" content="DZ" />
+  <meta name="geo.placename" content="Algérie" />
   <link rel="canonical" href="https://jiblidz.com/" />
 
   <!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
@@ -26,13 +29,61 @@
   <meta name="twitter:description" content="Trouvez un voyageur de confiance pour envoyer vos colis entre la France et l'Algérie." />
   <meta name="twitter:image" content="https://jiblidz.com/og-image.png" />
 
+  <!-- JSON-LD : données structurées pour Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "JIBLI DZ",
+    "url": "https://jiblidz.com",
+    "description": "Plateforme de mise en relation entre expéditeurs de colis et voyageurs entre la France et l'Algérie.",
+    "inLanguage": ["fr", "ar"],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://jiblidz.com/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "JIBLI DZ",
+    "url": "https://jiblidz.com",
+    "logo": "https://jiblidz.com/logo.png",
+    "sameAs": [],
+    "description": "Service de transport de colis entre la France et l'Algérie par des voyageurs de confiance."
+  }
+  </script>
+
   <link rel="manifest" href="/manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <title>JIBLI DZ — Colis France ⇄ Algérie · جيبلي</title>
 </head>
 <body>
-  <noscript>Active JavaScript pour utiliser JIBLI DZ.</noscript>
+  <!-- Contenu indexable pour les robots sans JavaScript -->
+  <noscript>
+    <div style="font-family:sans-serif;max-width:800px;margin:40px auto;padding:20px">
+      <h1>JIBLI DZ — Envoi de colis France ⇄ Algérie</h1>
+      <p>JIBLI DZ est une plateforme de mise en relation entre des particuliers souhaitant envoyer des colis
+         et des voyageurs qui font le trajet entre la France et l'Algérie.</p>
+      <h2>Comment ça marche ?</h2>
+      <ul>
+        <li>Publiez votre annonce de colis à envoyer (Paris, Lyon, Marseille → Alger, Oran, Constantine…)</li>
+        <li>Contactez un voyageur directement sur WhatsApp</li>
+        <li>Convenez du prix et de la date de remise</li>
+      </ul>
+      <h2>Vous êtes voyageur ?</h2>
+      <ul>
+        <li>Publiez votre trajet et les colis que vous pouvez transporter</li>
+        <li>Recevez des demandes d'expéditeurs</li>
+        <li>Gagnez un complément de revenus sur votre voyage</li>
+      </ul>
+      <p>Activez JavaScript pour utiliser le site complet.</p>
+    </div>
+  </noscript>
   <div id="root"></div>
   <script type="module" src="/src/index.tsx"></script>
 </body>
