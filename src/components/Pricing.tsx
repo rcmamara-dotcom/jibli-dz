@@ -110,13 +110,13 @@ export default function Pricing({ isLoggedIn, onLogin, showToast }: Props) {
                     {plan.badge}
                   </div>
                 )}
-                <div className="card-body p-4">
+                <div className="card-body p-4 d-flex flex-column">
                   <h5 className="fw-bold mb-1">{plan.name}</h5>
                   <div className="mb-3">
                     <span style={{ fontSize: 36, fontWeight: 700, color: plan.color }}>{plan.price}€</span>
                     <span className="text-muted"> / mois</span>
                   </div>
-                  <ul className="list-unstyled mb-4">
+                  <ul className="list-unstyled mb-4 flex-grow-1">
                     {plan.features.map((f) => (
                       <li key={f} className="mb-2" style={{ fontSize: 14 }}>
                         ✓ {f}
