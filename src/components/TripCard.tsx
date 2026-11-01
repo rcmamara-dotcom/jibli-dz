@@ -1,6 +1,8 @@
 import React from 'react';
 import { Trip } from '../types';
 import { formatWA } from '../utils/whatsapp';
+import { isDemo } from '../mocks/demo';
+import { useLang } from '../contexts/LangContext';
 import { StarDisplay } from './StarRating';
 
 interface Props {
@@ -15,6 +17,8 @@ export default function TripCard({ trip: t, mine, onOpen, onDelete }: Props) {
   const dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const isUpcoming = d >= today;
+  const { t: tr } = useLang();
+  const demo = isDemo(t);
   const wa = formatWA(t.wa, `Bonjour ${t.name}, j'ai vu votre trajet ${t.from_city}→${t.to_city} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
 
   return (
@@ -26,7 +30,9 @@ export default function TripCard({ trip: t, mine, onOpen, onDelete }: Props) {
             <span className="trip-arrow">→</span>
             <span>{t.to_city}</span>
           </div>
-          {mine
+          {demo
+            ? <span className="badge text-bg-warning" style={{ fontSize: 11 }}>🧪 {tr('demoBadge')}</span>
+            : mine
             ? <span className="mine-tag">MON ANNONCE</span>
             : (!isUpcoming && <span className="badge text-bg-danger" style={{ fontSize: 11 }}>Passé</span>)}
         </div>
@@ -41,7 +47,9 @@ export default function TripCard({ trip: t, mine, onOpen, onDelete }: Props) {
         </div>
         {t.cap_desc && <p className="text-muted fst-italic mb-3" style={{ fontSize: 12 }}>"{t.cap_desc}"</p>}
         <div className="d-flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
-          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-wa">💬 WhatsApp</a>
+          {demo
+            ? <button className="btn btn-sm btn-wa" disabled>💬 WhatsApp</button>
+            : <a href={wa} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-wa">💬 WhatsApp</a>}
           <button className="btn btn-sm btn-outline-secondary" onClick={onOpen}>Voir détails</button>
           {mine && <button className="btn btn-sm btn-outline-danger" onClick={onDelete}>🗑 Supprimer</button>}
         </div>

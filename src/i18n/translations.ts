@@ -152,6 +152,8 @@ export const TRANSLATIONS = {
     planFeaturePro5: 'Support dédié',
     settingsAppearance: '🎨 Apparence',
     darkMode: 'Mode sombre',
+    demoToggle: '🧪 Afficher les annonces de démo (visible par les admins uniquement)',
+    demoBadge: 'DÉMO',
     // Suivi des envois
     stepDeposited: 'Commande déposée',
     stepAccepted: 'Acceptée par le voyageur',
@@ -327,6 +329,8 @@ export const TRANSLATIONS = {
     planFeaturePro5: 'دعم مخصص',
     settingsAppearance: '🎨 المظهر',
     darkMode: 'الوضع الداكن',
+    demoToggle: '🧪 عرض إعلانات تجريبية (للمشرفين فقط)',
+    demoBadge: 'تجريبي',
     // Suivi des envois
     stepDeposited: 'تم إيداع الطلب',
     stepAccepted: 'قبلها المسافر',
@@ -502,6 +506,8 @@ export const TRANSLATIONS = {
     planFeaturePro5: 'Dedicated support',
     settingsAppearance: '🎨 Appearance',
     darkMode: 'Dark mode',
+    demoToggle: '🧪 Show demo listings (admins only)',
+    demoBadge: 'DEMO',
     // Suivi des envois
     stepDeposited: 'Order placed',
     stepAccepted: 'Accepted by traveler',

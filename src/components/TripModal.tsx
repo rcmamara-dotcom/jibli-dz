@@ -4,6 +4,7 @@ import { formatWA } from '../utils/whatsapp';
 import { GoService } from '../services/GoService';
 import { StarDisplay, StarInput } from './StarRating';
 import { useLang } from '../contexts/LangContext';
+import { isDemo } from '../mocks/demo';
 
 interface Props {
   trip: Trip;
@@ -33,6 +34,7 @@ export default function TripModal({ trip, userId, canDelete, onClose, onDelete, 
   const [shipError, setShipError] = useState('');
 
   useEffect(() => {
+    if (isDemo(trip)) return;
     GoService.get<Review[]>(`/api/trips/${trip.id}/reviews`)
       .then((data) => {
         setReviews(data);
@@ -124,7 +126,8 @@ export default function TripModal({ trip, userId, canDelete, onClose, onDelete, 
           )}
 
           {/* Actions */}
-          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn btn-wa w-100 py-3" style={{ fontSize: 15 }}>
+          <a href={isDemo(trip) ? undefined : wa} target="_blank" rel="noopener noreferrer" aria-disabled={isDemo(trip)}
+            className={'btn btn-wa w-100 py-3' + (isDemo(trip) ? ' disabled' : '')} style={{ fontSize: 15 }}>
             💬 Contacter sur WhatsApp
           </a>
           {userId !== null && !isOwnTrip && trip.owner_id && (

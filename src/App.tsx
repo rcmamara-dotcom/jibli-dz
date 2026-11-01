@@ -16,6 +16,7 @@ import AdSlot, { ADS_ENABLED } from './components/AdSlot';
 import Pricing from './components/Pricing';
 import Settings from './components/Settings';
 import Shipments from './components/Shipments';
+import { DEMO_PARCELS, DEMO_TRIPS } from './mocks/demo';
 
 const PAGE_SIZE = 20;
 const AD_EVERY = 6; // une pub toutes les 6 cartes
@@ -86,14 +87,21 @@ function AppInner() {
   const isLoggedIn = userId !== null;
   const needLogin = !isLoggedIn;
 
+  // Annonces de démo : admins uniquement, choix gardé dans le navigateur
+  const [demoOn, setDemoOn] = useState(() => { try { return localStorage.getItem('jibli_demo') === '1'; } catch { return false; } });
+  const toggleDemo = (on: boolean) => { setDemoOn(on); try { localStorage.setItem('jibli_demo', on ? '1' : '0'); } catch { /* ignore */ } };
+  const showDemo = role === 'admin' && demoOn;
+  const allTrips = useMemo(() => (showDemo ? [...trips, ...DEMO_TRIPS] : trips), [trips, showDemo]);
+  const allParcels = useMemo(() => (showDemo ? [...parcels, ...DEMO_PARCELS] : parcels), [parcels, showDemo]);
+
   const filteredTrips = useMemo(() => {
     setTripPage(1);
-    let list = [...trips];
+    let list = [...allTrips];
     const s = search.toLowerCase();
     if (s) list = list.filter((t) => [t.from_city, t.to_city, t.name].some((v) => (v ?? '').toLowerCase().includes(s)));
     if (dest !== 'all') list = list.filter((t) => t.to_city === dest);
     return list.sort((a, b) => +new Date(a.date) - +new Date(b.date));
-  }, [trips, search, dest]);
+  }, [allTrips, search, dest]);
 
   const visibleTrips = useMemo(() => filteredTrips.slice(0, tripPage * PAGE_SIZE), [filteredTrips, tripPage]);
   const hasMoreTrips = visibleTrips.length < filteredTrips.length;
@@ -101,9 +109,9 @@ function AppInner() {
   const filteredParcels = useMemo(() => {
     setParcelPage(1);
     const s = search.toLowerCase();
-    if (!s) return parcels;
-    return parcels.filter((p) => [p.from_city, p.to_city, p.description].some((v) => (v ?? '').toLowerCase().includes(s)));
-  }, [parcels, search]);
+    if (!s) return allParcels;
+    return allParcels.filter((p) => [p.from_city, p.to_city, p.description].some((v) => (v ?? '').toLowerCase().includes(s)));
+  }, [allParcels, search]);
 
   const visibleParcels = useMemo(() => filteredParcels.slice(0, parcelPage * PAGE_SIZE), [filteredParcels, parcelPage]);
   const hasMoreParcels = visibleParcels.length < filteredParcels.length;
@@ -130,13 +138,13 @@ function AppInner() {
               <div className="row g-3 h-100">
                 <div className="col-4 col-lg-12">
                   <div className="card border-0 shadow-sm text-center p-3 h-100">
-                    <div className="stat-num">{trips.length}</div>
+                    <div className="stat-num">{allTrips.length}</div>
                     <div className="stat-label">{t('statsTrips')}</div>
                   </div>
                 </div>
                 <div className="col-4 col-lg-12">
                   <div className="card border-0 shadow-sm text-center p-3 h-100">
-                    <div className="stat-num">{parcels.length}</div>
+                    <div className="stat-num">{allParcels.length}</div>
                     <div className="stat-label">{t('statsParcels')}</div>
                   </div>
                 </div>
@@ -149,6 +157,14 @@ function AppInner() {
               </div>
             </div>
           </div>
+
+          {role === 'admin' && (
+            <div className="form-check form-switch mb-3">
+              <input className="form-check-input" type="checkbox" role="switch" id="demo-switch"
+                checked={demoOn} onChange={(e) => toggleDemo(e.target.checked)} />
+              <label className="form-check-label" htmlFor="demo-switch" style={{ fontSize: 14 }}>{t('demoToggle')}</label>
+            </div>
+          )}
 
           {/* Filter chips */}
           <div className="d-flex flex-wrap gap-2 mb-4 chips-row">
