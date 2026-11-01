@@ -24,7 +24,7 @@ const PLANS = [
     quota: 5,
     features: ['5 publications / mois', 'Trajets & colis', 'Support email'],
     color: '#6c757d',
-    badge: '',
+    badge: 'Essentiel',
   },
   {
     id: 'voyageur',
@@ -38,7 +38,7 @@ const PLANS = [
   {
     id: 'pro',
     name: 'Pro',
-    price: 39,
+    price: 29,
     quota: null,
     features: ['Publications illimitées', 'Trajets & colis', 'Badge Pro ⭐', 'Priorité dans les listes', 'Support dédié'],
     color: '#b8860b',
