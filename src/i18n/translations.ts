@@ -72,7 +72,7 @@ export const TRANSLATIONS = {
     toastResetOk: '✅ Mot de passe mis à jour !',
     errEmailPassword: '⚠️ E-mail + mot de passe (8 caractères min)',
     errEmailRequired: '⚠️ Entre ton adresse e-mail',
-    errPasswordMin: '⚠️ Mot de passe : 6 caractères min',
+    errPasswordMin: '⚠️ Mot de passe : 8 caractères min',
     errPasswordMismatch: '⚠️ Les mots de passe ne correspondent pas',
     // Home
     heroTitle: 'Trouvez un voyageur de confiance',
