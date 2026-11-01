@@ -12,9 +12,14 @@ import AddTrip from './components/AddTrip';
 import AddParcel from './components/AddParcel';
 import AuthModal from './components/AuthModal';
 import AdminPanel from './components/AdminPanel';
+import AdSlot, { ADS_ENABLED } from './components/AdSlot';
 import Pricing from './components/Pricing';
+import Settings from './components/Settings';
 
 const PAGE_SIZE = 20;
+const AD_EVERY = 6; // une pub toutes les 6 cartes
+
+const showAdAfter = (i: number) => ADS_ENABLED && (i + 1) % AD_EVERY === 0;
 
 function getResetToken(): string | null {
   const params = new URLSearchParams(window.location.search);
@@ -104,7 +109,7 @@ function AppInner() {
 
   return (
     <>
-      <Header isLoggedIn={isLoggedIn} isAdmin={isAdmin} search={search} onSearch={setSearch} onAccount={() => setAuthOpen(true)} onAdmin={() => setScreen('admin')} />
+      <Header isLoggedIn={isLoggedIn} isAdmin={isAdmin} search={search} onSearch={setSearch} onAccount={() => (isLoggedIn ? setScreen('settings') : setAuthOpen(true))} onAdmin={() => setScreen('admin')} />
       <NavTabs screen={screen} setScreen={setScreen} />
 
       {screen === 'home' && (
@@ -163,10 +168,13 @@ function AppInner() {
             ? <div className="empty-state"><div className="icon">✈️</div><p>{t('emptyTrips').split('\\n').join('\n')}</p></div>
             : <>
                 <div className="row g-3">
-                  {visibleTrips.map((tr) => (
-                    <div key={tr.id} className="col-12 col-md-6 col-xl-4">
-                      <TripCard trip={tr} mine={canDelete(tr)} onOpen={() => setTripModal(tr)} onDelete={() => removeTrip(tr.id)} />
-                    </div>
+                  {visibleTrips.map((tr, i) => (
+                    <React.Fragment key={tr.id}>
+                      <div className="col-12 col-md-6 col-xl-4">
+                        <TripCard trip={tr} mine={canDelete(tr)} onOpen={() => setTripModal(tr)} onDelete={() => removeTrip(tr.id)} />
+                      </div>
+                      {showAdAfter(i) && <div className="col-12"><AdSlot /></div>}
+                    </React.Fragment>
                   ))}
                 </div>
                 {hasMoreTrips && (
@@ -192,10 +200,13 @@ function AppInner() {
             ? <div className="empty-state"><div className="icon">📦</div><p>{t('emptyParcels').split('\\n').join('\n')}</p></div>
             : <>
                 <div className="row g-3">
-                  {visibleParcels.map((p) => (
-                    <div key={p.id} className="col-12 col-md-6 col-xl-4">
-                      <ParcelCard parcel={p} mine={canDelete(p)} onDelete={() => removeParcel(p.id)} />
-                    </div>
+                  {visibleParcels.map((p, i) => (
+                    <React.Fragment key={p.id}>
+                      <div className="col-12 col-md-6 col-xl-4">
+                        <ParcelCard parcel={p} mine={canDelete(p)} onDelete={() => removeParcel(p.id)} />
+                      </div>
+                      {showAdAfter(i) && <div className="col-12"><AdSlot /></div>}
+                    </React.Fragment>
                   ))}
                 </div>
                 {hasMoreParcels && (
@@ -218,11 +229,19 @@ function AppInner() {
         <AddParcel needLogin={needLogin} onLogin={() => setAuthOpen(true)} onPublish={publishParcel} onNavigate={() => setScreen('parcels')} />
       )}
 
+      {screen === 'settings' && isLoggedIn && (
+        <Settings showToast={showToast} onLogout={() => { logout(); setScreen('home'); }} onPricing={() => setScreen('pricing')} />
+      )}
+
       {screen === 'pricing' && (
         <Pricing isLoggedIn={isLoggedIn} onLogin={() => setAuthOpen(true)} showToast={showToast} />
       )}
 
       {screen === 'admin' && isAdmin && <AdminPanel />}
+
+      <footer className="text-center text-muted py-4" style={{ fontSize: 13 }}>
+        <a href="/confidentialite.html" className="text-muted">Politique de confidentialité</a>
+      </footer>
 
       {toast && <div className="app-toast show">{toast}</div>}
 
@@ -249,7 +268,6 @@ function AppInner() {
             }
           }}
           onLogin={login}
-          onLogout={logout}
           showToast={showToast}
           initialToken={resetToken}
         />

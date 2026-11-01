@@ -3,64 +3,63 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '../firebase';
 import { GoService } from '../services/GoService';
 import { useLang } from '../contexts/LangContext';
-import type { Lang } from '../i18n/translations';
+import PasswordInput from './PasswordInput';
 
 interface Props {
   isLoggedIn: boolean;
   onClose: () => void;
   onLogin: (token: string) => void;
-  onLogout: () => void;
   showToast: (m: string) => void;
   initialToken?: string | null;
 }
 
-type View = 'main' | 'forgot' | 'reset' | 'profile' | 'change-password';
+type View = 'main' | 'forgot' | 'reset' | 'verify';
 type Mode = 'login' | 'register';
-
-const LANG_OPTIONS: { value: Lang; flag: string; label: string }[] = [
-  { value: 'fr', flag: '🇫🇷', label: 'Français' },
-  { value: 'ar', flag: '🇩🇿', label: 'العربية' },
-  { value: 'en', flag: '🇬🇧', label: 'English' },
-];
 
 const AUTH_ERRORS: Record<string, string> = {
   'Cet e-mail est déjà utilisé': 'Cet e-mail a déjà un compte — utilise « Se connecter »',
   'E-mail ou mot de passe incorrect': 'E-mail ou mot de passe incorrect',
 };
 
-interface Me {
-  id: number;
-  email: string;
-  name?: string | null;
-  birth_date?: string | null;
-  is_admin: boolean;
-}
+// Même règle que le backend (schemas._validate_phone)
+const PHONE_RE = /^\+\d{7,15}$/;
+export const cleanPhone = (v: string) => v.replace(/[\s.-]/g, '');
 
-export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, showToast, initialToken }: Props) {
-  const { lang, setLang, t } = useLang();
-  const [view, setView] = useState<View>(initialToken ? 'reset' : isLoggedIn ? 'profile' : 'main');
+export default function AuthModal({ isLoggedIn, onClose, onLogin, showToast, initialToken }: Props) {
+  const { t } = useLang();
+  // Ouverte en étant connecté = e-mail encore à vérifier (le compte se gère dans Paramètres)
+  const [view, setView] = useState<View>(initialToken ? 'reset' : isLoggedIn ? 'verify' : 'main');
   const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [pass2, setPass2] = useState('');
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
+  const [verifyEmail, setVerifyEmail] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [busy, setBusy] = useState('');
-  const [me, setMe] = useState<Me | null>(null);
-  const [currentPass, setCurrentPass] = useState('');
-  const [newPass, setNewPass] = useState('');
-  const [newPass2, setNewPass2] = useState('');
 
   useEffect(() => {
-    if (isLoggedIn && view === 'profile') {
-      GoService.get<Me>('/api/auth/me').then((data) => setMe(data)).catch(() => {});
-    }
-  }, [isLoggedIn, view]);
-
-  useEffect(() => {
-    if (isLoggedIn && !initialToken) setView('profile');
-    else if (!isLoggedIn) setView(initialToken ? 'reset' : 'main');
+    if (!isLoggedIn) setView(initialToken ? 'reset' : 'main');
   }, [isLoggedIn, initialToken]);
+
+  useEffect(() => {
+    if (view === 'verify' && !verifyEmail) {
+      GoService.get<{ email: string }>('/api/auth/me').then((me) => setVerifyEmail(me.email)).catch(() => {});
+    }
+  }, [view, verifyEmail]);
+
+  // Après connexion : on ne ferme que si l'e-mail est déjà vérifié
+  const afterAuth = (token: string) => {
+    onLogin(token);
+    GoService.get<{ email: string; email_verified: boolean }>('/api/auth/me')
+      .then((me) => {
+        if (me.email_verified) onClose();
+        else { setVerifyEmail(me.email); setView('verify'); }
+      })
+      .catch(() => onClose());
+  };
 
   const errMsg = (e: unknown): string => {
     const detail = (e as { detail?: string })?.detail ?? 'Erreur inconnue';
@@ -71,23 +70,42 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
     if (!email || pass.length < 6) { showToast(t('errEmailPassword')); return; }
     setBusy('in');
     GoService.post<{ access_token: string }>('/api/auth/login', { email, password: pass })
-      .then(({ access_token }) => { onLogin(access_token); onClose(); })
+      .then(({ access_token }) => afterAuth(access_token))
       .catch((e) => showToast(errMsg(e)))
       .finally(() => setBusy(''));
   };
 
   const doSignUp = () => {
     if (!email || pass.length < 6) { showToast(t('errEmailPassword')); return; }
+    if (!PHONE_RE.test(cleanPhone(phone))) { showToast(t('errPhone')); return; }
     if (pass !== pass2) { showToast(t('errPasswordMismatch')); return; }
     setBusy('up');
     GoService.post<{ access_token: string }>('/api/auth/register', {
       email,
+      phone: cleanPhone(phone),
       password: pass,
       confirm_password: pass2,
       name: name || undefined,
       birth_date: birthDate || undefined,
     })
-      .then(({ access_token }) => { onLogin(access_token); onClose(); })
+      .then(({ access_token }) => { onLogin(access_token); setVerifyEmail(email); setView('verify'); })
+      .catch((e) => showToast(errMsg(e)))
+      .finally(() => setBusy(''));
+  };
+
+  const doVerify = () => {
+    if (!/^\d{6}$/.test(code.trim())) { showToast('⚠️ ' + t('labelCode')); return; }
+    setBusy('verify');
+    GoService.post('/api/auth/verify-email', { code: code.trim() })
+      .then(() => { showToast(t('toastEmailVerified')); onClose(); })
+      .catch((e) => showToast(errMsg(e)))
+      .finally(() => setBusy(''));
+  };
+
+  const doResend = () => {
+    setBusy('resend');
+    GoService.post('/api/auth/resend-code', {})
+      .then(() => showToast(t('toastCodeSent')))
       .catch((e) => showToast(errMsg(e)))
       .finally(() => setBusy(''));
   };
@@ -105,8 +123,7 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
           .then(resolve)
           .catch(reject);
       });
-      onLogin(data.access_token);
-      onClose();
+      afterAuth(data.access_token);
     } catch (e: unknown) {
       const code = (e as { code?: string })?.code;
       if (code !== 'auth/popup-closed-by-user') showToast('⚠️ Connexion Google échouée');
@@ -124,25 +141,6 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
       .finally(() => setBusy(''));
   };
 
-  const doChangePassword = () => {
-    if (!currentPass) { showToast('⚠️ ' + t('labelCurrentPassword')); return; }
-    if (newPass.length < 6) { showToast(t('errPasswordMin')); return; }
-    if (newPass !== newPass2) { showToast(t('errPasswordMismatch')); return; }
-    setBusy('chpwd');
-    GoService.post('/api/auth/change-password', {
-      current_password: currentPass,
-      new_password: newPass,
-      confirm_new_password: newPass2,
-    })
-      .then(() => {
-        showToast(t('toastPasswordChanged'));
-        setCurrentPass(''); setNewPass(''); setNewPass2('');
-        setView('profile');
-      })
-      .catch((e) => showToast(errMsg(e)))
-      .finally(() => setBusy(''));
-  };
-
   const doReset = () => {
     if (pass.length < 6) { showToast(t('errPasswordMin')); return; }
     if (pass !== pass2) { showToast(t('errPasswordMismatch')); return; }
@@ -154,8 +152,7 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
   };
 
   const modalTitle = () => {
-    if (view === 'profile') return t('titleAccount');
-    if (view === 'change-password') return t('titleChangePassword');
+    if (view === 'verify') return t('titleVerify');
     if (view === 'forgot') return t('titleForgot');
     if (view === 'reset') return t('titleReset');
     return mode === 'login' ? t('titleLogin') : t('tabRegister');
@@ -169,71 +166,34 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
           <button className="btn-close" onClick={onClose} aria-label="Fermer" />
         </div>
 
-        {/* ── Profile / account ─────────────────────────────────── */}
-        {view === 'profile' && (
+        {/* ── Verify e-mail code ───────────────────────────────────── */}
+        {view === 'verify' && (
           <>
-            <div className="mb-4 p-3 rounded-3" style={{ background: 'var(--bs-gray-100, #f8f9fa)' }}>
-              <div className="fw-semibold mb-2" style={{ fontSize: 13, color: 'var(--green-mid, #1a7a42)' }}>👤 {t('profileTitle')}</div>
-              <div className="d-flex flex-column gap-1" style={{ fontSize: 13 }}>
-                <div><span className="text-muted">{t('profileEmail')} : </span><strong>{me?.email ?? '…'}</strong></div>
-                <div><span className="text-muted">{t('profileName')} : </span>{me?.name ?? <em>{t('profileNotSet')}</em>}</div>
-                <div><span className="text-muted">{t('profileBirthDate')} : </span>{me?.birth_date ?? <em>{t('profileNotSet')}</em>}</div>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <div className="fw-semibold mb-2" style={{ fontSize: 13 }}>⚙️ {t('settingsTitle')}</div>
-              <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>{t('langLabel')}</div>
-              <div className="d-flex gap-2">
-                {LANG_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setLang(opt.value)}
-                    className={'btn btn-sm ' + (lang === opt.value ? 'btn-success' : 'btn-outline-secondary')}
-                    style={{ borderRadius: 20, fontSize: 13, fontWeight: 600 }}
-                  >
-                    {opt.flag} {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <p className="text-muted mb-4" style={{ fontSize: 12, lineHeight: 1.5 }}>
-              {t('profileNote')}
+            <p className="text-muted mb-3" style={{ fontSize: 13 }}>
+              {t('verifyNote')} <strong>{verifyEmail || '…'}</strong>
             </p>
-            <div className="d-flex flex-column gap-2">
-              <button className="btn btn-outline-secondary w-100" onClick={() => { setCurrentPass(''); setNewPass(''); setNewPass2(''); setView('change-password'); }}>
-                {t('btnChangePassword')}
-              </button>
-              <button className="btn btn-outline-danger w-100" onClick={() => { onLogout(); onClose(); }}>
-                {t('btnLogout')}
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* ── Change password (logged in) ────────────────────────── */}
-        {view === 'change-password' && (
-          <>
-            <div className="mb-3">
-              <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelCurrentPassword')}</label>
-              <input type="password" className="form-control" placeholder={t('placeholderCurrentPassword')} value={currentPass} onChange={(e) => setCurrentPass(e.target.value)} />
-            </div>
-            <div className="mb-3">
-              <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelNewPassword')}</label>
-              <input type="password" className="form-control" placeholder={t('placeholderNewPassword')} value={newPass} onChange={(e) => setNewPass(e.target.value)} />
-            </div>
             <div className="mb-4">
-              <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelNewPasswordConfirm')}</label>
-              <input type="password" className="form-control" placeholder={t('placeholderNewPasswordConfirm')} value={newPass2} onChange={(e) => setNewPass2(e.target.value)} />
+              <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelCode')}</label>
+              <input
+                type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6}
+                className="form-control text-center fw-bold" style={{ fontSize: 24, letterSpacing: 8 }}
+                placeholder="000000" value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                onKeyDown={(e) => { if (e.key === 'Enter') doVerify(); }}
+              />
             </div>
             <div className="d-flex flex-column gap-2">
-              <button className="btn btn-green w-100 py-3" disabled={busy === 'chpwd'} onClick={doChangePassword}>
-                {busy === 'chpwd' ? t('busyChangePassword') : t('btnSaveNewPassword')}
+              <button className="btn btn-green w-100 py-3" disabled={busy === 'verify'} onClick={doVerify}>
+                {t('btnVerify')}
               </button>
-              <button className="btn btn-link text-muted p-0" style={{ fontSize: 13 }} onClick={() => setView('profile')}>
-                {t('btnBack')}
-              </button>
+              <div className="d-flex justify-content-between">
+                <button className="btn btn-link p-0" style={{ fontSize: 13, color: 'var(--green-mid)' }} disabled={busy === 'resend'} onClick={doResend}>
+                  {t('btnResend')}
+                </button>
+                <button className="btn btn-link text-muted p-0" style={{ fontSize: 13 }} onClick={onClose}>
+                  {t('btnLater')}
+                </button>
+              </div>
             </div>
           </>
         )}
@@ -244,11 +204,11 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
             <p className="text-muted mb-3" style={{ fontSize: 13 }}>{t('resetNote')}</p>
             <div className="mb-3">
               <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelPassword')}</label>
-              <input type="password" className="form-control" placeholder={t('placeholderPassword')} value={pass} onChange={(e) => setPass(e.target.value)} />
+              <PasswordInput autoComplete="new-password" placeholder={t('placeholderPassword')} value={pass} onChange={setPass} />
             </div>
             <div className="mb-4">
               <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelPasswordConfirm')}</label>
-              <input type="password" className="form-control" placeholder={t('placeholderPasswordConfirm')} value={pass2} onChange={(e) => setPass2(e.target.value)} />
+              <PasswordInput autoComplete="new-password" placeholder={t('placeholderPasswordConfirm')} value={pass2} onChange={setPass2} />
             </div>
             <button className="btn btn-green w-100 py-3" disabled={busy === 'reset'} onClick={doReset}>
               {busy === 'reset' ? t('busyReset') : t('btnSavePassword')}
@@ -336,7 +296,7 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
 
             {mode === 'register' && (
               <div className="mb-3">
-                <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelName')}</label>
+                <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelName')} <span className="text-muted fw-normal">{t('labelOptional')}</span></label>
                 <input type="text" className="form-control" placeholder={t('placeholderName')} value={name} onChange={(e) => setName(e.target.value)} />
               </div>
             )}
@@ -345,19 +305,25 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, onLogout, show
               <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelEmail')}</label>
               <input type="email" className="form-control" autoComplete="email" placeholder={t('placeholderEmail')} value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
+            {mode === 'register' && (
+              <div className="mb-3">
+                <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelPhone')}</label>
+                <input type="tel" className="form-control" autoComplete="tel" dir="ltr" placeholder={t('placeholderPhone')} value={phone} onChange={(e) => setPhone(e.target.value)} />
+              </div>
+            )}
             <div className="mb-3">
               <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelPassword')}</label>
-              <input type="password" className="form-control" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} placeholder={t('placeholderPassword')} value={pass} onChange={(e) => setPass(e.target.value)} />
+              <PasswordInput autoComplete={mode === 'login' ? 'current-password' : 'new-password'} placeholder={t('placeholderPassword')} value={pass} onChange={setPass} />
             </div>
 
             {mode === 'register' && (
               <>
                 <div className="mb-3">
                   <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelPasswordConfirm')}</label>
-                  <input type="password" className="form-control" autoComplete="new-password" placeholder={t('placeholderPasswordConfirm')} value={pass2} onChange={(e) => setPass2(e.target.value)} />
+                  <PasswordInput autoComplete="new-password" placeholder={t('placeholderPasswordConfirm')} value={pass2} onChange={setPass2} />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelBirthDate')}</label>
+                  <label className="form-label fw-semibold" style={{ fontSize: 13 }}>{t('labelBirthDate')} <span className="text-muted fw-normal">{t('labelOptional')}</span></label>
                   <input type="date" className="form-control" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} max={new Date().toISOString().slice(0, 10)} />
                 </div>
               </>
