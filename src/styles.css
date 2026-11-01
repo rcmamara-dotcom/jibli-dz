@@ -314,3 +314,4 @@ body { font-size: 15px; }
   .ship-text { padding-top: 5px; }
   .ship-label { font-size: 13px; }
 }
+[data-bs-theme="dark"] .table-light { --bs-table-bg: #18211c; --bs-table-color: var(--ink); --bs-table-border-color: var(--border); }
