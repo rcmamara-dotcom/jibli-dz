@@ -15,6 +15,7 @@ import AdminPanel from './components/AdminPanel';
 import AdSlot, { ADS_ENABLED } from './components/AdSlot';
 import Pricing from './components/Pricing';
 import Settings from './components/Settings';
+import Shipments from './components/Shipments';
 
 const PAGE_SIZE = 20;
 const AD_EVERY = 6; // une pub toutes les 6 cartes
@@ -229,6 +230,10 @@ function AppInner() {
         <AddParcel needLogin={needLogin} onLogin={() => setAuthOpen(true)} onPublish={publishParcel} onNavigate={() => setScreen('parcels')} />
       )}
 
+      {screen === 'shipments' && (
+        <Shipments isLoggedIn={isLoggedIn} onLogin={() => setAuthOpen(true)} showToast={showToast} />
+      )}
+
       {screen === 'settings' && isLoggedIn && (
         <Settings showToast={showToast} onLogout={() => { logout(); setScreen('home'); }} onPricing={() => setScreen('pricing')} />
       )}
@@ -253,6 +258,7 @@ function AppInner() {
           onClose={() => setTripModal(null)}
           onDelete={() => removeTrip(tripModal.id, () => setTripModal(null))}
           onReviewPosted={(updated) => setTripModal((prev) => prev ? { ...prev, ...updated } : null)}
+          onShipmentCreated={() => { setTripModal(null); setScreen('shipments'); showToast(t('toastShipmentCreated')); }}
         />
       )}
 

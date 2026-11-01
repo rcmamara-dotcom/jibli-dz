@@ -3,6 +3,7 @@ import { Trip, Review } from '../types';
 import { formatWA } from '../utils/whatsapp';
 import { GoService } from '../services/GoService';
 import { StarDisplay, StarInput } from './StarRating';
+import { useLang } from '../contexts/LangContext';
 
 interface Props {
   trip: Trip;
@@ -11,9 +12,11 @@ interface Props {
   onClose: () => void;
   onDelete: () => void;
   onReviewPosted: (updatedTrip: Partial<Trip>) => void;
+  onShipmentCreated: () => void;
 }
 
-export default function TripModal({ trip, userId, canDelete, onClose, onDelete, onReviewPosted }: Props) {
+export default function TripModal({ trip, userId, canDelete, onClose, onDelete, onReviewPosted, onShipmentCreated }: Props) {
+  const { t } = useLang();
   const d = new Date(trip.date + 'T12:00:00');
   const dateStr = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const wa = formatWA(trip.wa, `Bonjour ${trip.name}, j'ai vu votre trajet ${trip.from_city}→${trip.to_city} le ${dateStr} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
@@ -24,6 +27,10 @@ export default function TripModal({ trip, userId, canDelete, onClose, onDelete, 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [alreadyReviewed, setAlreadyReviewed] = useState(false);
+  const [shipOpen, setShipOpen] = useState(false);
+  const [shipDesc, setShipDesc] = useState('');
+  const [shipBusy, setShipBusy] = useState(false);
+  const [shipError, setShipError] = useState('');
 
   useEffect(() => {
     GoService.get<Review[]>(`/api/trips/${trip.id}/reviews`)
@@ -53,6 +60,16 @@ export default function TripModal({ trip, userId, canDelete, onClose, onDelete, 
       })
       .catch((e: any) => setError(e?.detail ?? 'Erreur lors de l\'envoi'))
       .finally(() => setSubmitting(false));
+  };
+
+  const createShipment = () => {
+    if (!shipDesc.trim()) { setShipError(t('shipDescPlaceholder')); return; }
+    setShipBusy(true);
+    setShipError('');
+    GoService.post('/api/shipments', { trip_id: trip.id, description: shipDesc.trim() })
+      .then(() => onShipmentCreated())
+      .catch((e: any) => setShipError(e?.detail ?? 'Erreur'))
+      .finally(() => setShipBusy(false));
   };
 
   const avgRating = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : null;
@@ -110,6 +127,19 @@ export default function TripModal({ trip, userId, canDelete, onClose, onDelete, 
           <a href={wa} target="_blank" rel="noopener noreferrer" className="btn btn-wa w-100 py-3" style={{ fontSize: 15 }}>
             💬 Contacter sur WhatsApp
           </a>
+          {userId !== null && !isOwnTrip && trip.owner_id && (
+            shipOpen ? (
+              <div className="card border rounded-3 p-3">
+                <p className="text-muted mb-2" style={{ fontSize: 13 }}>{t('shipNote')}</p>
+                <textarea className="form-control mb-2" rows={2} maxLength={500} placeholder={t('shipDescPlaceholder')}
+                  value={shipDesc} onChange={(e) => setShipDesc(e.target.value)} />
+                {shipError && <div className="text-danger mb-2" style={{ fontSize: 13 }}>⚠️ {shipError}</div>}
+                <button className="btn btn-green w-100" disabled={shipBusy} onClick={createShipment}>{t('btnCreateShipment')}</button>
+              </div>
+            ) : (
+              <button className="btn btn-outline-success w-100 py-2" onClick={() => setShipOpen(true)}>{t('btnShipWithTraveler')}</button>
+            )
+          )}
           {canDelete && (
             <button className="btn btn-outline-danger w-100" onClick={onDelete}>🗑 Supprimer mon trajet</button>
           )}

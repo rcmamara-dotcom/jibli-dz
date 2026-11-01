@@ -11,6 +11,7 @@ const TABS: [Screen, string, string][] = [
   ['parcels',    '📦',  'Colis à transporter'],
   ['add-trip',   '🗺️', 'Je voyage'],
   ['add-parcel', '➕',  'Envoyer un colis'],
+  ['shipments',  '📍',  'Mes envois'],
   ['pricing',    '💎',  'Abonnements'],
 ];
 
