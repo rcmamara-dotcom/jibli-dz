@@ -245,3 +245,26 @@ body { font-size: 15px; }
   .app-toast { left: 12px; right: 12px; transform: none; max-width: none; }
   .app-toast.show { transform: translateY(0); }
 }
+
+/* ─── MODE SOMBRE (data-bs-theme="dark" sur <html>, voir utils/theme.ts) ─── */
+[data-bs-theme="dark"] {
+  --cream:  #0f1512;
+  --ink:    #e5e7eb;
+  --muted:  #9ca3af;
+  --border: #2c3630;
+  --gold-light: #4a3a12;
+  --bs-body-bg:    #0f1512;
+  --bs-body-color: #e5e7eb;
+  --bs-border-color: #2c3630;
+  --bs-secondary-color: #9ca3af;
+  color-scheme: dark;
+}
+[data-bs-theme="dark"] .card { --bs-card-bg: #18211c; }
+[data-bs-theme="dark"] .nav-tabs-bar { background: #18211c; }
+[data-bs-theme="dark"] .modal-box { background: #18211c; }
+[data-bs-theme="dark"] .chip { background: #18211c; color: var(--ink); }
+[data-bs-theme="dark"] .app-toast { background: #e5e7eb; color: #111827; }
+[data-bs-theme="dark"] .budget-tag,
+[data-bs-theme="dark"] .login-note,
+[data-bs-theme="dark"] .login-note a { color: #fcd34d; }
+[data-bs-theme="dark"] .text-muted { color: var(--muted) !important; }

@@ -32,7 +32,7 @@ const PLANS = [
     price: 19,
     quota: 20,
     features: ['20 publications / mois', 'Trajets & colis', 'Badge Voyageur ✈️', 'Support prioritaire'],
-    color: 'var(--green-dark)',
+    color: 'var(--green-mid)',
     badge: 'Populaire',
   },
   {

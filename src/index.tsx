@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles.css';
+import { applyTheme, getTheme } from './utils/theme';
+
+applyTheme(getTheme());
 
 const root = createRoot(document.getElementById('root') as HTMLElement);
 root.render(<App />);

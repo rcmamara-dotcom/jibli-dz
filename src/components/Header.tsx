@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLang } from '../contexts/LangContext';
 import type { Lang } from '../i18n/translations';
+import { useTheme } from '../utils/theme';
 
 const LANG_OPTIONS: { value: Lang; label: string; flag: string }[] = [
   { value: 'fr', label: 'FR', flag: '🇫🇷' },
@@ -19,6 +20,7 @@ interface Props {
 
 export default function Header({ isLoggedIn, isAdmin, search, onSearch, onAccount, onAdmin }: Props) {
   const { lang, setLang, t } = useLang();
+  const [theme, setTheme] = useTheme();
 
   const langBtnStyle = (active: boolean): React.CSSProperties => ({
     background: active ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)',
@@ -72,6 +74,16 @@ export default function Header({ isLoggedIn, isAdmin, search, onSearch, onAccoun
               </button>
             ))}
           </div>
+
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            title={t('darkMode')}
+            aria-label={t('darkMode')}
+            aria-pressed={theme === 'dark'}
+            style={langBtnStyle(false)}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
 
           {isAdmin && (
             <button className="btn d-none d-sm-inline-flex flex-shrink-0" onClick={onAdmin}
