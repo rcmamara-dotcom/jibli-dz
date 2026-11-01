@@ -66,9 +66,6 @@ export default function AddTrip({ needLogin, onLogin, onPublish, onNavigate }: P
             <input type="tel" className="form-control" placeholder="+33 6 12 34 56 78" value={f.wa} onChange={(e) => up('wa')(e.target.value)} />
             <div className="text-muted mt-1" style={{ fontSize: 12 }}>📱 Les expéditeurs vous contacteront directement.</div>
           </div>
-          <div className="text-muted mb-2 text-center" style={{ fontSize: 12 }}>
-            💳 Publication sécurisée via Stripe — <strong>3€</strong>
-          </div>
           <button className="btn btn-green w-100 py-3" onClick={() =>
             onPublish(
               { name: f.name, from_city: f.from_city, to_city: f.to_city, date: f.date, capacity: f.capacity, weight: f.weight, cap_desc: f.cap_desc, wa: f.wa },
