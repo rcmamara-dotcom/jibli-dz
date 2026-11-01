@@ -24,6 +24,8 @@ export interface Review {
   created_at: string;
 }
 
+export type ParcelType = 'vetements' | 'alimentaire' | 'electronique' | 'medicaments' | 'documents' | 'autre';
+
 export interface Parcel {
   id: number;
   from_city: string;
@@ -32,6 +34,11 @@ export interface Parcel {
   budget: number;
   wa: string;
   owner_id?: number | null;
+  weight?: number | null;
+  length?: number | null;
+  width?: number | null;
+  height?: number | null;
+  parcel_type?: ParcelType | null;
   created_at: string;
 }
 

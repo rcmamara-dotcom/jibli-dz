@@ -91,7 +91,7 @@ export function useAppData() {
   }
 
   function publishParcel(
-    form: { from_city: string; to_city: string; description: string; budget?: string; wa: string },
+    form: { from_city: string; to_city: string; description: string; budget?: string; wa: string; weight?: string; length?: string; width?: string; height?: string; parcel_type?: string },
     reset: () => void,
     onNeedLogin: () => void,
     navigate: () => void,
@@ -103,7 +103,15 @@ export function useAppData() {
     showToast('⏳ Publication en cours…');
     GoService.post<{ checkout_url: string | null; published?: boolean }>('/api/payments/create-checkout', {
       type: 'parcel',
-      data: { ...form, budget: form.budget ? parseFloat(form.budget) : 0 },
+      data: {
+        ...form,
+        budget: form.budget ? parseFloat(form.budget) : 0,
+        weight: form.weight ? parseFloat(form.weight) : null,
+        length: form.length ? parseFloat(form.length) : null,
+        width: form.width ? parseFloat(form.width) : null,
+        height: form.height ? parseFloat(form.height) : null,
+        parcel_type: form.parcel_type || null,
+      },
     })
       .then(({ checkout_url, published }) => {
         if (published) { showToast('✅ Colis publié !'); reset(); refresh(); navigate(); }
