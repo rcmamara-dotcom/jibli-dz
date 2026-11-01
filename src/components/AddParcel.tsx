@@ -47,7 +47,7 @@ export default function AddParcel({ needLogin, onLogin, onPublish, onNavigate }:
             <div className="text-muted mt-1" style={{ fontSize: 12 }}>📱 Les voyageurs vous contacteront pour s'arranger.</div>
           </div>
           <div className="text-muted mb-2 text-center" style={{ fontSize: 12 }}>
-            💳 Publication sécurisée via Stripe — <strong>5€</strong>
+            💳 Publication sécurisée via Stripe — <strong>3€</strong>
           </div>
           <button className="btn btn-gold w-100 py-3" onClick={() =>
             onPublish(
@@ -56,7 +56,7 @@ export default function AddParcel({ needLogin, onLogin, onPublish, onNavigate }:
               onLogin,
               onNavigate,
             )
-          }>💳 Payer 5€ et publier mon colis</button>
+          }>💳 Payer 3€ et publier mon colis</button>
         </div>
       </div>
     </div>

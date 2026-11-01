@@ -67,7 +67,7 @@ export default function AddTrip({ needLogin, onLogin, onPublish, onNavigate }: P
             <div className="text-muted mt-1" style={{ fontSize: 12 }}>📱 Les expéditeurs vous contacteront directement.</div>
           </div>
           <div className="text-muted mb-2 text-center" style={{ fontSize: 12 }}>
-            💳 Publication sécurisée via Stripe — <strong>5€</strong>
+            💳 Publication sécurisée via Stripe — <strong>3€</strong>
           </div>
           <button className="btn btn-green w-100 py-3" onClick={() =>
             onPublish(
@@ -76,7 +76,7 @@ export default function AddTrip({ needLogin, onLogin, onPublish, onNavigate }: P
               onLogin,
               onNavigate,
             )
-          }>💳 Payer 5€ et publier mon trajet</button>
+          }>💳 Payer 3€ et publier mon trajet</button>
         </div>
       </div>
     </div>
