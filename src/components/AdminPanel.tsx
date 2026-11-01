@@ -2,7 +2,16 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { GoService } from '../services/GoService';
 import { Review, Trip, Parcel } from '../types';
 
-interface User { id: number; email: string; is_admin: boolean; created_at: string; }
+interface User { id: number; email: string; name: string | null; role: Role; is_admin: boolean; created_at: string; }
+type Role = 'user' | 'vip' | 'moderator' | 'admin';
+
+// Mêmes rôles et droits que le backend (api/permissions.py)
+const ROLE_LABELS: Record<Role, string> = {
+  user: 'Utilisateur',
+  vip: 'VIP — publie gratuitement',
+  moderator: 'Modérateur — gratuit + modération',
+  admin: 'Admin — tous les droits',
+};
 interface Stats { users: number; trips: number; parcels: number; reviews: number; }
 
 type Tab = 'stats' | 'users' | 'trips' | 'parcels' | 'reviews';
@@ -20,7 +29,12 @@ function ConfirmBtn({ label, onConfirm }: { label: string; onConfirm: () => void
   return <button className="btn btn-outline-danger btn-sm" onClick={() => setAsked(true)}>{label}</button>;
 }
 
-export default function AdminPanel() {
+interface Props {
+  myId: number | null;
+  canManageUsers: boolean;   // admin seulement ; un modérateur ne voit pas les utilisateurs
+}
+
+export default function AdminPanel({ myId, canManageUsers }: Props) {
   const [tab, setTab] = useState<Tab>('stats');
   const [stats, setStats] = useState<Stats | null>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -47,13 +61,18 @@ export default function AdminPanel() {
   const del = (url: string, onDone: () => void) =>
     GoService.delete(url).then(onDone).catch(() => setError('Suppression impossible'));
 
-  const TABS: [Tab, string, string][] = [
+  const setRole = (u: User, role: Role) =>
+    GoService.patch<User>(`/api/admin/users/${u.id}/role`, { role })
+      .then((updated) => setUsers((p) => p.map((x) => (x.id === updated.id ? updated : x))))
+      .catch((e: any) => setError(e?.detail ?? 'Changement de rôle impossible'));
+
+  const TABS = ([
     ['stats',   '📊', 'Statistiques'],
     ['users',   '👤', 'Utilisateurs'],
     ['trips',   '✈️', 'Trajets'],
     ['parcels', '📦', 'Colis'],
     ['reviews', '⭐', 'Avis'],
-  ];
+  ] as [Tab, string, string][]).filter(([id]) => id !== 'users' || canManageUsers);
 
   return (
     <div className="container-xxl py-4 px-3 px-lg-4">
@@ -102,7 +121,7 @@ export default function AdminPanel() {
           ))}
           <div className="col-12">
             <div className="alert alert-info py-2 mb-0" style={{ fontSize: 13 }}>
-              💡 Pour passer un compte en admin : <code>UPDATE users SET is_admin = true WHERE email = 'email@exemple.com';</code>
+              💡 Les rôles se changent dans l’onglet Utilisateurs. VIP : publie gratuitement. Modérateur : gratuit + supprime annonces et avis. Admin : tout, y compris les rôles.
             </div>
           </div>
         </div>
@@ -123,12 +142,23 @@ export default function AdminPanel() {
                     <td className="text-muted" style={{ fontSize: 12 }}>{u.id}</td>
                     <td>
                       {u.email}
-                      {u.is_admin && <span className="badge ms-2" style={{ background: 'var(--green-mid)', fontSize: 10 }}>ADMIN</span>}
+                      {u.name && <div className="text-muted" style={{ fontSize: 12 }}>{u.name}</div>}
                     </td>
-                    <td><span className="text-muted" style={{ fontSize: 12 }}>{u.is_admin ? 'Administrateur' : 'Utilisateur'}</span></td>
+                    <td>
+                      <select
+                        className="form-select form-select-sm"
+                        style={{ minWidth: 220 }}
+                        value={u.role}
+                        disabled={u.id === myId}
+                        title={u.id === myId ? 'Tu ne peux pas changer ton propre rôle' : undefined}
+                        onChange={(e) => setRole(u, e.target.value as Role)}
+                      >
+                        {(Object.keys(ROLE_LABELS) as Role[]).map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
+                      </select>
+                    </td>
                     <td className="text-muted" style={{ fontSize: 12 }}>{fmt(u.created_at)}</td>
                     <td>
-                      {!u.is_admin && (
+                      {u.id !== myId && u.role !== 'admin' && (
                         <ConfirmBtn
                           label="🗑 Bannir"
                           onConfirm={() => del(`/api/admin/users/${u.id}`, () => setUsers((p) => p.filter((x) => x.id !== u.id)))}

@@ -3,20 +3,23 @@ import { GoService } from '../services/GoService';
 import { Trip, Parcel } from '../types';
 import { waValid } from '../utils/whatsapp';
 
-interface TokenPayload { sub: string; adm?: boolean; exp?: number; }
+interface TokenPayload { sub: string; adm?: boolean; role?: string; exp?: number; }
 
-function decodeToken(): { userId: number | null; isAdmin: boolean } {
+function decodeToken(): { userId: number | null; isAdmin: boolean; role: string } {
   const token = GoService.getToken();
-  if (!token) return { userId: null, isAdmin: false };
+  if (!token) return { userId: null, isAdmin: false, role: 'user' };
   try {
     const payload: TokenPayload = JSON.parse(atob(token.split('.')[1]));
     if (payload.exp && Date.now() / 1000 > payload.exp) {
       GoService.clearToken();
-      return { userId: null, isAdmin: false };
+      return { userId: null, isAdmin: false, role: 'user' };
     }
-    return { userId: parseInt(payload.sub, 10), isAdmin: !!payload.adm };
+    // anciens jetons sans « role » : adm suffit
+    const role = payload.role ?? (payload.adm ? 'admin' : 'user');
+    // isAdmin = accès au panneau admin (modérateurs compris)
+    return { userId: parseInt(payload.sub, 10), isAdmin: role === 'admin' || role === 'moderator', role };
   } catch {
-    return { userId: null, isAdmin: false };
+    return { userId: null, isAdmin: false, role: 'user' };
   }
 }
 
@@ -25,6 +28,7 @@ export function useAppData() {
   const [parcels, setParcels] = useState<Parcel[]>([]);
   const [userId, setUserId] = useState<number | null>(() => decodeToken().userId);
   const [isAdmin, setIsAdmin] = useState<boolean>(() => decodeToken().isAdmin);
+  const [role, setRole] = useState<string>(() => decodeToken().role);
   const [toast, setToast] = useState('');
 
   const showToast = useCallback((m: string) => {
@@ -52,6 +56,7 @@ export function useAppData() {
     const decoded = decodeToken();
     setUserId(decoded.userId);
     setIsAdmin(decoded.isAdmin);
+    setRole(decoded.role);
     showToast('✅ Connecté !');
   };
 
@@ -59,6 +64,7 @@ export function useAppData() {
     GoService.clearToken();
     setUserId(null);
     setIsAdmin(false);
+    setRole('user');
     showToast('À bientôt 👋');
   };
 
@@ -120,5 +126,5 @@ export function useAppData() {
       .catch(() => showToast('⚠️ Suppression impossible'));
   }
 
-  return { trips, parcels, userId, isAdmin, toast, showToast, canDelete, publishTrip, publishParcel, removeTrip, removeParcel, login, logout };
+  return { trips, parcels, userId, isAdmin, role, toast, showToast, canDelete, publishTrip, publishParcel, removeTrip, removeParcel, login, logout };
 }

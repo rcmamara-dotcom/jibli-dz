@@ -58,7 +58,7 @@ function AppInner() {
   const resetToken = getResetToken();
 
   const {
-    trips, parcels, userId, isAdmin, toast, showToast,
+    trips, parcels, userId, isAdmin, role, toast, showToast,
     canDelete, publishTrip, publishParcel, removeTrip, removeParcel, login, logout,
   } = useAppData();
 
@@ -242,7 +242,7 @@ function AppInner() {
         <Pricing isLoggedIn={isLoggedIn} onLogin={() => setAuthOpen(true)} showToast={showToast} />
       )}
 
-      {screen === 'admin' && isAdmin && <AdminPanel />}
+      {screen === 'admin' && isAdmin && <AdminPanel myId={userId} canManageUsers={role === 'admin'} />}
 
       <footer className="text-center text-muted py-4" style={{ fontSize: 13 }}>
         <a href="/confidentialite.html" className="text-muted">Politique de confidentialité</a>
