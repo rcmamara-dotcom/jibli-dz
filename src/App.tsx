@@ -17,6 +17,8 @@ import Pricing from './components/Pricing';
 import Settings from './components/Settings';
 import Shipments from './components/Shipments';
 import { DEMO_PARCELS, DEMO_TRIPS } from './mocks/demo';
+import { PARCEL_TYPE_LABELS } from './constants/parcelTypes';
+import { ParcelType } from './types';
 
 const PAGE_SIZE = 20;
 const AD_EVERY = 6; // une pub toutes les 6 cartes
@@ -48,7 +50,7 @@ function cleanUrl() {
 }
 
 function AppInner() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [screen, setScreen] = useState<Screen>('home');
   const [search, setSearch] = useState('');
   const [dest, setDest] = useState('all');
@@ -106,12 +108,25 @@ function AppInner() {
   const visibleTrips = useMemo(() => filteredTrips.slice(0, tripPage * PAGE_SIZE), [filteredTrips, tripPage]);
   const hasMoreTrips = visibleTrips.length < filteredTrips.length;
 
+  const [parcelDest, setParcelDest] = useState('all');
+  const [parcelType, setParcelType] = useState<ParcelType | 'all'>('all');
+  const [parcelSort, setParcelSort] = useState<'recent' | 'budget' | 'light'>('recent');
+
   const filteredParcels = useMemo(() => {
     setParcelPage(1);
     const s = search.toLowerCase();
-    if (!s) return allParcels;
-    return allParcels.filter((p) => [p.from_city, p.to_city, p.description].some((v) => (v ?? '').toLowerCase().includes(s)));
-  }, [allParcels, search]);
+    const list = allParcels.filter((p) =>
+      (!s || [p.from_city, p.to_city, p.description].some((v) => (v ?? '').toLowerCase().includes(s)))
+      && (parcelDest === 'all' || p.to_city === parcelDest)
+      && (parcelType === 'all' || p.parcel_type === parcelType));
+    const sorters = {
+      recent: (a: typeof list[0], b: typeof list[0]) => +new Date(b.created_at) - +new Date(a.created_at),
+      budget: (a: typeof list[0], b: typeof list[0]) => b.budget - a.budget,
+      // sans poids renseigné : en fin de liste
+      light: (a: typeof list[0], b: typeof list[0]) => (a.weight ?? Infinity) - (b.weight ?? Infinity),
+    };
+    return [...list].sort(sorters[parcelSort]);
+  }, [allParcels, search, parcelDest, parcelType, parcelSort]);
 
   const visibleParcels = useMemo(() => filteredParcels.slice(0, parcelPage * PAGE_SIZE), [filteredParcels, parcelPage]);
   const hasMoreParcels = visibleParcels.length < filteredParcels.length;
@@ -212,7 +227,31 @@ function AppInner() {
             <div className="section-title">{t('sectionParcels')}</div>
             <span className="badge rounded-pill" style={{ background: 'var(--green-bright)', fontSize: 13, padding: '4px 12px' }}>{visibleParcels.length}</span>
           </div>
-          <p className="text-muted mb-4" style={{ fontSize: 14 }}>{t('parcelsDesc')}</p>
+          <p className="text-muted mb-3" style={{ fontSize: 14 }}>{t('parcelsDesc')}</p>
+
+          <div className="d-flex flex-wrap gap-2 mb-2 chips-row">
+            {DEST_FILTERS.map((d) => (
+              <button key={d} className={'chip' + (parcelDest === d ? ' active' : '')} onClick={() => setParcelDest(d)}>
+                {d === 'all' ? t('filterAll') : '→ ' + d}
+              </button>
+            ))}
+          </div>
+          <div className="d-flex flex-wrap align-items-center gap-2 mb-4">
+            <div className="d-flex flex-wrap gap-2 chips-row flex-grow-1">
+              <button className={'chip' + (parcelType === 'all' ? ' active' : '')} onClick={() => setParcelType('all')}>{t('filterAllTypes')}</button>
+              {(Object.keys(PARCEL_TYPE_LABELS) as ParcelType[]).map((pt) => (
+                <button key={pt} className={'chip' + (parcelType === pt ? ' active' : '')} onClick={() => setParcelType(pt)}>
+                  {PARCEL_TYPE_LABELS[pt].icon} {PARCEL_TYPE_LABELS[pt][lang]}
+                </button>
+              ))}
+            </div>
+            <select className="form-select form-select-sm" style={{ width: 'auto' }} aria-label={t('sortLabel')}
+              value={parcelSort} onChange={(e) => setParcelSort(e.target.value as typeof parcelSort)}>
+              <option value="recent">{t('sortRecent')}</option>
+              <option value="budget">{t('sortBudget')}</option>
+              <option value="light">{t('sortLight')}</option>
+            </select>
+          </div>
           {filteredParcels.length === 0
             ? <div className="empty-state"><div className="icon">📦</div><p>{t('emptyParcels').split('\\n').join('\n')}</p></div>
             : <>

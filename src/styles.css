@@ -315,3 +315,16 @@ body { font-size: 15px; }
   .ship-label { font-size: 13px; }
 }
 [data-bs-theme="dark"] .table-light { --bs-table-bg: #18211c; --bs-table-color: var(--ink); --bs-table-border-color: var(--border); }
+
+/* ─── PAGE COLIS : pastilles type / gabarit ─── */
+.parcel-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  background: var(--cream); border: 1px solid var(--border); color: var(--ink);
+}
+.parcel-chip.size-small  { background: #dcfce7; border-color: #86efac; color: #166534; }
+.parcel-chip.size-medium { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
+.parcel-chip.size-large  { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+[data-bs-theme="dark"] .parcel-chip.size-small  { background: #14361f; border-color: #166534; color: #86efac; }
+[data-bs-theme="dark"] .parcel-chip.size-medium { background: #3d2f0b; border-color: #92400e; color: #fcd34d; }
+[data-bs-theme="dark"] .parcel-chip.size-large  { background: #3d1418; border-color: #991b1b; color: #fca5a5; }

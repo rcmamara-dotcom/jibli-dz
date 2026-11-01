@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import LocationPicker from './LocationPicker';
 import { useLang } from '../contexts/LangContext';
 import { ParcelType } from '../types';
+import { PARCEL_TYPE_LABELS } from '../constants/parcelTypes';
 
 type ParcelForm = {
   from_city: string; to_city: string; description: string; budget: string; wa: string;
@@ -14,15 +15,6 @@ interface Props {
   onPublish: (form: Omit<ParcelForm, 'parcel_type'> & { parcel_type: ParcelType | '' }, reset: () => void, onNeedLogin: () => void, navigate: () => void) => void;
   onNavigate: () => void;
 }
-
-const PARCEL_TYPE_LABELS: Record<ParcelType, { fr: string; ar: string; en: string; icon: string }> = {
-  vetements:    { fr: 'Vêtements',    ar: 'ملابس',         en: 'Clothes',       icon: '👕' },
-  alimentaire:  { fr: 'Alimentaire',  ar: 'غذاء',          en: 'Food',          icon: '🍎' },
-  electronique: { fr: 'Électronique', ar: 'إلكترونيات',    en: 'Electronics',   icon: '📱' },
-  medicaments:  { fr: 'Médicaments',  ar: 'أدوية',         en: 'Medicine',      icon: '💊' },
-  documents:    { fr: 'Documents',    ar: 'وثائق',          en: 'Documents',     icon: '📄' },
-  autre:        { fr: 'Autre',        ar: 'أخرى',           en: 'Other',         icon: '📦' },
-};
 
 export default function AddParcel({ needLogin, onLogin, onPublish, onNavigate }: Props) {
   const { lang } = useLang();
