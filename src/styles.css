@@ -268,3 +268,49 @@ body { font-size: 15px; }
 [data-bs-theme="dark"] .login-note,
 [data-bs-theme="dark"] .login-note a { color: #fcd34d; }
 [data-bs-theme="dark"] .text-muted { color: var(--muted) !important; }
+
+/* ─── SUIVI D'ENVOI : barre d'étapes (horizontale, verticale sur mobile) ─── */
+.ship-steps {
+  list-style: none; margin: 0; padding: 0;
+  display: flex;
+}
+.ship-step {
+  flex: 1; position: relative;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 6px; min-width: 0;
+}
+/* trait vers l'étape suivante, vert quand elle est atteinte */
+.ship-step:not(:last-child)::after {
+  content: ''; position: absolute;
+  top: 14px; inset-inline-start: calc(50% + 16px); width: calc(100% - 32px);
+  height: 4px; border-radius: 2px; background: var(--border);
+}
+.ship-step.next-done::after { background: var(--green-bright); }
+.ship-dot {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; background: var(--border);
+  border: 3px solid var(--border);
+  position: relative; z-index: 1;
+}
+.ship-step.done .ship-dot { background: #dcfce7; border-color: var(--green-bright); }
+.ship-step.current .ship-dot { box-shadow: 0 0 0 5px rgba(34,197,94,.25); }
+.ship-text { display: flex; flex-direction: column; }
+.ship-label { font-size: 12px; font-weight: 600; color: var(--muted); line-height: 1.25; }
+.ship-step.done .ship-label { color: var(--ink); }
+.ship-step.current .ship-label { color: var(--green-mid); font-weight: 700; }
+.ship-date { font-size: 11px; color: var(--muted); }
+.ship-steps.cancelled .ship-step.done .ship-dot { border-color: #dc3545; background: #fde2e4; }
+.ship-steps.cancelled .ship-step.next-done::after { background: #f1aeb5; }
+[data-bs-theme="dark"] .ship-step.done .ship-dot { background: #14361f; }
+[data-bs-theme="dark"] .ship-steps.cancelled .ship-step.done .ship-dot { background: #3d1418; }
+
+@media (max-width: 575px) {
+  .ship-steps { flex-direction: column; }
+  .ship-step { flex-direction: row; align-items: flex-start; text-align: start; gap: 12px; padding-bottom: 18px; }
+  .ship-step:not(:last-child)::after {
+    top: 34px; bottom: 0; inset-inline-start: 14px; width: 4px; height: auto;
+  }
+  .ship-text { padding-top: 5px; }
+  .ship-label { font-size: 13px; }
+}
