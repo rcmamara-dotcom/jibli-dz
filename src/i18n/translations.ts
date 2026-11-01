@@ -22,7 +22,7 @@ export const TRANSLATIONS = {
     labelName: 'Prénom & Nom',
     labelBirthDate: 'Date de naissance',
     placeholderEmail: 'ton@email.com',
-    placeholderPassword: 'Au moins 6 caractères',
+    placeholderPassword: 'Au moins 8 caractères',
     placeholderPasswordConfirm: 'Répète le mot de passe',
     placeholderName: 'Jean Dupont',
     // Buttons
@@ -50,7 +50,7 @@ export const TRANSLATIONS = {
     labelNewPassword: 'Nouveau mot de passe',
     labelNewPasswordConfirm: 'Confirmer le nouveau mot de passe',
     placeholderCurrentPassword: 'Ton mot de passe actuel',
-    placeholderNewPassword: 'Au moins 6 caractères',
+    placeholderNewPassword: 'Au moins 8 caractères',
     placeholderNewPasswordConfirm: 'Répète le nouveau mot de passe',
     btnSaveNewPassword: '✅ Mettre à jour',
     busyChangePassword: '⏳ Mise à jour…',
@@ -70,7 +70,7 @@ export const TRANSLATIONS = {
     // Toasts
     toastForgotSent: '📧 E-mail envoyé si ce compte existe !',
     toastResetOk: '✅ Mot de passe mis à jour !',
-    errEmailPassword: '⚠️ E-mail + mot de passe (6 caractères min)',
+    errEmailPassword: '⚠️ E-mail + mot de passe (8 caractères min)',
     errEmailRequired: '⚠️ Entre ton adresse e-mail',
     errPasswordMin: '⚠️ Mot de passe : 6 caractères min',
     errPasswordMismatch: '⚠️ Les mots de passe ne correspondent pas',
@@ -225,7 +225,7 @@ export const TRANSLATIONS = {
     labelNewPassword: 'كلمة المرور الجديدة',
     labelNewPasswordConfirm: 'تأكيد كلمة المرور الجديدة',
     placeholderCurrentPassword: 'كلمة مرورك الحالية',
-    placeholderNewPassword: '6 أحرف على الأقل',
+    placeholderNewPassword: '8 أحرف على الأقل',
     placeholderNewPasswordConfirm: 'أعد كتابة كلمة المرور الجديدة',
     btnSaveNewPassword: '✅ تحديث',
     busyChangePassword: '⏳ جاري التحديث…',
@@ -245,9 +245,9 @@ export const TRANSLATIONS = {
     // Toasts
     toastForgotSent: '📧 تم إرسال البريد !',
     toastResetOk: '✅ تم تحديث كلمة المرور !',
-    errEmailPassword: '⚠️ البريد + كلمة مرور (6 أحرف على الأقل)',
+    errEmailPassword: '⚠️ البريد + كلمة مرور (8 أحرف على الأقل)',
     errEmailRequired: '⚠️ أدخل عنوان بريدك',
-    errPasswordMin: '⚠️ كلمة المرور: 6 أحرف على الأقل',
+    errPasswordMin: '⚠️ كلمة المرور: 8 أحرف على الأقل',
     errPasswordMismatch: '⚠️ كلمتا المرور غير متطابقتين',
     // Home
     heroTitle: 'اعثر على مسافر موثوق',
@@ -372,7 +372,7 @@ export const TRANSLATIONS = {
     labelName: 'Full name',
     labelBirthDate: 'Date of birth',
     placeholderEmail: 'you@email.com',
-    placeholderPassword: 'At least 6 characters',
+    placeholderPassword: 'At least 8 characters',
     placeholderPasswordConfirm: 'Repeat password',
     placeholderName: 'John Doe',
     // Buttons
@@ -400,7 +400,7 @@ export const TRANSLATIONS = {
     labelNewPassword: 'New password',
     labelNewPasswordConfirm: 'Confirm new password',
     placeholderCurrentPassword: 'Your current password',
-    placeholderNewPassword: 'At least 6 characters',
+    placeholderNewPassword: 'At least 8 characters',
     placeholderNewPasswordConfirm: 'Repeat new password',
     btnSaveNewPassword: '✅ Update',
     busyChangePassword: '⏳ Updating…',
@@ -420,9 +420,9 @@ export const TRANSLATIONS = {
     // Toasts
     toastForgotSent: '📧 E-mail sent if this account exists!',
     toastResetOk: '✅ Password updated!',
-    errEmailPassword: '⚠️ E-mail + password (min 6 chars)',
+    errEmailPassword: '⚠️ E-mail + password (min 8 chars)',
     errEmailRequired: '⚠️ Enter your e-mail address',
-    errPasswordMin: '⚠️ Password: at least 6 characters',
+    errPasswordMin: '⚠️ Password: at least 8 characters',
     errPasswordMismatch: '⚠️ Passwords do not match',
     // Home
     heroTitle: 'Find a trusted traveller',

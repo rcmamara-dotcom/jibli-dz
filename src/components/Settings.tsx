@@ -112,7 +112,7 @@ export default function Settings({ showToast, onLogout, onPricing }: Props) {
     .then((d) => { loadMe(d); setNewEmail(''); setEmailPass(''); showToast(t('toastCodeSent')); }));
 
   const changePassword = () => {
-    if (newPass.length < 6) { showToast(t('errPasswordMin')); return; }
+    if (newPass.length < 8) { showToast(t('errPasswordMin')); return; }
     if (newPass !== newPass2) { showToast(t('errPasswordMismatch')); return; }
     run('password', GoService.post('/api/auth/change-password', {
       current_password: currentPass, new_password: newPass, confirm_new_password: newPass2,

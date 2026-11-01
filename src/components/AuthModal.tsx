@@ -67,7 +67,7 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, showToast, ini
   };
 
   const doSignIn = () => {
-    if (!email || pass.length < 6) { showToast(t('errEmailPassword')); return; }
+    if (!email || !pass) { showToast(t('errEmailPassword')); return; }
     setBusy('in');
     GoService.post<{ access_token: string }>('/api/auth/login', { email, password: pass })
       .then(({ access_token }) => afterAuth(access_token))
@@ -76,7 +76,7 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, showToast, ini
   };
 
   const doSignUp = () => {
-    if (!email || pass.length < 6) { showToast(t('errEmailPassword')); return; }
+    if (!email || pass.length < 8) { showToast(t('errEmailPassword')); return; }
     if (!PHONE_RE.test(cleanPhone(phone))) { showToast(t('errPhone')); return; }
     if (pass !== pass2) { showToast(t('errPasswordMismatch')); return; }
     setBusy('up');
@@ -142,7 +142,7 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, showToast, ini
   };
 
   const doReset = () => {
-    if (pass.length < 6) { showToast(t('errPasswordMin')); return; }
+    if (pass.length < 8) { showToast(t('errPasswordMin')); return; }
     if (pass !== pass2) { showToast(t('errPasswordMismatch')); return; }
     setBusy('reset');
     GoService.post('/api/auth/reset-password', { token: initialToken, password: pass })
