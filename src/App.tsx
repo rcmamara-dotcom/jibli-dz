@@ -12,6 +12,7 @@ import AddTrip from './components/AddTrip';
 import AddParcel from './components/AddParcel';
 import AuthModal from './components/AuthModal';
 import AdminPanel from './components/AdminPanel';
+import Pricing from './components/Pricing';
 
 const PAGE_SIZE = 20;
 
@@ -25,10 +26,17 @@ function getPaymentStatus(): string | null {
   return params.get('payment');
 }
 
+function getSubscriptionStatus(): { status: string | null; plan: string | null } {
+  const params = new URLSearchParams(window.location.search);
+  return { status: params.get('subscription'), plan: params.get('plan') };
+}
+
 function cleanUrl() {
   const url = new URL(window.location.href);
   url.searchParams.delete('payment');
   url.searchParams.delete('session_id');
+  url.searchParams.delete('subscription');
+  url.searchParams.delete('plan');
   window.history.replaceState({}, '', url.toString());
 }
 
@@ -51,11 +59,19 @@ function AppInner() {
   // Handle Stripe redirect
   React.useEffect(() => {
     const payment = getPaymentStatus();
+    const { status: subStatus, plan } = getSubscriptionStatus();
     if (payment === 'success') {
       showToast('✅ Paiement confirmé ! Votre annonce est en ligne.');
       cleanUrl();
     } else if (payment === 'cancelled') {
       showToast('❌ Paiement annulé.');
+      cleanUrl();
+    } else if (subStatus === 'success') {
+      showToast(`✅ Abonnement ${plan ?? ''} activé !`);
+      setScreen('pricing');
+      cleanUrl();
+    } else if (subStatus === 'cancelled') {
+      showToast('❌ Abonnement annulé.');
       cleanUrl();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -200,6 +216,10 @@ function AppInner() {
 
       {screen === 'add-parcel' && (
         <AddParcel needLogin={needLogin} onLogin={() => setAuthOpen(true)} onPublish={publishParcel} onNavigate={() => setScreen('parcels')} />
+      )}
+
+      {screen === 'pricing' && (
+        <Pricing isLoggedIn={isLoggedIn} onLogin={() => setAuthOpen(true)} showToast={showToast} />
       )}
 
       {screen === 'admin' && isAdmin && <AdminPanel />}
