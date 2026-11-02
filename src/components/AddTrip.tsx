@@ -21,6 +21,7 @@ export default function AddTrip({ needLogin, onLogin, onPublish, onNavigate }: P
     date: today(), capacity: '3', weight: '', cap_desc: '', wa: '',
   };
   const [f, setF] = useState(empty);
+  const [certified, setCertified] = useState(false);
   const up = <K extends keyof typeof empty>(k: K) => (v: string) => setF((s) => ({ ...s, [k]: v }));
 
   return (
@@ -66,10 +67,18 @@ export default function AddTrip({ needLogin, onLogin, onPublish, onNavigate }: P
             <input type="tel" className="form-control" placeholder="+33 6 12 34 56 78" value={f.wa} onChange={(e) => up('wa')(e.target.value)} />
             <div className="text-muted mt-1" style={{ fontSize: 12 }}>📱 Les expéditeurs vous contacteront directement.</div>
           </div>
-          <button className="btn btn-green w-100 py-3" onClick={() =>
+          <div className="mb-4 p-3 rounded-3" style={{ background: 'var(--bs-warning-bg-subtle, #fff3cd)', border: '1px solid var(--bs-warning-border-subtle, #ffc107)' }}>
+            <div className="form-check">
+              <input className="form-check-input" type="checkbox" id="certifyTrip" checked={certified} onChange={(e) => setCertified(e.target.checked)} />
+              <label className="form-check-label" htmlFor="certifyTrip" style={{ fontSize: 13 }}>
+                Je certifie que les colis transportés ne contiendront aucun objet illégal (stupéfiants, armes, devises non déclarées, contrefaçons, médicaments soumis à autorisation…) et j'accepte les <a href="/cgu.html" target="_blank" rel="noopener">Conditions Générales d'Utilisation</a>.
+              </label>
+            </div>
+          </div>
+          <button className="btn btn-green w-100 py-3" disabled={!certified} onClick={() =>
             onPublish(
               { name: f.name, from_city: f.from_city, to_city: f.to_city, date: f.date, capacity: f.capacity, weight: f.weight, cap_desc: f.cap_desc, wa: f.wa },
-              () => setF({ ...empty, date: today() }),
+              () => { setF({ ...empty, date: today() }); setCertified(false); },
               onLogin,
               onNavigate,
             )

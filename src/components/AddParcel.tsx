@@ -23,6 +23,7 @@ export default function AddParcel({ needLogin, onLogin, onPublish, onNavigate }:
     weight: '', length: '', width: '', height: '', parcel_type: '',
   };
   const [f, setF] = useState(empty);
+  const [certified, setCertified] = useState(false);
   const up = <K extends keyof typeof empty>(k: K) => (v: string) => setF((s) => ({ ...s, [k]: v }));
 
   const labelLang = lang === 'ar' ? 'ar' : lang === 'en' ? 'en' : 'fr';
@@ -139,14 +140,29 @@ export default function AddParcel({ needLogin, onLogin, onPublish, onNavigate }:
             </div>
           </div>
 
-          <button className="btn btn-gold w-100 py-3" onClick={() =>
+          <div className="mb-4 p-3 rounded-3" style={{ background: 'var(--bs-warning-bg-subtle, #fff3cd)', border: '1px solid var(--bs-warning-border-subtle, #ffc107)' }}>
+            <div className="form-check">
+              <input className="form-check-input" type="checkbox" id="certifyParcel" checked={certified} onChange={(e) => setCertified(e.target.checked)} />
+              <label className="form-check-label" htmlFor="certifyParcel" style={{ fontSize: 13 }}>
+                {lang === 'ar'
+                  ? 'أتعهد بأن الطرد لا يحتوي على أي شيء غير قانوني وأقبل '
+                  : lang === 'en'
+                  ? 'I certify that this parcel contains no illegal items and I accept the '
+                  : 'Je certifie que mon colis ne contient aucun objet illégal (stupéfiants, devises non déclarées, contrefaçons…) et j\'accepte les '}
+                <a href="/cgu.html" target="_blank" rel="noopener">
+                  {lang === 'ar' ? 'الشروط العامة للاستخدام' : lang === 'en' ? 'Terms of Use' : 'Conditions Générales d\'Utilisation'}
+                </a>.
+              </label>
+            </div>
+          </div>
+          <button className="btn btn-gold w-100 py-3" disabled={!certified} onClick={() =>
             onPublish(
               {
                 from_city: f.from_city, to_city: f.to_city, description: f.description,
                 budget: f.budget, wa: f.wa, weight: f.weight, length: f.length,
                 width: f.width, height: f.height, parcel_type: f.parcel_type,
               },
-              () => setF(empty),
+              () => { setF(empty); setCertified(false); },
               onLogin,
               onNavigate,
             )

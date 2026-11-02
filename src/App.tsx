@@ -301,6 +301,8 @@ function AppInner() {
 
       <footer className="text-center text-muted py-4" style={{ fontSize: 13 }}>
         <a href="/confidentialite.html" className="text-muted">Politique de confidentialité</a>
+        {' · '}
+        <a href="/cgu.html" className="text-muted">CGU</a>
       </footer>
 
       {toast && <div className="app-toast show">{toast}</div>}
