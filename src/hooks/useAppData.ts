@@ -75,9 +75,9 @@ export function useAppData() {
     navigate: () => void,
   ) {
     if (!userId) { showToast('🔒 Connecte-toi pour publier'); onNeedLogin(); return; }
-    if (!form.name || !form.from_city || !form.to_city || !form.date || !form.wa) { showToast('⚠️ Remplissez tous les champs obligatoires'); return; }
+    if (!form.name || !form.from_city || !form.to_city || !form.date) { showToast('⚠️ Remplissez tous les champs obligatoires'); return; }
     if (form.from_city === form.to_city) { showToast('⚠️ Départ et arrivée identiques'); return; }
-    if (!waValid(form.wa)) { showToast('⚠️ Numéro WhatsApp au format international, ex : +33612345678'); return; }
+    // if (!waValid(form.wa)) { showToast('⚠️ Numéro WhatsApp au format international, ex : +33612345678'); return; }
     showToast('⏳ Publication en cours…');
     GoService.post<{ checkout_url: string | null; published?: boolean }>('/api/payments/create-checkout', {
       type: 'trip',
@@ -97,9 +97,9 @@ export function useAppData() {
     navigate: () => void,
   ) {
     if (!userId) { showToast('🔒 Connecte-toi pour publier'); onNeedLogin(); return; }
-    if (!form.from_city || !form.to_city || !form.description || !form.wa) { showToast('⚠️ Remplissez tous les champs'); return; }
+    if (!form.from_city || !form.to_city || !form.description) { showToast('⚠️ Remplissez tous les champs'); return; }
     if (form.from_city === form.to_city) { showToast('⚠️ Départ et arrivée identiques'); return; }
-    if (!waValid(form.wa)) { showToast('⚠️ Numéro WhatsApp au format international, ex : +33612345678'); return; }
+    // if (!waValid(form.wa)) { showToast('⚠️ Numéro WhatsApp au format international, ex : +33612345678'); return; }
     showToast('⏳ Publication en cours…');
     GoService.post<{ checkout_url: string | null; published?: boolean }>('/api/payments/create-checkout', {
       type: 'parcel',
