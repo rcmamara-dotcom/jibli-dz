@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Trip, Review } from '../types';
-import { formatWA } from '../utils/whatsapp';
+// import { formatWA } from '../utils/whatsapp'; // WhatsApp désactivé — messagerie interne
 import { GoService } from '../services/GoService';
 import { StarDisplay, StarInput } from './StarRating';
 import { useLang } from '../contexts/LangContext';
 import { isDemo } from '../mocks/demo';
+import ContactModal from './ContactModal';
 
 interface Props {
   trip: Trip;
@@ -14,13 +15,16 @@ interface Props {
   onDelete: () => void;
   onReviewPosted: (updatedTrip: Partial<Trip>) => void;
   onShipmentCreated: () => void;
+  onLogin: () => void;
+  onMessagesOpen: () => void;
 }
 
-export default function TripModal({ trip, userId, canDelete, onClose, onDelete, onReviewPosted, onShipmentCreated }: Props) {
+export default function TripModal({ trip, userId, canDelete, onClose, onDelete, onReviewPosted, onShipmentCreated, onLogin, onMessagesOpen }: Props) {
   const { t } = useLang();
   const d = new Date(trip.date + 'T12:00:00');
   const dateStr = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const wa = formatWA(trip.wa, `Bonjour ${trip.name}, j'ai vu votre trajet ${trip.from_city}→${trip.to_city} le ${dateStr} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
+  // const wa = formatWA(trip.wa, `...`); // WhatsApp désactivé
+  const [showContact, setShowContact] = useState(false);
 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [rating, setRating] = useState(0);
@@ -126,10 +130,27 @@ export default function TripModal({ trip, userId, canDelete, onClose, onDelete, 
           )}
 
           {/* Actions */}
+          {/* WhatsApp désactivé — messagerie interne
           <a href={isDemo(trip) ? undefined : wa} target="_blank" rel="noopener noreferrer" aria-disabled={isDemo(trip)}
             className={'btn btn-wa w-100 py-3' + (isDemo(trip) ? ' disabled' : '')} style={{ fontSize: 15 }}>
             💬 Contacter sur WhatsApp
           </a>
+          */}
+          {!isOwnTrip && (
+            isDemo(trip)
+              ? <button className="btn btn-green w-100 py-3 disabled" style={{ fontSize: 15 }}>💬 Contacter</button>
+              : <button className="btn btn-green w-100 py-3" style={{ fontSize: 15 }} onClick={() => setShowContact(true)}>💬 Contacter</button>
+          )}
+          {showContact && (
+            <ContactModal
+              tripId={trip.id}
+              recipientName={trip.name}
+              userId={userId}
+              onLogin={() => { onClose(); onLogin(); }}
+              onClose={() => setShowContact(false)}
+              onConversationOpen={() => { setShowContact(false); onClose(); onMessagesOpen(); }}
+            />
+          )}
           {userId !== null && !isOwnTrip && trip.owner_id && (
             shipOpen ? (
               <div className="card border rounded-3 p-3">

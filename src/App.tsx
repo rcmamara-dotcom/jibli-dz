@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { GoService } from './services/GoService';
 import { Screen, Trip } from './types';
 import { DEST_FILTERS } from './constants/locations';
 import { useAppData } from './hooks/useAppData';
@@ -16,6 +17,7 @@ import AdSlot, { ADS_ENABLED } from './components/AdSlot';
 import Pricing from './components/Pricing';
 import Settings from './components/Settings';
 import Shipments from './components/Shipments';
+import Messaging from './components/Messaging';
 import { DEMO_PARCELS, DEMO_TRIPS } from './mocks/demo';
 import { PARCEL_TYPE_LABELS } from './constants/parcelTypes';
 import { ParcelType } from './types';
@@ -89,6 +91,15 @@ function AppInner() {
   const isLoggedIn = userId !== null;
   const needLogin = !isLoggedIn;
 
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  useEffect(() => {
+    if (!userId) { setUnreadMessages(0); return; }
+    const fetchUnread = () => GoService.get<{ count: number }>('/api/conversations/unread').then((r) => setUnreadMessages(r.count)).catch(() => {});
+    fetchUnread();
+    const id = setInterval(fetchUnread, 30000);
+    return () => clearInterval(id);
+  }, [userId]);
+
   // Annonces de démo : admins uniquement, choix gardé dans le navigateur
   const [demoOn, setDemoOn] = useState(() => { try { return localStorage.getItem('jibli_demo') === '1'; } catch { return false; } });
   const toggleDemo = (on: boolean) => { setDemoOn(on); try { localStorage.setItem('jibli_demo', on ? '1' : '0'); } catch { /* ignore */ } };
@@ -134,7 +145,7 @@ function AppInner() {
   return (
     <>
       <Header isLoggedIn={isLoggedIn} isAdmin={isAdmin} search={search} onSearch={setSearch} onAccount={() => (isLoggedIn ? setScreen('settings') : setAuthOpen(true))} onAdmin={() => setScreen('admin')} />
-      <NavTabs screen={screen} setScreen={setScreen} />
+      <NavTabs screen={screen} setScreen={setScreen} unreadMessages={unreadMessages} />
 
       {screen === 'home' && (
         <div className="container-xxl py-4 px-3 px-lg-4">
@@ -203,7 +214,7 @@ function AppInner() {
                   {visibleTrips.map((tr, i) => (
                     <React.Fragment key={tr.id}>
                       <div className="col-12 col-md-6 col-xl-4">
-                        <TripCard trip={tr} mine={canDelete(tr)} onOpen={() => setTripModal(tr)} onDelete={() => removeTrip(tr.id)} />
+                        <TripCard trip={tr} mine={canDelete(tr)} userId={userId} onOpen={() => setTripModal(tr)} onDelete={() => removeTrip(tr.id)} onLogin={() => setAuthOpen(true)} onMessagesOpen={() => setScreen('messages')} />
                       </div>
                       {showAdAfter(i) && <div className="col-12"><AdSlot /></div>}
                     </React.Fragment>
@@ -259,7 +270,7 @@ function AppInner() {
                   {visibleParcels.map((p, i) => (
                     <React.Fragment key={p.id}>
                       <div className="col-12 col-md-6 col-xl-4">
-                        <ParcelCard parcel={p} mine={canDelete(p)} onDelete={() => removeParcel(p.id)} />
+                        <ParcelCard parcel={p} mine={canDelete(p)} userId={userId} onDelete={() => removeParcel(p.id)} onLogin={() => setAuthOpen(true)} onMessagesOpen={() => setScreen('messages')} />
                       </div>
                       {showAdAfter(i) && <div className="col-12"><AdSlot /></div>}
                     </React.Fragment>
@@ -297,6 +308,10 @@ function AppInner() {
         <Pricing isLoggedIn={isLoggedIn} onLogin={() => setAuthOpen(true)} showToast={showToast} />
       )}
 
+      {screen === 'messages' && (
+        <Messaging userId={userId} onLogin={() => setAuthOpen(true)} />
+      )}
+
       {screen === 'admin' && isAdmin && <AdminPanel myId={userId} canManageUsers={role === 'admin'} />}
 
       <footer className="text-center text-muted py-4" style={{ fontSize: 13 }}>
@@ -316,6 +331,8 @@ function AppInner() {
           onDelete={() => removeTrip(tripModal.id, () => setTripModal(null))}
           onReviewPosted={(updated) => setTripModal((prev) => prev ? { ...prev, ...updated } : null)}
           onShipmentCreated={() => { setTripModal(null); setScreen('shipments'); showToast(t('toastShipmentCreated')); }}
+          onLogin={() => setAuthOpen(true)}
+          onMessagesOpen={() => { setTripModal(null); setScreen('messages'); }}
         />
       )}
 

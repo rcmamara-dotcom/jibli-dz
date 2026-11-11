@@ -4,6 +4,7 @@ import { Screen } from '../types';
 interface Props {
   screen: Screen;
   setScreen: (s: Screen) => void;
+  unreadMessages?: number;
 }
 
 const TABS: [Screen, string, string][] = [
@@ -12,10 +13,11 @@ const TABS: [Screen, string, string][] = [
   ['add-trip',   '🗺️', 'Je voyage'],
   ['add-parcel', '➕',  'Envoyer un colis'],
   ['shipments',  '📍',  'Mes envois'],
+  ['messages',   '💬',  'Messages'],
   ['pricing',    '💎',  'Abonnements'],
 ];
 
-export default function NavTabs({ screen, setScreen }: Props) {
+export default function NavTabs({ screen, setScreen, unreadMessages = 0 }: Props) {
   return (
     <nav className="nav-tabs-bar">
       <div className="container-xxl">
@@ -27,6 +29,9 @@ export default function NavTabs({ screen, setScreen }: Props) {
                 onClick={() => { setScreen(id); window.scrollTo({ top: 0 }); }}
               >
                 <span className="me-2">{icon}</span>{label}
+                {id === 'messages' && unreadMessages > 0 && (
+                  <span className="badge bg-danger ms-1" style={{ fontSize: 10, verticalAlign: 'middle' }}>{unreadMessages}</span>
+                )}
               </button>
             </li>
           ))}

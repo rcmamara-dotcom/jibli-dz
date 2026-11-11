@@ -1,27 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Parcel } from '../types';
-import { formatWA } from '../utils/whatsapp';
+// import { formatWA } from '../utils/whatsapp'; // WhatsApp désactivé — messagerie interne
 import { isDemo } from '../mocks/demo';
 import { useLang } from '../contexts/LangContext';
 import { PARCEL_TYPE_LABELS, parcelSize } from '../constants/parcelTypes';
+import ContactModal from './ContactModal';
 
 interface Props {
   parcel: Parcel;
   mine: boolean;
+  userId: number | null;
   onDelete: () => void;
+  onLogin: () => void;
+  onMessagesOpen: () => void;
 }
 
 const SIZE_KEYS = { small: 'sizeSmall', medium: 'sizeMedium', large: 'sizeLarge' } as const;
 
-export default function ParcelCard({ parcel: p, mine, onDelete }: Props) {
+export default function ParcelCard({ parcel: p, mine, userId, onDelete, onLogin, onMessagesOpen }: Props) {
   const { t, lang } = useLang();
   const demo = isDemo(p);
-  const wa = formatWA(p.wa, `Bonjour, j'ai vu votre colis ${p.from_city}→${p.to_city} sur JIBLI DZ. Je fais ce trajet et je peux vous aider !`);
+  // const wa = formatWA(p.wa, `...`); // WhatsApp désactivé — messagerie interne
   const type = p.parcel_type ? PARCEL_TYPE_LABELS[p.parcel_type] : null;
   const size = parcelSize(p);
   const dims = p.length && p.width && p.height ? `${p.length} × ${p.width} × ${p.height} cm` : null;
   const days = Math.floor((Date.now() - new Date(p.created_at).getTime()) / 86_400_000);
   const posted = days <= 0 ? t('parcelToday') : t('parcelDaysAgo').replace('{n}', String(days));
+  const [showContact, setShowContact] = useState(false);
 
   return (
     <div className="card parcel-card shadow-sm border h-100">
@@ -61,12 +66,24 @@ export default function ParcelCard({ parcel: p, mine, onDelete }: Props) {
         </div>
 
         <div className="d-flex gap-2 flex-wrap mt-3">
-          {demo
-            ? <button className="btn btn-sm btn-wa" disabled>💬 {t('parcelContact')}</button>
-            : <a href={wa} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-wa">💬 {t('parcelContact')}</a>}
+          {!mine && (
+            demo
+              ? <button className="btn btn-sm btn-green" disabled>💬 {t('parcelContact')}</button>
+              : <button className="btn btn-sm btn-green" onClick={() => setShowContact(true)}>💬 {t('parcelContact')}</button>
+          )}
           {mine && <button className="btn btn-sm btn-outline-danger" onClick={onDelete}>🗑 {t('btnDelete')}</button>}
         </div>
       </div>
+      {showContact && (
+        <ContactModal
+          parcelId={p.id}
+          recipientName={p.owner_id ? String(p.owner_id) : null}
+          userId={userId}
+          onLogin={onLogin}
+          onClose={() => setShowContact(false)}
+          onConversationOpen={() => { setShowContact(false); onMessagesOpen(); }}
+        />
+      )}
     </div>
   );
 }

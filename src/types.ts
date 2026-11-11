@@ -42,7 +42,28 @@ export interface Parcel {
   created_at: string;
 }
 
-export type Screen = 'home' | 'parcels' | 'add-trip' | 'add-parcel' | 'admin' | 'pricing' | 'settings' | 'shipments';
+export type Screen = 'home' | 'parcels' | 'add-trip' | 'add-parcel' | 'admin' | 'pricing' | 'settings' | 'shipments' | 'messages';
+
+export interface Conversation {
+  id: number;
+  other_user_id: number;
+  other_user_name: string | null;
+  trip_id: number | null;
+  parcel_id: number | null;
+  last_message: string | null;
+  last_message_at: string | null;
+  unread_count: number;
+  created_at: string;
+}
+
+export interface Message {
+  id: number;
+  sender_id: number;
+  sender_name: string | null;
+  content: string;
+  is_read: boolean;
+  created_at: string;
+}
 
 export const SHIPMENT_STEPS = ['deposited', 'accepted', 'picked_up', 'in_transit', 'arrived', 'delivered'] as const;
 export type ShipmentStatus = typeof SHIPMENT_STEPS[number] | 'cancelled';

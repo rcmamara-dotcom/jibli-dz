@@ -1,25 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Trip } from '../types';
-import { formatWA } from '../utils/whatsapp';
+// import { formatWA } from '../utils/whatsapp'; // WhatsApp désactivé — messagerie interne
 import { isDemo } from '../mocks/demo';
 import { useLang } from '../contexts/LangContext';
 import { StarDisplay } from './StarRating';
+import ContactModal from './ContactModal';
 
 interface Props {
   trip: Trip;
   mine: boolean;
+  userId: number | null;
   onOpen: () => void;
   onDelete: () => void;
+  onLogin: () => void;
+  onMessagesOpen: () => void;
 }
 
-export default function TripCard({ trip: t, mine, onOpen, onDelete }: Props) {
+export default function TripCard({ trip: t, mine, userId, onOpen, onDelete, onLogin, onMessagesOpen }: Props) {
   const d = new Date(t.date + 'T12:00:00');
   const dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const isUpcoming = d >= today;
   const { t: tr } = useLang();
   const demo = isDemo(t);
-  const wa = formatWA(t.wa, `Bonjour ${t.name}, j'ai vu votre trajet ${t.from_city}→${t.to_city} sur JIBLI DZ. Est-ce que vous pouvez transporter mon colis ?`);
+  // const wa = formatWA(t.wa, `...`); // WhatsApp désactivé
+  const [showContact, setShowContact] = useState(false);
 
   return (
     <div className="card trip-card shadow-sm border" onClick={onOpen}>
@@ -47,13 +52,25 @@ export default function TripCard({ trip: t, mine, onOpen, onDelete }: Props) {
         </div>
         {t.cap_desc && <p className="text-muted fst-italic mb-3" style={{ fontSize: 12 }}>"{t.cap_desc}"</p>}
         <div className="d-flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
-          {demo
-            ? <button className="btn btn-sm btn-wa" disabled>💬 WhatsApp</button>
-            : <a href={wa} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-wa">💬 WhatsApp</a>}
+          {!mine && (
+            demo
+              ? <button className="btn btn-sm btn-green" disabled>💬 Contacter</button>
+              : <button className="btn btn-sm btn-green" onClick={() => setShowContact(true)}>💬 Contacter</button>
+          )}
           <button className="btn btn-sm btn-outline-secondary" onClick={onOpen}>Voir détails</button>
           {mine && <button className="btn btn-sm btn-outline-danger" onClick={onDelete}>🗑 Supprimer</button>}
         </div>
       </div>
+      {showContact && (
+        <ContactModal
+          tripId={t.id}
+          recipientName={t.name}
+          userId={userId}
+          onLogin={onLogin}
+          onClose={() => setShowContact(false)}
+          onConversationOpen={() => { setShowContact(false); onMessagesOpen(); }}
+        />
+      )}
     </div>
   );
 }
