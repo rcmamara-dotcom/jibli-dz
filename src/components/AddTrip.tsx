@@ -62,11 +62,13 @@ export default function AddTrip({ needLogin, onLogin, onPublish, onNavigate }: P
             <label className="form-label fw-semibold" style={{ fontSize: 13 }}>Description de la capacité / conditions</label>
             <textarea className="form-control" rows={3} placeholder="Ex: J'accepte vêtements, médicaments, petits cadeaux. Pas de liquides." value={f.cap_desc} onChange={(e) => up('cap_desc')(e.target.value)} />
           </div>
+          {/* WhatsApp désactivé — messagerie interne
           <div className="mb-4">
             <label className="form-label fw-semibold" style={{ fontSize: 13 }}>Votre numéro WhatsApp</label>
             <input type="tel" className="form-control" placeholder="+33 6 12 34 56 78" value={f.wa} onChange={(e) => up('wa')(e.target.value)} />
             <div className="text-muted mt-1" style={{ fontSize: 12 }}>📱 Les expéditeurs vous contacteront directement.</div>
           </div>
+          */}
           <div className="mb-4 p-3 rounded-3" style={{ background: 'var(--bs-warning-bg-subtle, #fff3cd)', border: '1px solid var(--bs-warning-border-subtle, #ffc107)' }}>
             <div className="form-check">
               <input className="form-check-input" type="checkbox" id="certifyTrip" checked={certified} onChange={(e) => setCertified(e.target.checked)} />

@@ -128,7 +128,7 @@ export default function AddParcel({ needLogin, onLogin, onPublish, onNavigate }:
               value={f.budget} onChange={(e) => up('budget')(e.target.value)} />
           </div>
 
-          {/* WhatsApp */}
+          {/* WhatsApp désactivé — messagerie interne
           <div className="mb-4">
             <label className="form-label fw-semibold" style={{ fontSize: 13 }}>
               {lang === 'ar' ? 'رقم واتساب' : lang === 'en' ? 'WhatsApp number' : 'Votre numéro WhatsApp'}
@@ -139,6 +139,7 @@ export default function AddParcel({ needLogin, onLogin, onPublish, onNavigate }:
               📱 {lang === 'ar' ? 'سيتصل بك المسافرون للتنسيق.' : lang === 'en' ? 'Travellers will contact you to arrange.' : 'Les voyageurs vous contacteront pour s\'arranger.'}
             </div>
           </div>
+          */}
 
           <div className="mb-4 p-3 rounded-3" style={{ background: 'var(--bs-warning-bg-subtle, #fff3cd)', border: '1px solid var(--bs-warning-border-subtle, #ffc107)' }}>
             <div className="form-check">
