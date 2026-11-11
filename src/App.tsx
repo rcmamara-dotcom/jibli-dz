@@ -22,8 +22,10 @@ import { DEMO_PARCELS, DEMO_TRIPS } from './mocks/demo';
 import { PARCEL_TYPE_LABELS } from './constants/parcelTypes';
 import { ParcelType } from './types';
 
+const READONLY_MODE = true; // Site en développement — lecture seule pour les visiteurs
+
 const PAGE_SIZE = 20;
-const AD_EVERY = 6; // une pub toutes les 6 cartes
+const AD_EVERY = 6;
 
 const showAdAfter = (i: number) => ADS_ENABLED && (i + 1) % AD_EVERY === 0;
 
@@ -144,8 +146,13 @@ function AppInner() {
 
   return (
     <>
-      <Header isLoggedIn={isLoggedIn} isAdmin={isAdmin} search={search} onSearch={setSearch} onAccount={() => (isLoggedIn ? setScreen('settings') : setAuthOpen(true))} onAdmin={() => setScreen('admin')} />
-      <NavTabs screen={screen} setScreen={setScreen} unreadMessages={unreadMessages} />
+      <Header isLoggedIn={isLoggedIn && !READONLY_MODE} isAdmin={isAdmin} search={search} onSearch={setSearch} onAccount={() => (isLoggedIn ? setScreen('settings') : setAuthOpen(true))} onAdmin={() => setScreen('admin')} />
+      {READONLY_MODE && (
+        <div style={{ background: '#1a6b3c', color: '#fff', textAlign: 'center', padding: '10px 16px', fontSize: 14 }}>
+          🚧 Site en cours de développement — consultation uniquement, les fonctionnalités seront bientôt disponibles.
+        </div>
+      )}
+      <NavTabs screen={screen} setScreen={setScreen} unreadMessages={unreadMessages} readonly={READONLY_MODE} />
 
       {screen === 'home' && (
         <div className="container-xxl py-4 px-3 px-lg-4">
@@ -214,7 +221,7 @@ function AppInner() {
                   {visibleTrips.map((tr, i) => (
                     <React.Fragment key={tr.id}>
                       <div className="col-12 col-md-6 col-xl-4">
-                        <TripCard trip={tr} mine={canDelete(tr)} userId={userId} onOpen={() => setTripModal(tr)} onDelete={() => removeTrip(tr.id)} onLogin={() => setAuthOpen(true)} onMessagesOpen={() => setScreen('messages')} />
+                        <TripCard trip={tr} mine={canDelete(tr)} userId={userId} onOpen={() => setTripModal(tr)} onDelete={() => removeTrip(tr.id)} onLogin={() => setAuthOpen(true)} onMessagesOpen={() => setScreen('messages')} readonly={READONLY_MODE} />
                       </div>
                       {showAdAfter(i) && <div className="col-12"><AdSlot /></div>}
                     </React.Fragment>
@@ -270,7 +277,7 @@ function AppInner() {
                   {visibleParcels.map((p, i) => (
                     <React.Fragment key={p.id}>
                       <div className="col-12 col-md-6 col-xl-4">
-                        <ParcelCard parcel={p} mine={canDelete(p)} userId={userId} onDelete={() => removeParcel(p.id)} onLogin={() => setAuthOpen(true)} onMessagesOpen={() => setScreen('messages')} />
+                        <ParcelCard parcel={p} mine={canDelete(p)} userId={userId} onDelete={() => removeParcel(p.id)} onLogin={() => setAuthOpen(true)} onMessagesOpen={() => setScreen('messages')} readonly={READONLY_MODE} />
                       </div>
                       {showAdAfter(i) && <div className="col-12"><AdSlot /></div>}
                     </React.Fragment>

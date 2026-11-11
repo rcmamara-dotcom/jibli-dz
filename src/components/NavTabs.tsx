@@ -5,24 +5,26 @@ interface Props {
   screen: Screen;
   setScreen: (s: Screen) => void;
   unreadMessages?: number;
+  readonly?: boolean;
 }
 
-const TABS: [Screen, string, string][] = [
+const TABS: [Screen, string, string, boolean?][] = [
   ['home',       '✈️',  'Trajets disponibles'],
   ['parcels',    '📦',  'Colis à transporter'],
-  ['add-trip',   '🗺️', 'Je voyage'],
-  ['add-parcel', '➕',  'Envoyer un colis'],
-  ['shipments',  '📍',  'Mes envois'],
-  ['messages',   '💬',  'Messages'],
+  ['add-trip',   '🗺️', 'Je voyage',        true], // action uniquement
+  ['add-parcel', '➕',  'Envoyer un colis', true], // action uniquement
+  ['shipments',  '📍',  'Mes envois',       true], // action uniquement
+  ['messages',   '💬',  'Messages',         true], // action uniquement
   ['pricing',    '💎',  'Abonnements'],
 ];
 
-export default function NavTabs({ screen, setScreen, unreadMessages = 0 }: Props) {
+export default function NavTabs({ screen, setScreen, unreadMessages = 0, readonly = false }: Props) {
+  const tabs = readonly ? TABS.filter(([,,,actionOnly]) => !actionOnly) : TABS;
   return (
     <nav className="nav-tabs-bar">
       <div className="container-xxl">
         <ul className="nav px-2 px-lg-3" style={{ flexWrap: 'nowrap', overflowX: 'auto' }}>
-          {TABS.map(([id, icon, label]) => (
+          {tabs.map(([id, icon, label]) => (
             <li key={id} className="nav-item">
               <button
                 className={'nav-link' + (screen === id ? ' active' : '')}

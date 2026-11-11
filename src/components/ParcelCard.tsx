@@ -13,11 +13,12 @@ interface Props {
   onDelete: () => void;
   onLogin: () => void;
   onMessagesOpen: () => void;
+  readonly?: boolean;
 }
 
 const SIZE_KEYS = { small: 'sizeSmall', medium: 'sizeMedium', large: 'sizeLarge' } as const;
 
-export default function ParcelCard({ parcel: p, mine, userId, onDelete, onLogin, onMessagesOpen }: Props) {
+export default function ParcelCard({ parcel: p, mine, userId, onDelete, onLogin, onMessagesOpen, readonly = false }: Props) {
   const { t, lang } = useLang();
   const demo = isDemo(p);
   // const wa = formatWA(p.wa, `...`); // WhatsApp désactivé — messagerie interne
@@ -66,7 +67,7 @@ export default function ParcelCard({ parcel: p, mine, userId, onDelete, onLogin,
         </div>
 
         <div className="d-flex gap-2 flex-wrap mt-3">
-          {!mine && (
+          {!mine && !readonly && (
             demo
               ? <button className="btn btn-sm btn-green" disabled>💬 {t('parcelContact')}</button>
               : <button className="btn btn-sm btn-green" onClick={() => setShowContact(true)}>💬 {t('parcelContact')}</button>

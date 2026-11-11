@@ -14,9 +14,10 @@ interface Props {
   onDelete: () => void;
   onLogin: () => void;
   onMessagesOpen: () => void;
+  readonly?: boolean;
 }
 
-export default function TripCard({ trip: t, mine, userId, onOpen, onDelete, onLogin, onMessagesOpen }: Props) {
+export default function TripCard({ trip: t, mine, userId, onOpen, onDelete, onLogin, onMessagesOpen, readonly = false }: Props) {
   const d = new Date(t.date + 'T12:00:00');
   const dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -52,7 +53,7 @@ export default function TripCard({ trip: t, mine, userId, onOpen, onDelete, onLo
         </div>
         {t.cap_desc && <p className="text-muted fst-italic mb-3" style={{ fontSize: 12 }}>"{t.cap_desc}"</p>}
         <div className="d-flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
-          {!mine && (
+          {!mine && !readonly && (
             demo
               ? <button className="btn btn-sm btn-green" disabled>💬 Contacter</button>
               : <button className="btn btn-sm btn-green" onClick={() => setShowContact(true)}>💬 Contacter</button>
