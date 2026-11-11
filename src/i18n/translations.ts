@@ -190,7 +190,7 @@ export const TRANSLATIONS = {
     confirmCancelShipment: 'Annuler cet envoi ?',
     btnShipWithTraveler: '📦 Envoyer un colis avec ce voyageur',
     shipDescPlaceholder: 'Que contient le colis ? (ex. vêtements, 3 kg)',
-    shipNote: ‘Contactez le voyageur via la messagerie, puis créez l’envoi : le voyageur mettra à jour chaque étape.’,
+    shipNote: "Contactez le voyageur via la messagerie, puis créez l’envoi : le voyageur mettra à jour chaque étape.",
     btnCreateShipment: '✅ Créer l’envoi',
     toastShipmentCreated: '✅ Envoi créé ! Suis-le dans « Mes envois »',
     toastStepUpdated: '✅ Étape mise à jour',
