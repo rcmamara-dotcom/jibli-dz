@@ -13,7 +13,7 @@ interface Props {
   onOpen: () => void;
   onDelete: () => void;
   onLogin: () => void;
-  onMessagesOpen: () => void;
+  onMessagesOpen: (convId?: number) => void;
   readonly?: boolean;
 }
 
@@ -66,10 +66,11 @@ export default function TripCard({ trip: t, mine, userId, onOpen, onDelete, onLo
         <ContactModal
           tripId={t.id}
           recipientName={t.name}
+          context={`${t.from_city} → ${t.to_city}`}
           userId={userId}
           onLogin={onLogin}
           onClose={() => setShowContact(false)}
-          onConversationOpen={() => { setShowContact(false); onMessagesOpen(); }}
+          onConversationOpen={(id) => { setShowContact(false); onMessagesOpen(id); }}
         />
       )}
     </div>

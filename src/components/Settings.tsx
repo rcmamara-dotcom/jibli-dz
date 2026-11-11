@@ -164,7 +164,7 @@ export default function Settings({ showToast, onLogout, onPricing }: Props) {
                 value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
               />
               <button className="btn btn-green" disabled={busy === 'verify' || code.length !== 6} onClick={verify}>{t('btnVerify')}</button>
-              <button className="btn btn-link" style={{ color: 'var(--green-mid)' }} disabled={busy === 'resend'} onClick={resend}>{t('btnResend')}</button>
+              <button className="btn btn-link" style={{ color: 'var(--green-text)' }} disabled={busy === 'resend'} onClick={resend}>{t('btnResend')}</button>
             </div>
           </div>
         )}

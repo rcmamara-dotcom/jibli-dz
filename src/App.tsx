@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { GoService } from './services/GoService';
 import { Screen, Trip } from './types';
 import { DEST_FILTERS } from './constants/locations';
@@ -95,13 +95,20 @@ function AppInner() {
   const readonly = READONLY_MODE && !isAdmin;
 
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const fetchUnread = useCallback(() => {
+    GoService.get<{ count: number }>('/api/conversations/unread').then((r) => setUnreadMessages(r.count)).catch(() => {});
+  }, []);
   useEffect(() => {
     if (!userId) { setUnreadMessages(0); return; }
-    const fetchUnread = () => GoService.get<{ count: number }>('/api/conversations/unread').then((r) => setUnreadMessages(r.count)).catch(() => {});
     fetchUnread();
     const id = setInterval(fetchUnread, 30000);
     return () => clearInterval(id);
-  }, [userId]);
+  }, [userId, fetchUnread]);
+
+  // Conversation à ouvrir directement après un « Contacter »
+  const [openConvId, setOpenConvId] = useState<number | null>(null);
+  const openMessages = (convId?: number) => { setOpenConvId(convId ?? null); setScreen('messages'); };
+  useEffect(() => { if (screen !== 'messages') setOpenConvId(null); }, [screen]);
 
   // Annonces de démo : admins uniquement, choix gardé dans le navigateur
   const [demoOn, setDemoOn] = useState(() => { try { return localStorage.getItem('jibli_demo') === '1'; } catch { return false; } });
@@ -222,7 +229,7 @@ function AppInner() {
                   {visibleTrips.map((tr, i) => (
                     <React.Fragment key={tr.id}>
                       <div className="col-12 col-md-6 col-xl-4">
-                        <TripCard trip={tr} mine={canDelete(tr)} userId={userId} onOpen={() => setTripModal(tr)} onDelete={() => removeTrip(tr.id)} onLogin={() => setAuthOpen(true)} onMessagesOpen={() => setScreen('messages')} readonly={readonly} />
+                        <TripCard trip={tr} mine={canDelete(tr)} userId={userId} onOpen={() => setTripModal(tr)} onDelete={() => removeTrip(tr.id)} onLogin={() => setAuthOpen(true)} onMessagesOpen={openMessages} readonly={readonly} />
                       </div>
                       {showAdAfter(i) && <div className="col-12"><AdSlot /></div>}
                     </React.Fragment>
@@ -278,7 +285,7 @@ function AppInner() {
                   {visibleParcels.map((p, i) => (
                     <React.Fragment key={p.id}>
                       <div className="col-12 col-md-6 col-xl-4">
-                        <ParcelCard parcel={p} mine={canDelete(p)} userId={userId} onDelete={() => removeParcel(p.id)} onLogin={() => setAuthOpen(true)} onMessagesOpen={() => setScreen('messages')} readonly={readonly} />
+                        <ParcelCard parcel={p} mine={canDelete(p)} userId={userId} onDelete={() => removeParcel(p.id)} onLogin={() => setAuthOpen(true)} onMessagesOpen={openMessages} readonly={readonly} />
                       </div>
                       {showAdAfter(i) && <div className="col-12"><AdSlot /></div>}
                     </React.Fragment>
@@ -317,7 +324,7 @@ function AppInner() {
       )}
 
       {screen === 'messages' && (
-        <Messaging userId={userId} onLogin={() => setAuthOpen(true)} />
+        <Messaging userId={userId} trips={trips} parcels={parcels} initialConvId={openConvId} onLogin={() => setAuthOpen(true)} onRead={fetchUnread} />
       )}
 
       {screen === 'admin' && isAdmin && <AdminPanel myId={userId} canManageUsers={role === 'admin'} />}
@@ -340,7 +347,7 @@ function AppInner() {
           onReviewPosted={(updated) => setTripModal((prev) => prev ? { ...prev, ...updated } : null)}
           onShipmentCreated={() => { setTripModal(null); setScreen('shipments'); showToast(t('toastShipmentCreated')); }}
           onLogin={() => setAuthOpen(true)}
-          onMessagesOpen={() => { setTripModal(null); setScreen('messages'); }}
+          onMessagesOpen={(id) => { setTripModal(null); openMessages(id); }}
         />
       )}
 

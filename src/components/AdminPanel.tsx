@@ -108,10 +108,10 @@ export default function AdminPanel({ myId, canManageUsers }: Props) {
       {/* Stats */}
       {!loading && tab === 'stats' && stats && (
         <div className="row g-3">
-          {([['👤 Utilisateurs', stats.users, '#0f5c32'],
-             ['✈️ Trajets', stats.trips, '#1a6b3c'],
+          {([['👤 Utilisateurs', stats.users, 'var(--green-text)'],
+             ['✈️ Trajets', stats.trips, 'var(--green-text)'],
              ['📦 Colis', stats.parcels, '#f5a623'],
-             ['⭐ Avis', stats.reviews, '#6b7280']] as [string, number, string][]).map(([label, val, color]) => (
+             ['⭐ Avis', stats.reviews, 'var(--muted)']] as [string, number, string][]).map(([label, val, color]) => (
             <div key={label} className="col-6 col-lg-3">
               <div className="card border-0 shadow-sm text-center p-4">
                 <div style={{ fontSize: 36, fontWeight: 900, color, fontFamily: "'Cairo', sans-serif" }}>{val}</div>

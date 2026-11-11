@@ -187,7 +187,7 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, showToast, ini
                 {t('btnVerify')}
               </button>
               <div className="d-flex justify-content-between">
-                <button className="btn btn-link p-0" style={{ fontSize: 13, color: 'var(--green-mid)' }} disabled={busy === 'resend'} onClick={doResend}>
+                <button className="btn btn-link p-0" style={{ fontSize: 13, color: 'var(--green-text)' }} disabled={busy === 'resend'} onClick={doResend}>
                   {t('btnResend')}
                 </button>
                 <button className="btn btn-link text-muted p-0" style={{ fontSize: 13 }} onClick={onClose}>
@@ -238,7 +238,7 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, showToast, ini
         {/* ── Main: login / register ──────────────────────────────── */}
         {view === 'main' && (
           <>
-            <div className="d-flex mb-4" style={{ borderBottom: '2px solid #e5e7eb' }}>
+            <div className="d-flex mb-4" style={{ borderBottom: '2px solid var(--border)' }}>
               {(['login', 'register'] as Mode[]).map((m) => (
                 <button
                   key={m}
@@ -250,8 +250,8 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, showToast, ini
                     padding: '8px 0',
                     fontSize: 14,
                     fontWeight: 700,
-                    color: mode === m ? 'var(--green-mid, #1a7a42)' : '#6b7280',
-                    borderBottom: mode === m ? '2px solid var(--green-mid, #1a7a42)' : '2px solid transparent',
+                    color: mode === m ? 'var(--green-text)' : 'var(--muted)',
+                    borderBottom: mode === m ? '2px solid var(--green-text)' : '2px solid transparent',
                     marginBottom: -2,
                     cursor: 'pointer',
                     transition: 'all .15s',
@@ -289,9 +289,9 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, showToast, ini
             </button>
 
             <div className="d-flex align-items-center gap-2 mb-3">
-              <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
-              <span style={{ fontSize: 12, color: '#9ca3af' }}>{t('orSeparator')}</span>
-              <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
+              <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>{t('orSeparator')}</span>
+              <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
             </div>
 
             {mode === 'register' && (
@@ -331,7 +331,7 @@ export default function AuthModal({ isLoggedIn, onClose, onLogin, showToast, ini
 
             {mode === 'login' && (
               <div className="mb-4 text-end">
-                <button className="btn btn-link p-0" style={{ fontSize: 12, color: 'var(--green-mid)' }} onClick={() => setView('forgot')}>
+                <button className="btn btn-link p-0" style={{ fontSize: 12, color: 'var(--green-text)' }} onClick={() => setView('forgot')}>
                   {t('btnForgot')}
                 </button>
               </div>

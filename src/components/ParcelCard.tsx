@@ -12,7 +12,7 @@ interface Props {
   userId: number | null;
   onDelete: () => void;
   onLogin: () => void;
-  onMessagesOpen: () => void;
+  onMessagesOpen: (convId?: number) => void;
   readonly?: boolean;
 }
 
@@ -78,11 +78,12 @@ export default function ParcelCard({ parcel: p, mine, userId, onDelete, onLogin,
       {showContact && (
         <ContactModal
           parcelId={p.id}
-          recipientName={p.owner_id ? String(p.owner_id) : null}
+          recipientName={null}
+          context={`${p.from_city} → ${p.to_city}`}
           userId={userId}
           onLogin={onLogin}
           onClose={() => setShowContact(false)}
-          onConversationOpen={() => { setShowContact(false); onMessagesOpen(); }}
+          onConversationOpen={(id) => { setShowContact(false); onMessagesOpen(id); }}
         />
       )}
     </div>

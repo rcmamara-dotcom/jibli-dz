@@ -16,7 +16,7 @@ interface Props {
   onReviewPosted: (updatedTrip: Partial<Trip>) => void;
   onShipmentCreated: () => void;
   onLogin: () => void;
-  onMessagesOpen: () => void;
+  onMessagesOpen: (convId?: number) => void;
 }
 
 export default function TripModal({ trip, userId, canDelete, onClose, onDelete, onReviewPosted, onShipmentCreated, onLogin, onMessagesOpen }: Props) {
@@ -112,13 +112,13 @@ export default function TripModal({ trip, userId, canDelete, onClose, onDelete, 
             <div className="col">
               <div className="card border-0 bg-light rounded-3 p-3 text-center h-100">
                 <div className="text-muted mb-1" style={{ fontSize: 12 }}>Colis</div>
-                <div className="fw-black" style={{ fontSize: 22, color: 'var(--green-mid)' }}>{trip.capacity}</div>
+                <div className="fw-black" style={{ fontSize: 22, color: 'var(--green-text)' }}>{trip.capacity}</div>
               </div>
             </div>
             <div className="col">
               <div className="card border-0 bg-light rounded-3 p-3 text-center h-100">
                 <div className="text-muted mb-1" style={{ fontSize: 12 }}>Poids max</div>
-                <div className="fw-black" style={{ fontSize: 22, color: 'var(--green-mid)' }}>{trip.weight ? trip.weight + ' kg' : '—'}</div>
+                <div className="fw-black" style={{ fontSize: 22, color: 'var(--green-text)' }}>{trip.weight ? trip.weight + ' kg' : '—'}</div>
               </div>
             </div>
           </div>
@@ -145,10 +145,11 @@ export default function TripModal({ trip, userId, canDelete, onClose, onDelete, 
             <ContactModal
               tripId={trip.id}
               recipientName={trip.name}
+              context={`${trip.from_city} → ${trip.to_city}`}
               userId={userId}
               onLogin={() => { onClose(); onLogin(); }}
               onClose={() => setShowContact(false)}
-              onConversationOpen={() => { setShowContact(false); onClose(); onMessagesOpen(); }}
+              onConversationOpen={(id) => { setShowContact(false); onClose(); onMessagesOpen(id); }}
             />
           )}
           {userId !== null && !isOwnTrip && trip.owner_id && (
