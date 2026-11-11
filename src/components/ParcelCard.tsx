@@ -5,6 +5,8 @@ import { isDemo } from '../mocks/demo';
 import { useLang } from '../contexts/LangContext';
 import { PARCEL_TYPE_LABELS, parcelSize } from '../constants/parcelTypes';
 import ContactModal from './ContactModal';
+import ProfileModal from './ProfileModal';
+import { RatingBadge } from './StarRating';
 
 interface Props {
   parcel: Parcel;
@@ -28,6 +30,7 @@ export default function ParcelCard({ parcel: p, mine, userId, onDelete, onLogin,
   const days = Math.floor((Date.now() - new Date(p.created_at).getTime()) / 86_400_000);
   const posted = days <= 0 ? t('parcelToday') : t('parcelDaysAgo').replace('{n}', String(days));
   const [showContact, setShowContact] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
     <div className="card parcel-card shadow-sm border h-100">
@@ -52,6 +55,13 @@ export default function ParcelCard({ parcel: p, mine, userId, onDelete, onLogin,
 
         <p className="text-muted mb-2" style={{ fontSize: 14, lineHeight: 1.5 }}>{p.description}</p>
 
+        {p.owner_id && !mine && !demo && (
+          <div className="d-flex align-items-center gap-2 mb-2 text-muted" style={{ fontSize: 13 }}>
+            👤 {t('ownerLabel')}
+            <RatingBadge avg={p.owner_rating} count={p.owner_review_count} onClick={() => setProfileOpen(true)} />
+          </div>
+        )}
+
         {(p.weight != null || dims) && (
           <div className="d-flex flex-wrap gap-3 text-muted mb-2" style={{ fontSize: 13 }}>
             {p.weight != null && <span>⚖️ {p.weight} kg</span>}
@@ -75,6 +85,9 @@ export default function ParcelCard({ parcel: p, mine, userId, onDelete, onLogin,
           {mine && <button className="btn btn-sm btn-outline-danger" onClick={onDelete}>🗑 {t('btnDelete')}</button>}
         </div>
       </div>
+      {profileOpen && p.owner_id && (
+        <ProfileModal userId={p.owner_id} viewerId={userId} onClose={() => setProfileOpen(false)} onLogin={onLogin} />
+      )}
       {showContact && (
         <ContactModal
           parcelId={p.id}

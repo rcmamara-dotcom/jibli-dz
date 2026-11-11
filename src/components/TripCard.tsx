@@ -3,7 +3,8 @@ import { Trip } from '../types';
 // import { formatWA } from '../utils/whatsapp'; // WhatsApp désactivé — messagerie interne
 import { isDemo } from '../mocks/demo';
 import { useLang } from '../contexts/LangContext';
-import { StarDisplay } from './StarRating';
+import { RatingBadge } from './StarRating';
+import ProfileModal from './ProfileModal';
 import ContactModal from './ContactModal';
 
 interface Props {
@@ -26,6 +27,7 @@ export default function TripCard({ trip: t, mine, userId, onOpen, onDelete, onLo
   const demo = isDemo(t);
   // const wa = formatWA(t.wa, `...`); // WhatsApp désactivé
   const [showContact, setShowContact] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
     <div className="card trip-card shadow-sm border" onClick={onOpen}>
@@ -43,13 +45,14 @@ export default function TripCard({ trip: t, mine, userId, onOpen, onDelete, onLo
             : (!isUpcoming && <span className="badge text-bg-danger" style={{ fontSize: 11 }}>Passé</span>)}
         </div>
         <div className="d-flex flex-wrap gap-3 text-muted mb-2" style={{ fontSize: 13 }}>
-          <span>👤 {t.name}</span>
+          <span className="d-inline-flex align-items-center gap-2">
+            👤 {t.name}
+            <RatingBadge avg={t.avg_rating} count={t.review_count}
+              onClick={t.owner_id && !demo ? () => setProfileOpen(true) : undefined} />
+          </span>
           <span>📅 {dateStr}</span>
           <span>📦 {t.capacity} colis</span>
           {t.weight ? <span>⚖️ {t.weight} kg</span> : null}
-        </div>
-        <div className="mb-3">
-          <StarDisplay avg={t.avg_rating} count={t.review_count} />
         </div>
         {t.cap_desc && <p className="text-muted fst-italic mb-3" style={{ fontSize: 12 }}>"{t.cap_desc}"</p>}
         <div className="d-flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
@@ -62,6 +65,9 @@ export default function TripCard({ trip: t, mine, userId, onOpen, onDelete, onLo
           {mine && <button className="btn btn-sm btn-outline-danger" onClick={onDelete}>🗑 Supprimer</button>}
         </div>
       </div>
+      {profileOpen && t.owner_id && (
+        <ProfileModal userId={t.owner_id} viewerId={userId} onClose={() => setProfileOpen(false)} onLogin={onLogin} />
+      )}
       {showContact && (
         <ContactModal
           tripId={t.id}

@@ -556,3 +556,61 @@ body { font-size: 15px; }
 }
 @keyframes badge-pop { from { transform: scale(.4); } to { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .tab-badge { animation: none; } }
+
+/* ─── NOTES DE PROFIL (façon Uber) ─── */
+.rating-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 9px; border-radius: 999px; border: 1px solid transparent;
+  background: var(--ink); color: var(--cream);
+  font-size: 12px; line-height: 1.6; font-weight: 500; white-space: nowrap;
+}
+.rating-badge strong { font-weight: 700; }
+.rating-badge .rating-star { color: var(--gold); }
+.rating-badge .rating-count { opacity: .75; }
+.rating-badge.is-new { background: var(--gold-light); color: #92400e; }
+[data-bs-theme="dark"] .rating-badge.is-new { color: #fcd34d; }
+.rating-badge.is-button { cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.rating-badge.is-button:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+.rating-badge.is-button:focus-visible { outline: 2px solid var(--green-bright); outline-offset: 2px; }
+
+.stars { display: inline-flex; letter-spacing: 1px; color: var(--border); line-height: 1; }
+.stars .on { color: var(--gold); }
+.star-input { display: inline-flex; gap: 4px; line-height: 1; }
+.star-input button {
+  border: 0; background: none; padding: 0 2px; color: var(--border); cursor: pointer;
+  transition: transform .12s, color .12s;
+}
+.star-input button.on { color: var(--gold); }
+.star-input button:hover { transform: scale(1.15); }
+.star-input button:focus-visible { outline: 2px solid var(--green-bright); border-radius: 6px; }
+
+.profile-box { max-width: 460px; position: relative; padding-top: 28px; }
+.profile-close { position: absolute; top: 16px; inset-inline-end: 16px; }
+.profile-head { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; margin-bottom: 18px; }
+.profile-name { font-family: 'Cairo', sans-serif; font-size: 22px; font-weight: 700; line-height: 1.2; }
+.profile-score {
+  display: flex; align-items: center; gap: 20px;
+  background: var(--msg-soft, #eef3ef); border-radius: 14px; padding: 14px 18px; margin-bottom: 16px;
+}
+[data-bs-theme="dark"] .profile-score { background: #1f2a24; }
+.profile-score-main { text-align: center; min-width: 88px; }
+.profile-avg { font-family: 'Cairo', sans-serif; font-size: 40px; font-weight: 900; line-height: 1; }
+.profile-avg span { color: var(--gold); font-size: 26px; margin-inline-start: 2px; }
+.profile-bars { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.profile-bar-row { display: grid; grid-template-columns: 12px 1fr 22px; align-items: center; gap: 8px; font-size: 12px; }
+.profile-bar { height: 6px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.profile-bar div { height: 100%; background: var(--gold); border-radius: 999px; transition: width .4s ease-out; }
+.profile-rate { border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 16px; }
+.profile-rate-label { font-size: 13px; font-weight: 600; color: var(--muted); min-height: 20px; margin-top: 4px; }
+.profile-mine { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.profile-reviews { display: flex; flex-direction: column; gap: 14px; }
+.profile-review { display: flex; gap: 10px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.profile-review:last-child { border-bottom: 0; padding-bottom: 0; }
+@media (max-width: 575px) { .profile-score { gap: 14px; padding: 12px; } .profile-avg { font-size: 34px; } }
+
+.msg-rate-btn {
+  flex-shrink: 0; border: 1px solid var(--border) !important; border-radius: 999px !important;
+  font-weight: 600; color: var(--ink) !important; background: var(--msg-surface) !important;
+}
+.msg-rate-btn:hover { border-color: var(--gold) !important; }
+.msg-conv-rating { font-size: 12px; font-weight: 600; color: var(--gold); white-space: nowrap; }

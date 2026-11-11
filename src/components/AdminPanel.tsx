@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { GoService } from '../services/GoService';
-import { Review, Trip, Parcel } from '../types';
+import { AdminReview, Trip, Parcel } from '../types';
 
 interface User { id: number; email: string; name: string | null; role: Role; is_admin: boolean; created_at: string; }
 type Role = 'user' | 'vip' | 'moderator' | 'admin';
@@ -40,7 +40,7 @@ export default function AdminPanel({ myId, canManageUsers }: Props) {
   const [users, setUsers] = useState<User[]>([]);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [parcels, setParcels] = useState<Parcel[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<AdminReview[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -51,7 +51,7 @@ export default function AdminPanel({ myId, canManageUsers }: Props) {
       users:   () => GoService.get<User[]>('/api/admin/users').then(setUsers).catch(() => setError('Erreur users')),
       trips:   () => GoService.get<Trip[]>('/api/admin/trips').then(setTrips).catch(() => setError('Erreur trips')),
       parcels: () => GoService.get<Parcel[]>('/api/admin/parcels').then(setParcels).catch(() => setError('Erreur parcels')),
-      reviews: () => GoService.get<Review[]>('/api/admin/reviews').then(setReviews).catch(() => setError('Erreur reviews')),
+      reviews: () => GoService.get<AdminReview[]>('/api/admin/reviews').then(setReviews).catch(() => setError('Erreur reviews')),
     };
     Promise.resolve(map[t]()).finally(() => setLoading(false));
   }, []);
@@ -243,15 +243,15 @@ export default function AdminPanel({ myId, canManageUsers }: Props) {
           <div className="table-responsive">
             <table className="table table-hover mb-0">
               <thead className="table-light">
-                <tr><th>#</th><th>Trajet #</th><th>Auteur</th><th>Note</th><th>Commentaire</th><th>Date</th><th></th></tr>
+                <tr><th>#</th><th>Profil noté</th><th>Auteur</th><th>Note</th><th>Commentaire</th><th>Date</th><th></th></tr>
               </thead>
               <tbody>
                 {reviews.length === 0 && <tr><td colSpan={7} className="text-muted text-center py-4">Aucun avis</td></tr>}
                 {reviews.map((r) => (
                   <tr key={r.id}>
                     <td className="text-muted" style={{ fontSize: 12 }}>{r.id}</td>
-                    <td className="text-muted" style={{ fontSize: 12 }}>#{r.trip_id}</td>
-                    <td style={{ fontSize: 13 }}>{r.reviewer_email.split('@')[0]}</td>
+                    <td style={{ fontSize: 13 }}>{r.reviewed_name} <span className="text-muted">#{r.reviewed_id}</span></td>
+                    <td style={{ fontSize: 13 }}>{r.reviewer_name}</td>
                     <td>
                       {[1,2,3,4,5].map((i) => (
                         <span key={i} style={{ color: i <= r.rating ? '#f5a623' : '#d1d5db', fontSize: 14 }}>★</span>

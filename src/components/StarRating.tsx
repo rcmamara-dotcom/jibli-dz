@@ -1,26 +1,50 @@
 import React from 'react';
+import { useLang } from '../contexts/LangContext';
 
-interface DisplayProps {
+const LABELS = {
+  fr: { new: 'Nouveau', reviews: (n: number) => `${n} avis`, see: 'Voir le profil et les avis' },
+  ar: { new: 'جديد', reviews: (n: number) => `${n} تقييم`, see: 'عرض الملف والتقييمات' },
+  en: { new: 'New', reviews: (n: number) => `${n} review${n > 1 ? 's' : ''}`, see: 'See profile and reviews' },
+};
+
+interface BadgeProps {
   avg: number | null | undefined;
   count: number | undefined;
-  size?: number;
+  onClick?: () => void;
+  showCount?: boolean;
 }
 
-export function StarDisplay({ avg, count, size = 14 }: DisplayProps) {
-  if (!avg || !count) return null;
-  const full = Math.floor(avg);
-  const half = avg - full >= 0.4;
-
+// Pastille façon Uber : « ★ 4,9 (12) », ou « Nouveau » sans avis
+export function RatingBadge({ avg, count, onClick, showCount = true }: BadgeProps) {
+  const { lang } = useLang();
+  const l = LABELS[lang] ?? LABELS.fr;
+  const has = !!avg && !!count;
+  const content = has ? (
+    <>
+      <span className="rating-star" aria-hidden>★</span>
+      <strong>{avg!.toLocaleString(lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong>
+      {showCount && <span className="rating-count">({count})</span>}
+    </>
+  ) : (
+    <span>✨ {l.new}</span>
+  );
+  const label = has ? `${avg} / 5 · ${l.reviews(count!)}` : l.new;
+  if (!onClick) return <span className={'rating-badge' + (has ? '' : ' is-new')} title={label}>{content}</span>;
   return (
-    <span className="d-inline-flex align-items-center gap-1" style={{ fontSize: size }}>
-      {[1, 2, 3, 4, 5].map((i) => (
-        <span key={i} style={{ color: i <= full ? '#f5a623' : (i === full + 1 && half ? '#f5a623' : '#d1d5db') }}>
-          {i <= full ? '★' : (i === full + 1 && half ? '½' : '☆')}
-        </span>
-      ))}
-      <span style={{ fontSize: size - 1, color: '#6b7280', fontWeight: 500 }}>
-        {avg.toFixed(1)} <span style={{ fontWeight: 400 }}>({count} avis)</span>
-      </span>
+    <button
+      type="button" className={'rating-badge is-button' + (has ? '' : ' is-new')}
+      title={l.see} aria-label={`${label} — ${l.see}`}
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+    >
+      {content}
+    </button>
+  );
+}
+
+export function Stars({ value, size = 14 }: { value: number; size?: number }) {
+  return (
+    <span className="stars" style={{ fontSize: size }} aria-label={`${value} / 5`}>
+      {[1, 2, 3, 4, 5].map((i) => <span key={i} className={i <= Math.round(value) ? 'on' : ''}>★</span>)}
     </span>
   );
 }
@@ -28,24 +52,24 @@ export function StarDisplay({ avg, count, size = 14 }: DisplayProps) {
 interface InputProps {
   value: number;
   onChange: (v: number) => void;
+  size?: number;
 }
 
-export function StarInput({ value, onChange }: InputProps) {
+export function StarInput({ value, onChange, size = 36 }: InputProps) {
   const [hovered, setHovered] = React.useState(0);
   const active = hovered || value;
 
   return (
-    <div className="d-flex gap-1" style={{ fontSize: 32, cursor: 'pointer', lineHeight: 1 }}>
+    <div className="star-input" role="radiogroup" style={{ fontSize: size }} onMouseLeave={() => setHovered(0)}>
       {[1, 2, 3, 4, 5].map((i) => (
-        <span
-          key={i}
-          style={{ color: i <= active ? '#f5a623' : '#d1d5db', transition: 'color .1s' }}
+        <button
+          key={i} type="button" role="radio" aria-checked={value === i} aria-label={`${i} / 5`}
+          className={i <= active ? 'on' : ''}
           onMouseEnter={() => setHovered(i)}
-          onMouseLeave={() => setHovered(0)}
           onClick={() => onChange(i)}
         >
           ★
-        </span>
+        </button>
       ))}
     </div>
   );

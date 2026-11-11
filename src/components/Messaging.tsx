@@ -3,6 +3,8 @@ import { GoService } from '../services/GoService';
 import { Conversation, Message, Trip, Parcel } from '../types';
 import { useLang } from '../contexts/LangContext';
 import { Avatar, parseDate, listingLabel } from './messagingUtils';
+import { RatingBadge } from './StarRating';
+import ProfileModal from './ProfileModal';
 
 const T = {
   fr: {
@@ -30,6 +32,7 @@ const T = {
     login: 'Connecte-toi',
     loginNote: 'pour accéder à tes messages.',
     safety: 'Pour ta sécurité, garde tes échanges et paiements sur JIBLI DZ.',
+    rate: 'Noter',
   },
   ar: {
     title: 'الرسائل',
@@ -56,6 +59,7 @@ const T = {
     login: 'سجّل الدخول',
     loginNote: 'للوصول إلى رسائلك.',
     safety: 'لأمانك، احتفظ بمحادثاتك ومدفوعاتك على JIBLI DZ.',
+    rate: 'تقييم',
   },
   en: {
     title: 'Messages',
@@ -82,6 +86,7 @@ const T = {
     login: 'Sign in',
     loginNote: 'to see your messages.',
     safety: 'For your safety, keep chats and payments on JIBLI DZ.',
+    rate: 'Rate',
   },
 };
 
@@ -109,6 +114,7 @@ export default function Messaging({ userId, trips, parcels, initialConvId, onLog
   const [messages, setMessages] = useState<LocalMessage[] | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -280,7 +286,10 @@ export default function Messaging({ userId, trips, parcels, initialConvId, onLog
               <Avatar name={c.other_user_name} />
               <span className="msg-conv-body">
                 <span className="msg-conv-top">
-                  <span className="msg-conv-name" dir="auto">{c.other_user_name ?? '—'}</span>
+                  <span className="msg-conv-name" dir="auto">
+                    {c.other_user_name ?? '—'}
+                    {!!c.other_user_review_count && <span className="msg-conv-rating"> ★ {c.other_user_rating?.toFixed(1)}</span>}
+                  </span>
                   {c.last_message_at && <span className="msg-conv-time">{shortWhen(c.last_message_at)}</span>}
                 </span>
                 <span className="msg-conv-context">{c.trip_id ? '✈️' : '📦'} {contextLabel(c)}</span>
@@ -337,11 +346,23 @@ export default function Messaging({ userId, trips, parcels, initialConvId, onLog
           <span aria-hidden>‹</span>
         </button>
         <Avatar name={activeConv.other_user_name} />
-        <div className="min-w-0">
-          <div className="msg-thread-name">{activeConv.other_user_name ?? '—'}</div>
+        <div className="min-w-0 flex-grow-1">
+          <div className="d-flex align-items-center gap-2">
+            <span className="msg-thread-name text-truncate">{activeConv.other_user_name ?? '—'}</span>
+            <RatingBadge avg={activeConv.other_user_rating} count={activeConv.other_user_review_count}
+              showCount={false} onClick={() => setProfileOpen(true)} />
+          </div>
           <div className="msg-conv-context">{activeConv.trip_id ? '✈️' : '📦'} {contextLabel(activeConv)}</div>
         </div>
+        <button type="button" className="btn btn-sm msg-rate-btn" onClick={() => setProfileOpen(true)}>★ {t.rate}</button>
       </header>
+      {profileOpen && (
+        <ProfileModal
+          userId={activeConv.other_user_id} viewerId={userId} onClose={() => setProfileOpen(false)}
+          onRated={(p) => setConversations((prev) => prev?.map((c) => (c.other_user_id === p.id
+            ? { ...c, other_user_rating: p.avg, other_user_review_count: p.count } : c)) ?? prev)}
+        />
+      )}
       <div className="msg-scroll" ref={scrollRef} onScroll={onScroll}>
         <div className="msg-safety">🔒 {t.safety}</div>
         {messages === null && !loadError && (

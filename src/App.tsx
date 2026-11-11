@@ -363,7 +363,6 @@ function AppInner() {
           canDelete={canDelete(tripModal)}
           onClose={() => setTripModal(null)}
           onDelete={() => removeTrip(tripModal.id, () => setTripModal(null))}
-          onReviewPosted={(updated) => setTripModal((prev) => prev ? { ...prev, ...updated } : null)}
           onShipmentCreated={() => { setTripModal(null); setScreen('shipments'); showToast(t('toastShipmentCreated')); }}
           onLogin={() => setAuthOpen(true)}
           onMessagesOpen={(id) => { setTripModal(null); openMessages(id); }}

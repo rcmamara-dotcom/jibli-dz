@@ -14,11 +14,34 @@ export interface Trip {
   review_count?: number;
 }
 
-export interface Review {
+export interface ProfileReview {
   id: number;
-  trip_id: number;
   reviewer_id: number;
-  reviewer_email: string;
+  reviewer_name: string;
+  rating: number;
+  comment?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Note d'un utilisateur, à la Uber : moyenne, répartition, avis
+export interface Profile {
+  id: number;
+  name: string;
+  member_since: string;
+  avg: number | null;
+  count: number;
+  distribution: Record<string, number>;
+  reviews: ProfileReview[];
+  my_review: ProfileReview | null;
+  can_review: boolean;
+}
+
+export interface AdminReview {
+  id: number;
+  reviewer_name: string;
+  reviewed_id: number;
+  reviewed_name: string;
   rating: number;
   comment?: string | null;
   created_at: string;
@@ -40,6 +63,8 @@ export interface Parcel {
   height?: number | null;
   parcel_type?: ParcelType | null;
   created_at: string;
+  owner_rating?: number | null;
+  owner_review_count?: number;
 }
 
 export type Screen = 'home' | 'parcels' | 'add-trip' | 'add-parcel' | 'admin' | 'pricing' | 'settings' | 'shipments' | 'messages';
@@ -48,6 +73,8 @@ export interface Conversation {
   id: number;
   other_user_id: number;
   other_user_name: string | null;
+  other_user_rating?: number | null;
+  other_user_review_count?: number;
   trip_id: number | null;
   parcel_id: number | null;
   last_message: string | null;
