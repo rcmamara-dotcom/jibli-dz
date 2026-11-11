@@ -245,7 +245,7 @@ export default function TripModal({ trip, userId, canDelete, onClose, onDelete, 
           </div>
 
           <p className="text-muted text-center mb-0" style={{ fontSize: 11 }}>
-            Le contact se fait directement via WhatsApp. JIBLI DZ n'intervient pas dans la transaction.
+            Le contact se fait via la messagerie privée du site. JIBLI DZ n'intervient pas dans la transaction.
           </p>
         </div>
       </div>
