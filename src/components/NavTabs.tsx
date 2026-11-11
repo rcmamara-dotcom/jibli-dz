@@ -32,7 +32,9 @@ export default function NavTabs({ screen, setScreen, unreadMessages = 0, readonl
               >
                 <span className="me-2">{icon}</span>{label}
                 {id === 'messages' && unreadMessages > 0 && (
-                  <span className="badge bg-danger ms-1" style={{ fontSize: 10, verticalAlign: 'middle' }}>{unreadMessages}</span>
+                  <span key={unreadMessages} className="tab-badge" aria-label={`${unreadMessages} non lu${unreadMessages > 1 ? 's' : ''}`}>
+                    {unreadMessages > 99 ? '99+' : unreadMessages}
+                  </span>
                 )}
               </button>
             </li>

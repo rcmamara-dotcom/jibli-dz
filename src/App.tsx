@@ -101,14 +101,33 @@ function AppInner() {
   useEffect(() => {
     if (!userId) { setUnreadMessages(0); return; }
     fetchUnread();
-    const id = setInterval(fetchUnread, 30000);
-    return () => clearInterval(id);
+    const id = setInterval(fetchUnread, 15000);
+    // Retour sur l'onglet du navigateur : compteur à jour tout de suite
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchUnread(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', onVisible); };
   }, [userId, fetchUnread]);
 
-  // Conversation à ouvrir directement après un « Contacter »
+  // Compteur aussi dans le titre de l'onglet du navigateur : « (2) JIBLI DZ… »
+  useEffect(() => {
+    const base = document.title.replace(/^\(\d+\) /, '');
+    document.title = unreadMessages > 0 ? `(${unreadMessages}) ${base}` : base;
+  }, [unreadMessages]);
+
+  // Conversation à ouvrir directement après un « Contacter » ou depuis le lien d'un e-mail (?messages=12)
   const [openConvId, setOpenConvId] = useState<number | null>(null);
   const openMessages = (convId?: number) => { setOpenConvId(convId ?? null); setScreen('messages'); };
   useEffect(() => { if (screen !== 'messages') setOpenConvId(null); }, [screen]);
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const conv = url.searchParams.get('messages');
+    if (conv === null) return;
+    url.searchParams.delete('messages');
+    window.history.replaceState({}, '', url.toString());
+    if (userId) openMessages(Number(conv) || undefined);
+    else setAuthOpen(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Annonces de démo : admins uniquement, choix gardé dans le navigateur
   const [demoOn, setDemoOn] = useState(() => { try { return localStorage.getItem('jibli_demo') === '1'; } catch { return false; } });

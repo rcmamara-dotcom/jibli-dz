@@ -14,6 +14,7 @@ interface Me {
   name: string | null;
   birth_date: string | null;
   has_password: boolean;
+  notify_messages: boolean;
 }
 
 interface SubInfo {
@@ -124,6 +125,13 @@ export default function Settings({ showToast, onLogout, onPricing }: Props) {
 
   const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
+  const toggleNotify = (on: boolean) => {
+    setMe((m) => (m ? { ...m, notify_messages: on } : m));
+    run('notify', GoService.patch<Me>('/api/auth/me', { notify_messages: on })
+      .then((d) => { setMe(d); showToast(t('toastSaved')); })
+      .catch(() => setMe((m) => (m ? { ...m, notify_messages: !on } : m))));
+  };
+
   if (!me) return <div className="container py-5 text-center text-muted">⏳</div>;
 
   return (
@@ -222,6 +230,19 @@ export default function Settings({ showToast, onLogout, onPricing }: Props) {
             <button className="btn btn-green px-4" onClick={onPricing}>{t('btnSeePlans')}</button>
           </>
         )}
+      </Section>
+
+      <Section title={t('settingsNotifications')}>
+        <div className="form-check form-switch mb-1">
+          <input
+            className="form-check-input" type="checkbox" role="switch" id="notify-messages"
+            checked={me.notify_messages} disabled={busy === 'notify'} onChange={(e) => toggleNotify(e.target.checked)}
+          />
+          <label className="form-check-label" htmlFor="notify-messages">✉️ {t('notifyMessages')}</label>
+        </div>
+        <div className="text-muted" style={{ fontSize: 13 }}>
+          {me.email_verified ? t('notifyMessagesHint') : t('notifyNeedsVerify')}
+        </div>
       </Section>
 
       <Section title={t('settingsAppearance')}>

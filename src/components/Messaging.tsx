@@ -210,8 +210,12 @@ export default function Messaging({ userId, trips, parcels, initialConvId, onLog
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!conversations || !q) return conversations;
-    return conversations.filter((c) =>
+    if (!conversations) return conversations;
+    // L'API trie par date de création : la conversation la plus active doit remonter en tête
+    const sorted = [...conversations].sort((a, b) =>
+      (b.last_message_at ?? b.created_at).localeCompare(a.last_message_at ?? a.created_at));
+    if (!q) return sorted;
+    return sorted.filter((c) =>
       [c.other_user_name, c.last_message, listingLabel(c, trips, parcels)].some((s) => s?.toLowerCase().includes(q))
     );
   }, [conversations, query, trips, parcels]);

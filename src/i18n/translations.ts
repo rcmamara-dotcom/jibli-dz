@@ -152,6 +152,10 @@ export const TRANSLATIONS = {
     planFeaturePro5: 'Support dédié',
     settingsAppearance: '🎨 Apparence',
     darkMode: 'Mode sombre',
+    settingsNotifications: '🔔 Notifications',
+    notifyMessages: 'Recevoir un e-mail quand on m’écrit',
+    notifyMessagesHint: 'Un seul e-mail par conversation, tant que tu n’as pas lu le message.',
+    notifyNeedsVerify: 'Vérifie ton adresse e-mail pour recevoir les notifications.',
     // Page colis
     parcelBudget: 'Budget',
     parcelBudgetFree: 'À discuter',
@@ -346,6 +350,10 @@ export const TRANSLATIONS = {
     planFeaturePro5: 'دعم مخصص',
     settingsAppearance: '🎨 المظهر',
     darkMode: 'الوضع الداكن',
+    settingsNotifications: '🔔 الإشعارات',
+    notifyMessages: 'تلقي بريد إلكتروني عند وصول رسالة جديدة',
+    notifyMessagesHint: 'بريد واحد لكل محادثة، ما دمت لم تقرأ الرسالة.',
+    notifyNeedsVerify: 'أكّد بريدك الإلكتروني لتلقي الإشعارات.',
     // Page colis
     parcelBudget: 'الميزانية',
     parcelBudgetFree: 'قابل للتفاوض',
@@ -540,6 +548,10 @@ export const TRANSLATIONS = {
     planFeaturePro5: 'Dedicated support',
     settingsAppearance: '🎨 Appearance',
     darkMode: 'Dark mode',
+    settingsNotifications: '🔔 Notifications',
+    notifyMessages: 'Email me when someone writes to me',
+    notifyMessagesHint: 'One email per conversation, until you have read the message.',
+    notifyNeedsVerify: 'Verify your email address to receive notifications.',
     // Page colis
     parcelBudget: 'Budget',
     parcelBudgetFree: 'Negotiable',
